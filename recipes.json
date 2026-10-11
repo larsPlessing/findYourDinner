@@ -3,7 +3,7 @@
   "recipes": [
     {
       "id": 0,
-      "name": "Apfel Oatmeal",
+      "name": "Apfel Oatmealtest",
       "category": "Snacks - Süß",
       "hasImage": true,
       "imageCount": 1,
@@ -84,15 +84,15 @@
         },
         {
           "step": 5,
-          "text": " In a large bowl, mix together the oats, protein powder, and baking powder."
+          "text": "In a large bowl, mix together the oats, protein powder, and baking powder."
         },
         {
           "step": 6,
-          "text": " In a separate bowl, whisk together the eggs, milk, and 1 tbsp of melted butter. Pour over the top of the apples and oats and mix."
+          "text": "In a separate bowl, whisk together the eggs, milk, and 1 tbsp of melted butter. Pour over the top of the apples and oats and mix."
         },
         {
           "step": 7,
-          "text": " Spray a 13\"x9\" pan with oil and add the oat mixture and apples."
+          "text": "Spray a 13\"x9\" pan with oil and add the oat mixture and apples."
         },
         {
           "step": 8,
@@ -107,6 +107,9 @@
       "images": [
         {
           "src": "images/recipes/recipe-0-1.png"
+        },
+        {
+          "src": "images/recipes/apfel-oatmealtest-0-2.jpg"
         }
       ]
     },

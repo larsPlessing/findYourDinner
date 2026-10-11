@@ -5,6 +5,6 @@
     "serve": "node server.js",
     "test": "node --test",
     "test:backend": "node --test \"tests/backend/*.test.js\"",
-    "test:ui": "node --test \"tests/ui/*.test.js\""
+    "test:ui": "node --test \"tests/ui/*.test.js\" \"tests/ui/css/*.test.js\""
   }
 }

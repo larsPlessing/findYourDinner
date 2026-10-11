@@ -14,10 +14,11 @@ Ein interaktiver Pinterest-Style Rezeptfinder mit **automatischer Bild-Extraktio
 
 ## 🚀 Quick Start
 
-1. Öffne `index.html` im Browser
-2. Lade deine `Rezepte.xlsx` hoch
-3. Warte kurz während Bilder extrahiert werden
-4. Fertig! Alle Rezepte sind nun offline verfügbar
+1. Starte für den lokalen Rezepteditor `npm run serve` im Projektordner
+2. Öffne `http://localhost:4004` im Browser. Der Editor kann so Rezepte und Bilder direkt in `recipes.json` und `images/recipes/` speichern.
+3. Lade deine `Rezepte.xlsx` hoch
+4. Warte kurz während Bilder extrahiert werden
+5. Fertig! Alle Rezepte sind nun offline verfügbar
 
 ## 📁 Projektstruktur
 

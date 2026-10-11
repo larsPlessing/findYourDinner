@@ -1,0 +1,76 @@
+.editor-overlay[hidden] { display: none; }
+.editor-overlay { position: fixed; inset: 0; z-index: 11000; display: grid; place-items: center; padding: 16px; background: rgba(20, 24, 40, .68); }
+.editor-dialog { display: flex; flex-direction: column; width: min(1100px, 100%); height: min(850px, 94vh); overflow: hidden; background: #fff; border-radius: 18px; box-shadow: 0 20px 70px rgba(0,0,0,.3); }
+.editor-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 24px; border-bottom: 1px solid #e7e8ee; }
+.editor-header h2 { margin: 0 0 4px; color: #333; font-size: 1.4rem; }
+.editor-header p { color: #667; font-size: .9rem; }
+.editor-close { min-width: 44px; padding: 8px; background: #f0f1f5; color: #333; }
+.editor-toolbar { display: flex; gap: 10px; padding: 14px 20px; border-bottom: 1px solid #e7e8ee; }
+.editor-toolbar input { flex: 1; min-width: 120px; padding: 10px 12px; border: 1px solid #ccd0dc; border-radius: 8px; font-size: 1rem; }
+.editor-toolbar button, .editor-actions button { padding: 10px 14px; font-size: .95rem; }
+.editor-layout { display: grid; grid-template-columns: minmax(190px, 30%) 1fr; min-height: 0; flex: 1; }
+.editor-recipe-list { overflow: auto; padding: 10px; border-right: 1px solid #e7e8ee; }
+.editor-recipe-option { display: block; width: 100%; padding: 10px 12px; margin-bottom: 4px; text-align: left; color: #333; background: transparent; font-size: .95rem; }
+.editor-recipe-option.active, .editor-recipe-option:hover { color: #4d5fc3; background: #eef0ff; }
+.recipe-edit-form { overflow: auto; padding: 20px 24px; }
+.editor-field { display: block; margin-bottom: 14px; color: #343a50; font-weight: 600; }
+.editor-field span { display: block; margin-bottom: 6px; }
+.editor-field input, .editor-field textarea, .editor-field select { width: 100%; padding: 10px 12px; border: 1px solid #ccd0dc; border-radius: 8px; font: inherit; font-weight: 400; background: white; }
+.editor-field textarea { min-height: 100px; resize: vertical; }
+.editor-category-controls { display: flex; gap: 8px; }
+.editor-category-controls select { min-width: 0; flex: 1; }
+.editor-add-category, .editor-add-ingredient { padding: 9px 12px; color: #4d5fc3; background: #eef0ff; font-size: .9rem; white-space: nowrap; }
+.editor-ingredients-section { margin: 18px 0; }
+.editor-ingredients-section h3 { margin-bottom: 10px; color: #343a50; }
+.editor-ingredient-list { display: grid; gap: 10px; }
+.editor-ingredient-row { display: grid; grid-template-columns: minmax(78px, .7fr) minmax(85px, .8fr) minmax(130px, 1.4fr) minmax(120px, 1.2fr) auto; align-items: end; gap: 8px; padding: 12px; border: 1px solid #e1e3eb; border-radius: 10px; background: #fafbff; }
+.editor-ingredient-field { min-width: 0; color: #343a50; font-size: .82rem; font-weight: 600; }
+.editor-ingredient-field span { display: block; margin-bottom: 5px; }
+.editor-ingredient-field input { width: 100%; min-width: 0; padding: 9px; border: 1px solid #ccd0dc; border-radius: 7px; font: inherit; font-size: .92rem; font-weight: 400; }
+.editor-remove-ingredient { min-height: 38px; padding: 7px 9px; color: #a33; background: #fff2f2; font-size: .8rem; }
+.editor-add-ingredient { margin-top: 10px; }
+.editor-instructions-section { margin: 20px 0; }
+.editor-instructions-section h3 { margin-bottom: 10px; color: #343a50; }
+.editor-instruction-list { display: grid; gap: 10px; }
+.editor-instruction-row { display: grid; grid-template-columns: 80px minmax(0, 1fr) auto; align-items: start; gap: 10px; padding: 12px; border: 1px solid #e1e3eb; border-radius: 10px; background: #fafbff; }
+.editor-instruction-number { padding-top: 10px; color: #4d5fc3; font-weight: 700; white-space: nowrap; }
+.editor-instruction-row textarea { width: 100%; min-height: 76px; padding: 10px 12px; border: 1px solid #ccd0dc; border-radius: 8px; font: inherit; resize: vertical; }
+.editor-instruction-controls { display: flex; flex-direction: column; gap: 5px; }
+.editor-instruction-controls button { min-height: 36px; padding: 6px 9px; color: #4d5fc3; background: #eef0ff; font-size: .85rem; }
+.editor-instruction-controls button:disabled { opacity: .4; }
+.editor-instruction-controls .editor-remove-instruction { color: #a33; background: #fff2f2; }
+.editor-add-instruction { margin-top: 10px; padding: 9px 12px; color: #4d5fc3; background: #eef0ff; font-size: .9rem; }
+.editor-checkbox { display: flex; align-items: center; gap: 8px; margin: 10px 0 18px; color: #343a50; }
+.editor-checkbox input { width: 18px; height: 18px; }
+.editor-image-section { margin: 18px 0; }
+.editor-image-section h3 { margin-bottom: 10px; color: #343a50; }
+.editor-image-dropzone { display: flex; min-height: 100px; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px; border: 2px dashed #9ba5d8; border-radius: 10px; background: #f7f8ff; color: #4d5fc3; cursor: pointer; text-align: center; }
+.editor-image-dropzone small { color: #778; }
+.editor-image-dropzone.drag-over { border-color: #4d5fc3; background: #e9ecff; }
+.editor-image-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
+.editor-image-card { overflow: hidden; border: 1px solid #e1e3eb; border-radius: 8px; background: #fff; }
+.editor-image-card img { display: block; width: 100%; height: 90px; object-fit: cover; }
+.editor-image-card button { width: 100%; min-height: 36px; padding: 6px; color: #a33; background: #fff2f2; font-size: .85rem; }
+.editor-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.editor-delete { color: white; background: #d9534f; }
+.editor-empty { padding: 30px; color: #778; text-align: center; }
+@media (max-width: 650px) {
+    .editor-overlay { padding: 0; }
+    .editor-dialog { width: 100%; height: 100%; border-radius: 0; }
+    .editor-header { padding: 14px; }
+    .editor-toolbar { flex-wrap: wrap; padding: 10px; }
+    .editor-toolbar input { flex-basis: 100%; }
+    .editor-toolbar button { flex: 1; padding: 9px 6px; font-size: .82rem; }
+    .editor-layout { grid-template-columns: 125px minmax(0, 1fr); }
+    .editor-recipe-list { padding: 6px; }
+    .editor-recipe-option { padding: 9px 6px; font-size: .82rem; }
+    .recipe-edit-form { padding: 14px 10px; }
+    .editor-category-controls { flex-direction: column; }
+    .editor-ingredient-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 9px; }
+    .editor-ingredient-field:nth-child(3), .editor-ingredient-field:nth-child(4) { grid-column: span 2; }
+    .editor-remove-ingredient { grid-column: span 2; }
+    .editor-instruction-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 9px; }
+    .editor-instruction-number { grid-column: 1; padding-top: 0; }
+    .editor-instruction-row textarea { grid-column: 1 / -1; grid-row: 2; }
+    .editor-instruction-controls { grid-column: 2; grid-row: 1; flex-direction: row; }
+}

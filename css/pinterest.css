@@ -322,7 +322,6 @@
         flex-shrink: 0;
         min-width: auto;
     }
-    }
     
     .masonry-item {
         margin-bottom: 15px;
@@ -360,6 +359,7 @@
         display: flex;
         align-items: center;
     }
+}
 
 
 /* Color Variations for Placeholder Images */

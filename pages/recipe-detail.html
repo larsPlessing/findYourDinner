@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/detail.css">
     <link rel="stylesheet" href="../css/mobile.css">
+    <link rel="stylesheet" href="../css/recipe-editor.css">
     
     <!-- Custom Scripts -->
     <script src="../js/recipeGenerator.js"></script>
@@ -52,6 +53,9 @@
                     <div class="detail-meta" id="recipeMeta"></div>
                     
                     <div class="detail-actions">
+                        <button class="secondary-btn" onclick="editCurrentRecipe()">
+                            ✏️ Bearbeiten
+                        </button>
                         <button class="primary-btn" onclick="printRecipe()">
                             🖨️ Drucken
                         </button>
@@ -101,6 +105,25 @@
         </div>
     </div>
 
+    <div id="recipeEditor" class="editor-overlay" hidden>
+        <section class="editor-dialog" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+            <header class="editor-header">
+                <div><h2 id="editorTitle">Rezept bearbeiten</h2><p id="editorSaveStatus">Änderungen werden auf diesem Gerät gespeichert.</p></div>
+                <button type="button" class="editor-close" onclick="closeRecipeEditor()" aria-label="Schließen">✕</button>
+            </header>
+            <div class="editor-toolbar">
+                <input id="editorSearch" type="search" placeholder="Rezept suchen…" aria-label="Rezept suchen">
+                <button type="button" class="primary-btn" onclick="newRecipe()">＋ Neues Rezept</button>
+            </div>
+            <div class="editor-layout">
+                <nav id="editorRecipeList" class="editor-recipe-list" aria-label="Rezeptliste"></nav>
+                <form id="recipeEditForm" class="recipe-edit-form">
+                    <p class="editor-empty">Wähle ein Rezept aus oder lege ein neues an.</p>
+                </form>
+            </div>
+        </section>
+    </div>
+
     <!-- Random FAB -->
     <button class="random-fab" onclick="selectRandomRecipe()" title="Zufälliges Rezept">
         🎲
@@ -128,10 +151,15 @@
 
         window.addEventListener('load', async () => {
             try {
-                if (window.location.protocol === 'file:' && generator.loadFromLocalStorage()) {
-                    // Lokale Datei-URLs können JSON nicht per fetch laden; nutze den Homepage-Cache.
+                const savedEdits = localStorage.getItem('recipes_user_edits');
+                if (savedEdits) {
+                    generator.recipes = JSON.parse(savedEdits);
+                    if (!Array.isArray(generator.recipes)) throw new Error('Lokale Rezeptdaten sind ungültig.');
+                } else if (generator.loadFromLocalStorage()) {
+                    // Verwende denselben Rezept-Cache wie die Übersicht.
                 } else {
                     await generator.loadFromURL('../recipes.json');
+                    generator.saveToLocalStorage();
                 }
             } catch (error) {
                 if (window.location.protocol === 'file:') {
@@ -529,6 +557,17 @@
             window.location.href = '../index.html';
         }
 
+        function editCurrentRecipe() {
+            if (!currentRecipe) return;
+            openRecipeEditor(currentRecipe.name);
+        }
+
+        async function onRecipeEditorSaved(recipe) {
+            if (!recipe) return;
+            currentRecipe = recipe;
+            await displayRecipe();
+        }
+
         function printRecipe() {
             window.print();
         }
@@ -774,6 +813,7 @@
             updatePortionsDisplay();
         }
     </script>
+    <script src="../js/recipeEditor.js"></script>
 
     <style>
         .random-fab {

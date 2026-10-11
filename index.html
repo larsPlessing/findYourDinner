@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="css/pinterest.css">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/chrome-ios.css">
+    <link rel="stylesheet" href="css/recipe-editor.css">
     
     <!-- Custom Scripts -->
     <script src="js/recipeGenerator.js"></script>
@@ -52,6 +53,7 @@
                     <span class="btn-icon">📂</span>
                     <span class="btn-text">Aktualisieren</span>
                 </button>
+                <button class="secondary-btn" onclick="openRecipeEditor()" title="Rezepte bearbeiten">✏️ Bearbeiten</button>
             </div>
             
             <!-- Category Filter -->
@@ -91,6 +93,25 @@
         </button>
     </div>
 
+    <div id="recipeEditor" class="editor-overlay" hidden>
+        <section class="editor-dialog" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+            <header class="editor-header">
+                <div><h2 id="editorTitle">Rezepte bearbeiten</h2><p id="editorSaveStatus">Änderungen werden auf diesem Gerät gespeichert.</p></div>
+                <button type="button" class="editor-close" onclick="closeRecipeEditor()" aria-label="Schließen">✕</button>
+            </header>
+            <div class="editor-toolbar">
+                <input id="editorSearch" type="search" placeholder="Rezept suchen…" aria-label="Rezept suchen">
+                <button type="button" class="primary-btn" onclick="newRecipe()">＋ Neues Rezept</button>
+            </div>
+            <div class="editor-layout">
+                <nav id="editorRecipeList" class="editor-recipe-list" aria-label="Rezeptliste"></nav>
+                <form id="recipeEditForm" class="recipe-edit-form">
+                    <p class="editor-empty">Wähle ein Rezept aus oder lege ein neues an.</p>
+                </form>
+            </div>
+        </section>
+    </div>
+
     <script>
         const generator = new RecipeGenerator();
         let allRecipes = [];
@@ -110,11 +131,22 @@
 
         window.addEventListener('load', loadRecipes);
 
-        async function loadRecipes() {
+        async function loadRecipes(forceRemote = false) {
             try {
                 loadingState.textContent = 'Lade Rezepte...';
-                await generator.loadFromURL('recipes.json');
-                generator.saveToLocalStorage();
+                if (forceRemote) localStorage.removeItem('recipes_user_edits');
+                const savedRecipes = forceRemote ? null : localStorage.getItem('recipes_user_edits');
+                if (savedRecipes) {
+                    const parsed = JSON.parse(savedRecipes);
+                    if (!Array.isArray(parsed)) throw new Error('Lokal gespeicherte Rezeptdaten sind ungültig.');
+                    generator.recipes = parsed;
+                    generator.hasImages = parsed.some(recipe => recipe.images && recipe.images.length);
+                } else if (!forceRemote && generator.loadFromLocalStorage()) {
+                    generator.hasImages = generator.recipes.some(recipe => recipe.images && recipe.images.length);
+                } else {
+                    await generator.loadFromURL('recipes.json');
+                    generator.saveToLocalStorage();
+                }
                 allRecipes = generator.getAllRecipes();
                 filteredRecipes = [...allRecipes];
                 initializeCategoryFilter();
@@ -135,6 +167,7 @@
             if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
             generator.recipes = data.recipes;
             generator.hasImages = data.recipes.some(recipe => recipe.images && recipe.images.length > 0);
+            localStorage.setItem('recipes_user_edits', JSON.stringify(data.recipes));
             generator.saveToLocalStorage();
             allRecipes = generator.getAllRecipes();
             filteredRecipes = [...allRecipes];
@@ -172,7 +205,7 @@
             uploadStatus.textContent = '';
             uploadStatus.classList.remove('error');
             try {
-                await loadRecipes();
+                await loadRecipes(true);
                 if (allRecipes.length === 0) uploadOverlay.style.display = 'flex';
             } catch (error) {
                 uploadStatus.textContent = `Rezepte konnten nicht geladen werden: ${error.message}`;
@@ -516,6 +549,7 @@
             }
         });
     </script>
+    <script src="js/recipeEditor.js"></script>
 
     <style>
         .upload-overlay {
