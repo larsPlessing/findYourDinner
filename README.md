@@ -1,215 +1,117 @@
 # Was koche ich heute? 🍳
 
-Ein interaktiver Pinterest-Style Rezeptfinder mit **automatischer Bild-Extraktion** aus Excel-Dateien.
+Ein mobiler Rezeptfinder mit Suche, Kategorien, Rezeptdetailseiten und einem Editor für die Daten aus `recipes.json`. Die App kann als GitHub-Pages-Seite veröffentlicht und lokal mit Schreibzugriff auf die Projektdateien ausgeführt werden.
 
-## ✨ Hauptfeatures
+## Funktionen
 
-- 🎨 **Pinterest-Masonry-Layout** - Schöne, responsive Karten-Ansicht
-- 🖼️ **Automatische Bild-Extraktion** - Lädt Bilder direkt aus der Excel-Datei
-- 💾 **Offline-fähig** - Alle Daten und Bilder in IndexedDB gespeichert
-- 🎲 **Zufallsauswahl** - Lass dich überraschen!
-- 🔍 **Echtzeit-Suche** - Finde Rezepte sofort
-- 📱 **Responsive Design** - Funktioniert auf allen Geräten
-- 👨‍🍳 **Detaillierte Rezepte** - Zutaten, Anleitung, Portionen
+- Rezeptübersicht mit Suche, Kategorien, Zufallsauswahl und gemischter Sortierung
+- Rezeptdetailseite mit Zutaten, Zubereitung, Bildern und Portionsanpassung
+- Editor auf der Startseite und direkt auf der Detailseite
+- Kategorienauswahl mit vorhandenen Kategorien und Möglichkeit, neue Kategorien hinzuzufügen
+- Strukturierte Zutatenzeilen mit Menge, Einheit, Produkt und Notiz
+- Strukturierte Zubereitungsschritte mit Hinzufügen, Entfernen und Umsortieren
+- Bilder per Dateiauswahl oder Drag-and-drop hinzufügen und im Editor entfernen
+- Lokale Speicherung von Änderungen im Browser
+- Direkter Schreibzugriff auf `recipes.json` und `images/recipes/` über den lokalen Node-Server
+- Offlinefreundliche Rezeptdaten und zwischengespeicherte Bilder
 
-## 🚀 Quick Start
+## Lokal starten
 
-1. Starte für den lokalen Rezepteditor `npm run serve` im Projektordner
-2. Öffne `http://localhost:4004` im Browser. Der Editor kann so Rezepte und Bilder direkt in `recipes.json` und `images/recipes/` speichern.
-3. Lade deine `Rezepte.xlsx` hoch
-4. Warte kurz während Bilder extrahiert werden
-5. Fertig! Alle Rezepte sind nun offline verfügbar
+Voraussetzung ist eine aktuelle Node.js-Installation. Zusätzliche npm-Pakete müssen nicht installiert werden.
 
-## 📁 Projektstruktur
-
-```
-findYourDinner/
-├── index.html                    # Pinterest-Style Hauptseite
-├── Rezepte.xlsx                 # Deine Excel-Datei mit Rezepten
-├── css/
-│   ├── main.css                 # Basis-Styles
-│   ├── pinterest.css            # Masonry Grid Layout
-│   └── detail.css               # Rezept-Detail-Seite
-├── js/
-│   ├── recipeGenerator.js       # Haupt-Generator (mit Bild-Extraktion)
-│   ├── imageStore.js            # IndexedDB Manager für Bilder
-│   ├── xmlParser.js             # XML-Parser für Excel-Struktur
-│   └── lib/
-│       └── jszip.min.js         # JSZip Library (lokal)
-├── pages/
-│   └── recipe-detail.html       # Detail-Ansicht mit Zutaten & Anleitung
-└── images/                      # (Optional) Zusätzliche Bilder
+```bash
+npm run serve
 ```
 
-## 🛠️ Technologie-Stack
+Öffne anschließend <http://localhost:4004>. Der Server bindet nur an die lokale Loopback-Adresse.
 
-### Frontend
-- **Vanilla JavaScript** (ES6+)
-- **HTML5** + **CSS3**
-- **CSS Grid** für Masonry-Layout
+Beim Speichern im Editor schreibt der lokale Server die Rezeptdaten direkt nach `recipes.json` und neue Bilder nach `images/recipes/`. In der JSON-Datei werden die Bilder mit relativen Pfaden wie `images/recipes/rezept-12-1.jpg` referenziert. Der Browser-Editor sendet die Änderungen an die lokale Speicher-API in [server.js](./server.js).
 
-### Libraries
-- **SheetJS (xlsx.js)** - Excel-Daten lesen
-- **JSZip** - Excel als ZIP öffnen, Bilder extrahieren
-- **IndexedDB** (nativ) - Offline-Speicherung von Bildern
+Wenn der Servercode geändert wurde und Port 4004 noch von einer alten Serverinstanz belegt ist, beende diese Instanz im Terminal mit `Ctrl+C` und starte `npm run serve` erneut.
 
-### Architektur
-- **XMLParser** - Parst Excel-XML-Struktur für Sheet→Image Mapping
-- **ImageStore** - Verwaltet Bilder in IndexedDB
-- **RecipeGenerator** - Koordiniert alles (Daten + Bilder)
+## GitHub Pages
 
-## 📊 Excel-Format
+GitHub Pages stellt die App und `recipes.json` statisch bereit. Änderungen, die im Editor auf der veröffentlichten Seite vorgenommen werden, bleiben im `localStorage` dieses Browsers und sind nach einem Neustart dort weiterhin vorhanden. Sie ändern nicht automatisch das GitHub-Repository und werden nicht mit anderen Nutzern geteilt.
 
-Die Excel-Datei sollte folgende Struktur haben:
+Für Änderungen an der veröffentlichten Datenquelle lokal starten, Rezepte im Editor bearbeiten und speichern. Anschließend `recipes.json` und neue Dateien unter `images/recipes/` wie gewohnt committen und veröffentlichen.
 
-### Sheet-Struktur
-- Jedes **Sheet** = Ein Rezept
-- **Sheet-Name** = Rezeptname
-- Sheets "Inhaltsverzeichnis" und "Vorlage" werden ignoriert
+## Datenformat
 
-### Rezept-Aufbau (pro Sheet)
-```
-Zeile 7:  Anzahl Personen/Liter: [Wert]
-Zeile 10: Menge | Einheit | Produkt | Bemerkung
-Zeile 11+: [Zutaten-Daten]
-...
-Zeile X:  Zubereitung
-Zeile X+1: 1 | [Schritt 1 Text]
-Zeile X+2: 2 | [Schritt 2 Text]
-...
-```
+Die Datei `recipes.json` enthält ein Objekt mit Versionsnummer und Rezeptliste:
 
-### Bilder
-- Bilder werden automatisch aus `xl/media/` extrahiert
-- Zuordnung erfolgt über XML-Parsing (Sheet → Drawing → Image)
-- Unterstützte Formate: PNG, JPEG, GIF
-
-## 🔄 Workflow beim Import
-
-1. **User wählt Excel-Datei** 
-2. **Phase 1: Daten-Extraktion** (SheetJS)
-   - Rezeptnamen, Zutaten, Anleitungen
-3. **Phase 2: Bild-Extraktion** (JSZip + XMLParser)
-   - Excel als ZIP öffnen
-   - XML-Dateien parsen für Mapping
-   - Bilder extrahieren und in IndexedDB speichern
-4. **Anzeige**
-   - Zunächst Emoji-Platzhalter
-   - Dann asynchron echte Bilder laden
-
-## 🎨 Features im Detail
-
-### Pinterest-Layout
-- **Masonry Grid**: 4 Spalten (Desktop) → 3 → 2 → 1 (Mobil)
-- **Variable Höhen**: Für natürlichen Pinterest-Look
-- **8 Farbverläufe**: Als Fallback wenn kein Bild
-- **Hover-Effekt**: "Rezept ansehen" Button erscheint
-
-### Rezept-Detail-Seite
-- **Großes Bild** (aus Excel extrahiert)
-- **Zutaten-Liste** mit Mengen & Einheiten
-- **Schritt-für-Schritt Anleitung**
-- **Meta-Infos**: Portionen, Anzahl Zutaten/Schritte
-- **Drucken-Funktion**
-- **Zufalls-Button** für nächstes Rezept
-
-### Offline-Funktionalität
-- **LocalStorage**: Rezept-Daten (Name, Zutaten, Anleitung)
-- **IndexedDB**: Bilder (bis ~50MB)
-- Einmal laden → dauerhaft verfügbar
-- Kein Internet nötig nach erstem Import
-
-### Performance
-- **Lazy Image Loading**: Bilder werden asynchron geladen
-- **Caching**: Alles in IndexedDB
-- **Progress Bar**: Zeigt Fortschritt beim Import
-
-## 🎯 Tastatur-Shortcuts
-
-- `R` - Zufälliges Rezept auswählen
-- `ESC` - Zurücksetzen / Zurück
-
-## 📱 Browser-Kompatibilität
-
-Getestet und funktioniert in:
-- ✅ Chrome/Edge (empfohlen)
-- ✅ Firefox
-- ✅ Safari (Desktop + iOS)
-
-Benötigt:
-- IndexedDB Support
-- ES6+ Support
-- FileReader API
-
-## 🔧 Entwicklung
-
-### Neue Features hinzufügen
-
-**Neues Emoji hinzufügen:**
-```javascript
-// In index.html und recipe-detail.html
-function getRecipeEmoji(recipeName) {
-    if (name.includes('dein-rezept')) return '🍕';
-    // ...
+```json
+{
+  "version": 1,
+  "recipes": [
+    {
+      "id": 12,
+      "name": "Beispielrezept",
+      "category": "Mittagessen - Salzig",
+      "servings": 4,
+      "ingredients": [
+        { "amount": 200, "unit": "g", "product": "Mehl", "note": "gesiebt" }
+      ],
+      "instructions": [
+        { "step": 1, "text": "Alle Zutaten vermengen." }
+      ],
+      "images": [
+        { "src": "images/recipes/beispielrezept-12-1.jpg" }
+      ]
+    }
+  ]
 }
 ```
 
-**Neuen Gradient hinzufügen:**
-```css
-/* In css/pinterest.css */
-.gradient-9 { background: linear-gradient(135deg, #color1 0%, #color2 100%); }
+Der Editor erhält weitere Rezeptfelder, die er nicht selbst bearbeitet, soweit sie im Rezeptobjekt vorhanden sind. Hochgeladene Bilder werden im Browser vor dem Speichern verkleinert und komprimiert.
+
+## Projektstruktur
+
+```text
+findYourDinner/
+├── index.html                    # Rezeptübersicht und Editor
+├── recipes.json                  # Rezeptdaten
+├── server.js                     # Lokaler statischer Server und Schreib-API
+├── css/
+│   ├── main.css                  # Basisstile
+│   ├── pinterest.css             # Rezeptübersicht
+│   ├── detail.css                # Detailansicht
+│   └── recipe-editor.css         # Editor und Formulare
+├── js/
+│   ├── recipeGenerator.js        # Laden, Suche und Rezeptdaten
+│   ├── recipeEditor.js           # Editor, lokale Speicherung und Bildauswahl
+│   ├── imageStore.js             # IndexedDB für Bilder
+│   └── xmlParser.js              # Excel-XML-Hilfsfunktionen
+├── pages/
+│   └── recipe-detail.html        # Rezeptdetails mit Editorzugriff
+├── images/recipes/               # Rezeptbilder
+└── tests/                         # Backend- und UI-Tests
 ```
 
-### Debugging
+## Tests
 
-**Console-Befehle:**
-```javascript
-// Zeige Statistiken
-generator.getStats().then(console.log);
+Alle Tests ausführen:
 
-// Zeige alle gespeicherten Bilder
-imageStore.getAllRecipeNames().then(console.log);
-
-// Lösche alle Daten
-generator.clearAllData();
+```bash
+npm test
 ```
 
-## 🐛 Bekannte Limitierungen
+Nur die UI-Tests ausführen:
 
-- **Maximale Bildgröße**: ~50MB gesamt (IndexedDB-Limit)
-- **Nur erste Bild**: Falls Sheet mehrere Bilder hat, wird nur das erste verwendet
-- **Excel-Version**: Getestet mit Excel 2007+ (.xlsx)
+```bash
+npm run test:ui
+```
 
-## 📝 Changelog
+Nur die Backend-Tests ausführen:
 
-### Version 2.0 (Aktuell)
-- ✅ Automatische Bild-Extraktion aus Excel
-- ✅ IndexedDB für Offline-Speicherung
-- ✅ Pinterest-Masonry-Layout
-- ✅ XMLParser für Sheet→Image Mapping
-- ✅ Progress Bar beim Import
-- ✅ Aufgeräumte Projekt-Struktur
+```bash
+npm run test:backend
+```
 
-### Version 1.0
-- ✅ Basis-Funktionalität mit Emoji-Platzhaltern
-- ✅ Excel-Import mit SheetJS
-- ✅ Rezept-Details (Zutaten, Anleitung)
+Der Live-Server-Test in `tests/backend/live-server.test.js` prüft die laufende Speicher-API auf `http://127.0.0.1:4004`. Er wird übersprungen, wenn dort kein Server erreichbar ist. Ist ein alter statischer Server aktiv, schlägt der Test mit `405 Method Not Allowed` fehl.
 
-## 🤝 Beitragen
+## Browserhinweise
 
-Du hast Ideen oder gefundene Bugs? Super!
-
-**Verbesserungsvorschläge:**
-- Kategorien/Tags für Rezepte
-- Favoriten-System
-- Export-Funktion (PDF, Shopping-Liste)
-- Nährwertangaben
-- Rezept-Bewertungen
-
-## 📄 Lizenz
-
-Dieses Projekt ist für den persönlichen Gebrauch.
-
----
-
-**Viel Spaß beim Kochen! 👨‍🍳**
+- Für den lokalen Dateischreibzugriff muss `npm run serve` laufen.
+- Auf GitHub Pages ist kein Schreibzugriff auf das Repository möglich; Änderungen bleiben dort browserlokal.
+- `localStorage` und IndexedDB sind an den jeweiligen Browser und die Website-Adresse gebunden.
+- Der Server benötigt eine aktuelle Node.js-Version und verwendet ausschließlich integrierte Node-Module.

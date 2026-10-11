@@ -400,12 +400,13 @@
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .detail-actions button {
         width: 100%;
         padding: 14px;
         font-size: 1em;
     }
+
     
     .note-item {
         padding: 12px 15px;

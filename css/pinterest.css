@@ -157,7 +157,9 @@
 }
 
 .search-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
     gap: 15px;
     align-items: center;
     max-width: 800px;
@@ -166,7 +168,10 @@
 }
 
 .search-input {
-    flex: 1;
+    grid-column: 1 / 5;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
     padding: 15px 20px;
     font-size: 1.1em;
     border: 2px solid #e0e0e0;
@@ -182,6 +187,24 @@
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    position: relative;
+    z-index: 5;
+    transform: scale(1.02);
+}
+
+.secondary-btn.shuffle-btn {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.primary-btn.upload-btn {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.secondary-btn.recipe-editor-btn {
+    grid-column: 3;
+    grid-row: 2;
 }
 
 /* Upload Button Styles */
@@ -285,12 +308,11 @@
     }
     
     .search-container {
-        flex-direction: row;
-        flex-wrap: nowrap;
+        grid-template-columns: auto auto auto minmax(0, 1fr);
+        grid-template-rows: 44px auto;
         gap: 8px;
         padding: 0 12px;
         align-items: center;
-        justify-content: space-between;
         overflow: visible;
     }
     
@@ -303,7 +325,6 @@
         padding: 10px 14px;
         font-size: 16px; /* Prevents zoom on iOS */
         border-radius: 20px;
-        flex: 1;
         min-width: 0; /* Allow input to shrink */
     }
     
@@ -386,22 +407,48 @@
 }
 
 /* Extra small screens (iPhone SE, small Android phones) */
-@media (max-width: 390px) {
+@media (max-width: 430px) {
     .search-container {
-        gap: 6px;
-        padding: 0 10px;
+        position: relative;
     }
-    
-    .search-container h2 {
-        font-size: 1.2em !important;
+
+    .search-input:focus {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 5;
+        width: auto;
+        min-height: 52px;
+        padding-left: 18px;
+        padding-right: 18px;
+        font-size: 16px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 0 0 3px rgba(102, 126, 234, 0.14);
     }
-    
-    .search-input {
-        padding: 10px 12px;
-        font-size: 15px;
-    }
-    
-    .primary-btn.upload-btn {
+}
+
+@media (max-width: 390px) {
+      .search-container {
+          display: grid;
+          grid-template-columns: repeat(3, 44px) minmax(0, 1fr);
+          grid-template-rows: 44px 44px;
+          gap: 6px;
+          padding: 0 10px;
+      }
+      
+      .search-input {
+          grid-column: 1 / 5;
+          grid-row: 1;
+          width: 100%;
+          min-width: 0;
+          min-height: 44px;
+          padding: 10px 14px;
+          border-radius: 14px;
+          font-size: 16px;
+      }
+      
+      .primary-btn.upload-btn {
+          grid-column: 2;
+          grid-row: 2;
         padding: 10px;
         font-size: 1.2em;
         min-width: 44px;
@@ -413,7 +460,9 @@
         justify-content: center;
     }
     
-    .secondary-btn.shuffle-btn {
+      .secondary-btn.shuffle-btn {
+          grid-column: 1;
+          grid-row: 2;
         padding: 10px;
         font-size: 1.2em;
         min-width: 44px;
@@ -423,15 +472,33 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+      .secondary-btn.recipe-editor-btn {
+          grid-column: 3;
+          grid-row: 2;
+        display: flex;
+        flex: 0 0 44px;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 1.15em;
     }
     
     .primary-btn.upload-btn .btn-text,
-    .secondary-btn.shuffle-btn .btn-text {
+    .secondary-btn.shuffle-btn .btn-text,
+    .recipe-editor-btn .recipe-editor-text {
         display: none;
     }
     
     .primary-btn.upload-btn .btn-icon,
-    .secondary-btn.shuffle-btn .btn-icon {
+    .secondary-btn.shuffle-btn .btn-icon,
+    .recipe-editor-btn .recipe-editor-icon {
         display: block;
         margin: 0;
     }

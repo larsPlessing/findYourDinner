@@ -3,7 +3,7 @@
   "recipes": [
     {
       "id": 0,
-      "name": "Apfel Oatmealtest",
+      "name": "Apfel Oatmeal",
       "category": "Snacks - Süß",
       "hasImage": true,
       "imageCount": 1,
@@ -107,9 +107,6 @@
       "images": [
         {
           "src": "images/recipes/recipe-0-1.png"
-        },
-        {
-          "src": "images/recipes/apfel-oatmealtest-0-2.jpg"
         }
       ]
     },
