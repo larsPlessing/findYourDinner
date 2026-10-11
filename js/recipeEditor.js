@@ -88,10 +88,11 @@ function addRecipeImageControls(form, recipe) {
         preview.src = resolveEditorImageURL(image.src); preview.alt = `Rezeptbild ${index + 1}`;
         preview.onerror = () => { preview.alt = 'Bildvorschau nicht verfügbar'; };
         const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Entfernen';
-        remove.addEventListener('click', () => {
+        remove.addEventListener('click', async () => {
             const current = generator.recipes[editingRecipeIndex];
             current.images.splice(index, 1);
-            persistRecipeEdits(); selectRecipeForEdit(editingRecipeIndex);
+            await commitRecipeChanges(current, editingRecipeIndex);
+            selectRecipeForEdit(editingRecipeIndex);
         });
         card.append(preview, remove); gallery.appendChild(card);
     });
@@ -101,7 +102,8 @@ function addRecipeImageControls(form, recipe) {
 
 function resolveEditorImageURL(src) {
     if (/^(?:data:|blob:|https?:|\/)/i.test(src)) return src;
-    return new URL(src, window.location.href).href;
+    const pageBase = window.location.pathname.includes('/pages/') ? '../' : './';
+    return new URL(`${pageBase}${src}`, window.location.href).href;
 }
 
 async function addRecipeImages(fileList) {
@@ -417,9 +419,9 @@ async function saveRecipeProjectToFolder() {
         generator.recipes = result.recipes;
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
-        status.textContent = `Gespeichert: recipes.json und ${result.savedImages} Bild(er) in images/recipes.`;
+        status.textContent = `Gespeichert: recipes.json, ${result.savedImages} Bild(er) hinzugefügt und ${result.deletedImages || 0} nicht mehr verwendete Bild(er) aus images/recipes entfernt.`;
     } catch (error) {
-        status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den aktualisierten Server mit npm run serve und lade die Seite neu.`;
+        status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den Projektserver mit „node server.js“ und öffne die App über http://127.0.0.1:4004.`;
     }
 }
 if (typeof document !== 'undefined') {

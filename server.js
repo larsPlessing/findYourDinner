@@ -43,6 +43,25 @@ function safeSlug(value) {
         .slice(0, 45) || 'recipe';
 }
 
+function removeUnusedRecipeImages(imageDirectory, recipes) {
+    const referencedFiles = new Set();
+    for (const recipe of recipes) {
+        for (const image of Array.isArray(recipe.images) ? recipe.images : []) {
+            if (!image || typeof image.src !== 'string') continue;
+            const match = image.src.match(/^images\/recipes\/([^/\\]+)$/);
+            if (match) referencedFiles.add(match[1]);
+        }
+    }
+
+    let deletedImages = 0;
+    for (const entry of fs.readdirSync(imageDirectory, { withFileTypes: true })) {
+        if (!entry.isFile() || referencedFiles.has(entry.name)) continue;
+        fs.unlinkSync(path.join(imageDirectory, entry.name));
+        deletedImages++;
+    }
+    return deletedImages;
+}
+
 function createServer(options = {}) {
     const root = path.resolve(options.rootDirectory || rootDirectory);
 
@@ -108,7 +127,8 @@ function createServer(options = {}) {
                     const temporaryFile = `${recipeFile}.tmp`;
                     fs.writeFileSync(temporaryFile, `${JSON.stringify({ version: 1, recipes: payload.recipes }, null, 2)}\n`, 'utf8');
                     fs.renameSync(temporaryFile, recipeFile);
-                    sendJson(response, 200, { recipes: payload.recipes, savedImages });
+                    const deletedImages = removeUnusedRecipeImages(imageDirectory, payload.recipes);
+                    sendJson(response, 200, { recipes: payload.recipes, savedImages, deletedImages });
                 } catch (error) {
                     sendJson(response, 400, { error: error.message });
                 }
