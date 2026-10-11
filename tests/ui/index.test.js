@@ -20,9 +20,16 @@ test('homepage wires search, category filtering and recipe navigation', () => {
 
 test('homepage uses the JSON source and offers local file selection', () => {
     assert.match(html, /loadFromURL\(['"]recipes\.json['"]\)/);
-    assert.match(html, /id=["']chooseRecipesJson["']/);
-    assert.match(html, /recipesJsonInput\.click\(\)/);
+    assert.match(html, /<label for=["']recipesJsonInput["'][^>]*class=["']file-label["']/);
+    assert.match(html, /recipesJsonInput\.addEventListener\(['"]change['"],\s*handleLocalJsonFile\)/);
     assert.match(html, /loadRecipesFile\(file\)/);
+});
+
+test('homepage provides the same upload dialog flow for choosing or reloading a file', () => {
+    assert.match(html, /id=["']uploadOverlay["']/);
+    assert.match(html, /onclick=["']showUploadDialog\(\)["']/);
+    assert.match(html, /onclick=["']loadDefaultRecipes\(\)["']/);
+    assert.match(html, /onclick=["']closeUploadOverlay\(\)["']/);
 });
 
 test('homepage does not contain mojibake text', () => {
