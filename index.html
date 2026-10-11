@@ -28,44 +28,11 @@
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/chrome-ios.css">
     
-    <!-- JavaScript Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="js/lib/jszip.min.js"></script>
-    
     <!-- Custom Scripts -->
-    <script src="js/xmlParser.js"></script>
-    <script src="js/imageStore.js"></script>
     <script src="js/recipeGenerator.js"></script>
 </head>
 <body>
     <div class="container">
-        <!-- Upload Overlay (wenn keine Rezepte geladen) -->
-        <div id="uploadOverlay" class="upload-overlay" style="display: none;">
-            <div class="upload-card">
-                <h1>🍳 Was koche ich heute?</h1>
-                <p>Lade deine Rezepte.xlsx, um zu starten</p>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <label for="fileInput" class="file-label">
-                        📂 Datei auswählen
-                    </label>
-                    <button class="file-label" onclick="loadFromDefaultPath()" title="Standard Rezepte.xlsx laden">
-                        🔄 Standard-Datei laden
-                    </button>
-                    <button style="margin-top: 10px;" class="file-label file-label-back" onclick="closeUploadOverlay()" title="Zurück">
-                        <span class="back-arrow">←</span> Zurück
-                    </button>
-                </div>
-                <input type="file" id="fileInput" accept=".xlsx,.xls" />
-                <div id="uploadStatus" class="upload-status"></div>
-                <div id="progressContainer" class="progress-container" style="display: none;">
-                    <div class="progress-bar">
-                        <div id="progressBar" class="progress-fill"></div>
-                    </div>
-                    <div id="progressText" class="progress-text">Lade...</div>
-                </div>
-            </div>
-        </div>
-
         <!-- Pinterest Header -->
         <div class="pinterest-header">
             <div class="search-container">
@@ -81,9 +48,9 @@
                     <span class="btn-icon">🔀</span>
                     <span class="btn-text">Mischen</span>
                 </button>
-                <button class="primary-btn upload-btn" onclick="showUploadDialog()" title="Neu laden">
+                <button class="primary-btn upload-btn" onclick="reloadRecipes()" title="Rezepte neu laden">
                     <span class="btn-icon">📂</span>
-                    <span class="btn-text">Neu laden</span>
+                    <span class="btn-text">Aktualisieren</span>
                 </button>
             </div>
             
@@ -100,6 +67,12 @@
 
         <!-- Loading State -->
         <div id="loadingState" class="loading">Lade Rezepte...</div>
+        <div id="localJsonLoader" class="loading" style="display: none;">
+            <p id="fileAccessSupportMessage" style="display: none;"></p>
+            <p>Wähle die Datei <strong>recipes.json</strong> aus dem Projektordner.</p>
+            <button type="button" class="primary-btn" id="chooseRecipesJson">JSON-Datei auswählen</button>
+            <input type="file" id="recipesJsonInput" accept=".json,application/json" style="display: none;">
+        </div>
 
         <!-- Random FAB -->
         <button class="random-fab" onclick="selectRandomRecipe()" title="Zufälliges Rezept">
@@ -116,88 +89,130 @@
         const searchInput = document.getElementById('searchInput');
         const masonryGrid = document.getElementById('masonryGrid');
         const loadingState = document.getElementById('loadingState');
-        const uploadOverlay = document.getElementById('uploadOverlay');
-        const fileInput = document.getElementById('fileInput');
-        const uploadStatus = document.getElementById('uploadStatus');
-        const progressContainer = document.getElementById('progressContainer');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
         const categoryFilter = document.getElementById('categoryFilter');
+        const localJsonLoader = document.getElementById('localJsonLoader');
+        const recipesJsonInput = document.getElementById('recipesJsonInput');
+        const chooseRecipesJson = document.getElementById('chooseRecipesJson');
 
-        // Event Listeners
         searchInput.addEventListener('input', handleSearch);
-        fileInput.addEventListener('change', handleFileUpload);
+        recipesJsonInput.addEventListener('change', handleLocalJsonFile);
+        chooseRecipesJson.addEventListener('click', chooseRecipesFile);
 
-        // Initial Load
-        window.addEventListener('load', async () => {
-            // Versuche aus LocalStorage zu laden
-            if (generator.loadFromLocalStorage()) {
-                allRecipes = generator.getAllRecipes();
-                filteredRecipes = [...allRecipes];
-                initializeCategoryFilter();
-                // Wende Standard-Kategorie an
-                applyFilters('', currentCategory);
-            } else {
-                // Versuche automatisch zu laden (nur bei http/https)
-                if (window.location.protocol !== 'file:') {
-                    try {
-                        loadingState.textContent = 'Versuche Rezepte.xlsx automatisch zu laden...';
-                        await generator.loadFromURL('Rezepte.xlsx', updateProgress);
-                        generator.saveToLocalStorage();
-                        allRecipes = generator.getAllRecipes();
-                        filteredRecipes = [...allRecipes];
-                        initializeCategoryFilter();
-                        // Wende Standard-Kategorie an
-                        applyFilters('', currentCategory);
-                    } catch (error) {
-                        showUploadDialog();
-                    }
-                } else {
-                    // Bei file:// Protocol zeige Upload-Dialog direkt
-                    showUploadDialog();
-                }
-            }
-        });
+        window.addEventListener('load', loadRecipes);
 
-        async function handleFileUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            uploadStatus.innerHTML = '';
-            progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressText.textContent = 'Starte...';
-
+        async function loadRecipes() {
             try {
-                await generator.loadExcelFile(file, updateProgress);
+                loadingState.textContent = 'Lade Rezepte...';
+                if (window.location.protocol === 'file:' && await loadRememberedRecipesFile()) return;
+                await generator.loadFromURL('recipes.json');
                 generator.saveToLocalStorage();
                 allRecipes = generator.getAllRecipes();
                 filteredRecipes = [...allRecipes];
-                uploadOverlay.style.display = 'none';
                 initializeCategoryFilter();
-                // Wende Standard-Kategorie an
                 applyFilters('', currentCategory);
-                
-                const stats = await generator.getStats();
-                console.log(`✓ ${stats.total} Rezepte geladen, ${stats.withImages} mit Bildern`);
             } catch (error) {
-                uploadStatus.innerHTML = `<div class="error">${error.message}</div>`;
-                progressContainer.style.display = 'none';
+                if (window.location.protocol === 'file:') {
+                    loadingState.style.display = 'none';
+                    localJsonLoader.style.display = 'block';
+                    const supportMessage = document.getElementById('fileAccessSupportMessage');
+                    supportMessage.textContent = 'showOpenFilePicker' in window
+                        ? 'Dein Browser kann sich die Datei merken. Wähle recipes.json einmal aus; bei späteren Starts wird sie automatisch geladen, sofern der Browser die Berechtigung beibehält.'
+                        : 'Dein Browser unterstützt das automatische Merken der JSON-Datei nicht. Bitte wähle recipes.json bei jedem Öffnen erneut aus.';
+                    supportMessage.style.display = 'block';
+                } else {
+                    loadingState.textContent = `Rezepte konnten nicht geladen werden: ${error.message}`;
+                }
             }
         }
 
-        function updateProgress(info) {
-            const progress = info.progress || 0;
-            const message = info.message || '';
-            
-            progressBar.style.width = progress + '%';
-            progressText.textContent = message;
-            
-            if (progress >= 100) {
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                }, 1000);
+        function openHandleDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('RecipeFinderFileAccess', 1);
+                request.onupgradeneeded = () => request.result.createObjectStore('handles');
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function loadRememberedRecipesFile() {
+            if (!('showOpenFilePicker' in window)) return false;
+            try {
+                const db = await openHandleDatabase();
+                const handle = await new Promise((resolve, reject) => {
+                    const request = db.transaction('handles').objectStore('handles').get('recipes.json');
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                db.close();
+                if (!handle || await handle.queryPermission({ mode: 'read' }) !== 'granted') return false;
+                await loadRecipesFile(await handle.getFile());
+                return true;
+            } catch (error) {
+                console.warn('Gespeicherte JSON-Datei konnte nicht automatisch gelesen werden:', error);
+                return false;
             }
+        }
+
+        async function chooseRecipesFile() {
+            if ('showOpenFilePicker' in window) {
+                try {
+                    const [handle] = await window.showOpenFilePicker({
+                        multiple: false,
+                        types: [{ description: 'Rezeptdaten (JSON)', accept: { 'application/json': ['.json'] } }]
+                    });
+                    if (handle.name !== 'recipes.json') throw new Error('Bitte recipes.json auswählen.');
+                    const db = await openHandleDatabase();
+                    await new Promise((resolve, reject) => {
+                        const request = db.transaction('handles', 'readwrite').objectStore('handles').put(handle, 'recipes.json');
+                        request.onsuccess = resolve;
+                        request.onerror = () => reject(request.error);
+                    });
+                    db.close();
+                    await loadRecipesFile(await handle.getFile());
+                } catch (error) {
+                    if (error.name !== 'AbortError') localJsonLoader.insertAdjacentHTML('beforeend', `<p class="error">${error.message}</p>`);
+                }
+                return;
+            }
+            recipesJsonInput.click();
+        }
+
+        async function loadRecipesFile(file) {
+            const data = JSON.parse(await file.text());
+            if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
+            generator.recipes = data.recipes;
+            generator.hasImages = data.recipes.some(recipe => recipe.images && recipe.images.length > 0);
+            generator.saveToLocalStorage();
+            allRecipes = generator.getAllRecipes();
+            filteredRecipes = [...allRecipes];
+            localJsonLoader.style.display = 'none';
+            loadingState.style.display = 'none';
+            initializeCategoryFilter();
+            applyFilters('', currentCategory);
+        }
+
+        async function handleLocalJsonFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                await loadRecipesFile(file);
+                /* const data = JSON.parse(await file.text());
+                if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
+                generator.recipes = data.recipes;
+                generator.hasImages = data.recipes.some(recipe => recipe.images && recipe.images.length > 0);
+                generator.saveToLocalStorage();
+                allRecipes = generator.getAllRecipes();
+                filteredRecipes = [...allRecipes];
+                localJsonLoader.style.display = 'none';
+                initializeCategoryFilter();
+                applyFilters('', currentCategory); */
+            } catch (error) {
+                localJsonLoader.insertAdjacentHTML('beforeend', `<p class="error">JSON-Datei konnte nicht geladen werden: ${error.message}</p>`);
+            }
+        }
+
+        async function reloadRecipes() {
+            await loadRecipes();
         }
 
         async function displayRecipes() {
@@ -526,62 +541,6 @@
             window.location.href = 'pages/recipe-detail.html';
         }
 
-        function showUploadDialog() {
-            uploadOverlay.style.display = 'flex';
-            uploadStatus.innerHTML = '';
-            progressContainer.style.display = 'none';
-        }
-
-        async function loadFromDefaultPath() {
-            // Prüfe ob wir file:// Protocol verwenden (CORS-Problem)
-            if (window.location.protocol === 'file:') {
-                uploadStatus.innerHTML = `<div class="error">
-                    ⚠️ Der Auto-Load funktioniert nur mit einem lokalen Server.<br><br>
-                    <strong>Lösung 1:</strong> Starte einen Server:<br>
-                    <code style="background: #333; color: #0f0; padding: 5px; border-radius: 4px; display: block; margin: 10px 0;">python3 -m http.server 8000</code>
-                    Dann öffne: <a href="http://localhost:8000" style="color: #667eea; text-decoration: underline;">http://localhost:8000</a><br><br>
-                    <strong>Lösung 2:</strong> Benutze den "📂 Datei auswählen" Button oben.
-                </div>`;
-                return;
-            }
-
-            uploadStatus.innerHTML = '';
-            progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressText.textContent = 'Lade Standard-Datei...';
-
-            try {
-                await generator.loadFromURL('Rezepte.xlsx', updateProgress);
-                generator.saveToLocalStorage();
-                allRecipes = generator.getAllRecipes();
-                filteredRecipes = [...allRecipes];
-                uploadOverlay.style.display = 'none';
-                initializeCategoryFilter();
-                // Wende Standard-Kategorie an
-                applyFilters('', currentCategory);
-                
-                const stats = await generator.getStats();
-                console.log(`✓ ${stats.total} Rezepte geladen, ${stats.withImages} mit Bildern`);
-                
-                uploadStatus.innerHTML = '<div class="success">✓ Erfolgreich geladen!</div>';
-                setTimeout(() => {
-                    uploadOverlay.style.display = 'none';
-                }, 1500);
-            } catch (error) {
-                uploadStatus.innerHTML = `<div class="error">Fehler: ${error.message}<br>Bitte stelle sicher, dass Rezepte.xlsx im Hauptverzeichnis liegt.</div>`;
-                progressContainer.style.display = 'none';
-            }
-        }
-
-        function closeUploadOverlay() {
-            // Verstecke Upload-Overlay
-            uploadOverlay.style.display = 'none';
-            
-            // Wenn Rezepte vorhanden sind, zeige sie an
-            if (allRecipes.length > 0) {
-                displayRecipes();
-            }
-        }
 
         // Keyboard Shortcuts
         document.addEventListener('keydown', (e) => {

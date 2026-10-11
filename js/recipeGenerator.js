@@ -1,526 +1,46 @@
-/**
- * Recipe Generator - Lädt und verarbeitet Excel-Rezepte
- * Jetzt mit Bild-Extraktion aus Excel!
- */
-
+/** Lädt Rezeptdaten aus der JSON-Datei im Repository. */
 class RecipeGenerator {
     constructor() {
         this.recipes = [];
-        this.workbook = null;
         this.imageStore = typeof imageStore !== 'undefined' ? imageStore : null;
         this.hasImages = false;
     }
 
-    /**
-     * Lädt eine Excel-Datei und extrahiert alle Rezepte + Bilder + Kategorien
-     * @param {File|Blob} file - Die Excel-Datei
-     * @param {Function} progressCallback - Optional: Fortschritts-Callback
-     * @returns {Promise<Array>} Array mit allen Rezepten
-     */
-    async loadExcelFile(file, progressCallback = null) {
-        try {
-            // Phase 1: Lade Excel-Daten mit SheetJS
-            if (progressCallback) progressCallback({ phase: 'data', progress: 0, message: 'Lade Excel-Daten...' });
-            
-            const arrayBuffer = await file.arrayBuffer();
-            const data = new Uint8Array(arrayBuffer);
-            this.workbook = XLSX.read(data, { type: 'array' });
-            
-            this.recipes = [];
-            
-            // Extrahiere Kategorien aus Inhaltsverzeichnis
-            const { categoryMap, allRecipeNames } = this.extractCategories();
-            
-            // Set für vorhandene Sheets
-            const existingSheets = new Set();
-            
-            // Extrahiere Rezept-Details für vorhandene Sheets
-            this.workbook.SheetNames.forEach((sheetName, index) => {
-                if (sheetName !== 'Inhaltsverzeichnis' && sheetName !== 'Vorlage') {
-                    existingSheets.add(sheetName);
-                    const recipeDetails = this.extractRecipeDetails(sheetName);
-                    this.recipes.push({
-                        id: index,
-                        name: sheetName,
-                        sheetName: sheetName,
-                        hasImage: false, // Wird später aktualisiert
-                        category: categoryMap[sheetName] || 'Ohne Kategorie',
-                        isPlaceholder: false,
-                        ...recipeDetails
-                    });
-                }
-            });
-
-            // Erstelle Placeholder-Rezepte für Rezepte die nur im Inhaltsverzeichnis stehen
-            let placeholderId = this.recipes.length;
-            for (const recipeName of allRecipeNames) {
-                if (!existingSheets.has(recipeName)) {
-                    // Rezept steht im Inhaltsverzeichnis, hat aber kein Sheet
-                    this.recipes.push({
-                        id: placeholderId++,
-                        name: recipeName,
-                        sheetName: null,
-                        hasImage: false,
-                        category: categoryMap[recipeName] || 'Ohne Kategorie',
-                        isPlaceholder: true,
-                        servings: null,
-                        ingredients: [],
-                        instructions: [{
-                            step: 1,
-                            text: 'Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet.'
-                        }],
-                        createdDate: null,
-                        modifiedDate: null
-                    });
-                    console.log(`Placeholder erstellt für: ${recipeName}`);
-                }
-            }
-
-            // Alphabetisch sortieren
-            this.recipes.sort((a, b) => a.name.localeCompare(b.name, 'de'));
-            
-            if (progressCallback) progressCallback({ phase: 'data', progress: 50, message: 'Rezept-Daten geladen' });
-            
-            // Phase 2: Extrahiere Bilder
-            if (typeof JSZip !== 'undefined' && this.imageStore) {
-                try {
-                    if (progressCallback) progressCallback({ phase: 'images', progress: 0, message: 'Extrahiere Bilder...' });
-                    
-                    await this.extractAndSaveImages(file, progressCallback);
-                    this.hasImages = true;
-                    
-                    if (progressCallback) progressCallback({ phase: 'complete', progress: 100, message: 'Fertig!' });
-                } catch (error) {
-                    console.warn('Bilder konnten nicht extrahiert werden:', error);
-                    this.hasImages = false;
-                }
-            } else {
-                console.warn('JSZip oder ImageStore nicht verfügbar - keine Bild-Extraktion');
-            }
-            
-            return this.recipes;
-        } catch (error) {
-            throw new Error(`Fehler beim Laden der Datei: ${error.message}`);
-        }
-    }
-
-    /**
-     * Lädt eine Excel-Datei von einer URL
-     * @param {string} url - URL zur Excel-Datei
-     * @param {Function} progressCallback - Optional: Fortschritts-Callback
-     * @returns {Promise<Array>} Array mit allen Rezepten
-     */
     async loadFromURL(url, progressCallback = null) {
         try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (window.location.protocol === 'file:') {
+                throw new Error('Bei file:// muss recipes.json über die Dateiauswahl geladen werden.');
             }
-            const blob = await response.blob();
-            return await this.loadExcelFile(blob, progressCallback);
-        } catch (error) {
-            throw new Error(`Fehler beim Laden von URL: ${error.message}`);
-        }
-    }
-
-    /**
-     * Extrahiert Bilder aus Excel und speichert sie in IndexedDB
-     * @param {File|Blob} file - Die Excel-Datei
-     * @param {Function} progressCallback - Optional: Fortschritts-Callback
-     * @returns {Promise<void>}
-     */
-    async extractAndSaveImages(file, progressCallback = null) {
-        if (!this.imageStore) {
-            throw new Error('ImageStore nicht initialisiert');
-        }
-
-        // Initialisiere ImageStore
-        await this.imageStore.init();
-
-        // Lade Excel als ZIP
-        const arrayBuffer = await file.arrayBuffer();
-        const zip = await JSZip.loadAsync(arrayBuffer);
-
-        // Erstelle Sheet → Image Mapping (jetzt mit Transformationen!)
-        if (progressCallback) progressCallback({ phase: 'images', progress: 10, message: 'Analysiere Bilder...' });
-        
-        const mapping = await XMLParser.createSheetImageMapping(zip);
-        const totalSheets = Object.keys(mapping).length;
-        
-        let totalImages = 0;
-        Object.values(mapping).forEach(imageDataArray => {
-            totalImages += imageDataArray.length;
-        });
-        
-        console.log(`Gefunden: ${totalImages} Bilder für ${totalSheets} Rezepte`);
-
-        // Extrahiere und speichere Bilder mit Transformationen
-        let processedSheets = 0;
-        let processedImages = 0;
-        
-        for (const [recipeName, imageData] of Object.entries(mapping)) {
-            try {
-                const imageBlobs = [];
-                const transforms = [];
-                
-                // Lade alle Bilder für dieses Rezept
-                for (const imgData of imageData) {
-                    const imageFile = zip.file(imgData.path);
-                    if (!imageFile) {
-                        console.warn(`Bild nicht gefunden: ${imgData.path}`);
-                        continue;
-                    }
-
-                    // Konvertiere zu Blob
-                    const imageArrayBuffer = await imageFile.async('arraybuffer');
-                    const extension = XMLParser.getFileExtension(imgData.path);
-                    const mimeType = XMLParser.getMimeType(extension);
-                    const imageBlob = new Blob([imageArrayBuffer], { type: mimeType });
-                    
-                    imageBlobs.push(imageBlob);
-                    transforms.push(imgData.transform);
-                    processedImages++;
-                }
-
-                // Speichere alle Bilder mit Transformationen in IndexedDB
-                if (imageBlobs.length > 0) {
-                    await this.imageStore.saveImage(recipeName, imageBlobs, transforms);
-
-                    // Aktualisiere Recipe-Objekt
-                    const recipe = this.recipes.find(r => r.name === recipeName);
-                    if (recipe) {
-                        recipe.hasImage = true;
-                        recipe.imageCount = imageBlobs.length;
-                    }
-                }
-
-                processedSheets++;
-                
-                if (progressCallback) {
-                    const progress = 10 + Math.floor((processedSheets / totalSheets) * 80);
-                    progressCallback({ 
-                        phase: 'images', 
-                        progress: progress, 
-                        message: `Bilder ${processedImages}/${totalImages} gespeichert...` 
-                    });
-                }
-            } catch (error) {
-                console.error(`Fehler beim Extrahieren von ${recipeName}:`, error);
-            }
-        }
-
-        if (progressCallback) progressCallback({ phase: 'images', progress: 90, message: `${processedImages} Bilder gespeichert` });
-    }
-
-    /**
-     * Extrahiert Kategorien aus dem Inhaltsverzeichnis-Sheet
-     * @returns {Object} { categoryMap: Map von RecipeName → Category, allRecipeNames: Set aller Rezeptnamen }
-     */
-    extractCategories() {
-        const categoryMap = {};
-        const allRecipeNames = new Set();
-        
-        if (!this.workbook || !this.workbook.Sheets['Inhaltsverzeichnis']) {
-            console.warn('Inhaltsverzeichnis-Sheet nicht gefunden');
-            return { categoryMap, allRecipeNames };
-        }
-        
-        const sheet = this.workbook.Sheets['Inhaltsverzeichnis'];
-        const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-        
-        if (data.length < 3) {
-            console.warn('Inhaltsverzeichnis hat zu wenige Zeilen');
-            return { categoryMap, allRecipeNames };
-        }
-        
-        // Analysiere Spalten für Kategorien
-        const columnCategories = {};
-        
-        // Row 0: Hauptkategorien (Snacks, Mittagessen, Nachtisch)
-        // Row 1: Unterkategorien (Salzig, Süß)
-        // Row 2+: Rezeptnamen
-        
-        for (let col = 0; col < data[0].length; col++) {
-            const mainCategory = data[0][col];
-            const subCategory = data[1][col];
-            
-            if (mainCategory && mainCategory.trim() !== '') {
-                // Erstelle Kategorie-String
-                if (subCategory && subCategory.trim() !== '') {
-                    columnCategories[col] = `${mainCategory} - ${subCategory}`;
-                } else {
-                    columnCategories[col] = mainCategory;
-                }
-            }
-        }
-        
-        // Extrahiere Rezeptnamen ab Zeile 2
-        for (let row = 2; row < data.length; row++) {
-            for (let col = 0; col < data[row].length; col++) {
-                const recipeName = data[row][col];
-                
-                if (recipeName && recipeName.trim() !== '' && columnCategories[col]) {
-                    const cleanName = recipeName.trim();
-                    categoryMap[cleanName] = columnCategories[col];
-                    allRecipeNames.add(cleanName);
-                }
-            }
-        }
-        
-        console.log(`Kategorien extrahiert: ${Object.keys(categoryMap).length} Rezepte kategorisiert`);
-        return { categoryMap, allRecipeNames };
-    }
-
-    /**
-     * Extrahiert Details aus einem Rezept-Sheet
-     * @param {string} sheetName - Name des Sheets
-     * @returns {Object} Rezept-Details (Zutaten, Anleitung, etc.)
-     */
-    extractRecipeDetails(sheetName) {
-        if (!this.workbook) return {};
-        
-        const sheet = this.workbook.Sheets[sheetName];
-        if (!sheet) return {};
-        
-        // Konvertiere Sheet zu JSON
-        const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-        
-        const details = {
-            servings: null,
-            ingredients: [],
-            instructions: [],
-            notes: [],
-            createdDate: null,
-            modifiedDate: null
-        };
-        
-        // Durchsuche die Daten
-        for (let i = 0; i < data.length; i++) {
-            const row = data[i];
-            
-            // Anzahl Personen
-            if (row[0] && String(row[0]).includes('Anzahl Personen')) {
-                details.servings = row[3] || row[1];
-            }
-            
-            // Erstelldatum
-            if (row[3] && String(row[3]).includes('Erstelldatum')) {
-                details.createdDate = row[6];
-            }
-            
-            // Geändert am
-            if (row[3] && String(row[3]).includes('Geändert am')) {
-                details.modifiedDate = row[6];
-            }
-            
-            // Zutaten (nach "Menge" Header bis "Zubereitung")
-            if (row[0] === 'Menge' && row[3] === 'Produkt') {
-                let j = i + 1;
-                while (j < data.length && data[j][0] !== 'Zubereitung' && data[j][4] !== 'Total Warenkosten') {
-                    const ingredientRow = data[j];
-                    if (ingredientRow[3]) { // Produkt vorhanden
-                        details.ingredients.push({
-                            amount: ingredientRow[0] || '',
-                            unit: ingredientRow[2] || '',
-                            product: ingredientRow[3] || '',
-                            note: ingredientRow[4] || ''
-                        });
-                    }
-                    j++;
-                }
-            }
-            
-            // Bemerkungen/Notizen (eigener Bereich nach Zubereitung)
-            if (row[0] && String(row[0]).includes('Bemerkung') && String(row[0]).includes('Notiz')) {
-                // Gefunden! "Bemerkungen/Notizen" Header
-                // Lese alle folgenden Zeilen bis zur nächsten leeren Zeile
-                let j = i + 1;
-                while (j < data.length) {
-                    const noteRow = data[j];
-                    const noteText = noteRow[0]; // Links stehen in Spalte A
-                    
-                    // Stoppe bei leerer Zeile oder wenn alle Spalten leer sind
-                    if (!noteText || noteText.trim() === '') {
-                        // Prüfe ob wirklich komplett leer
-                        const hasContent = noteRow.some(cell => cell && String(cell).trim() !== '');
-                        if (!hasContent) {
-                            break;
-                        }
-                    }
-                    
-                    // Füge Notiz/Link hinzu wenn nicht leer
-                    if (noteText && String(noteText).trim() !== '') {
-                        details.notes.push(String(noteText).trim());
-                    }
-                    
-                    j++;
-                }
-                break;
-            }
-            
-            // Zubereitung/Anleitung
-            if (row[0] === 'Zubereitung' || row[0] === 'Anleitung') {
-                let j = i + 1;
-                while (j < data.length) {
-                    const stepRow = data[j];
-                    const stepNum = stepRow[0];
-                    const stepText = stepRow[1];
-                    
-                    if (stepNum && stepText && !isNaN(stepNum)) {
-                        details.instructions.push({
-                            step: Number(stepNum),
-                            text: String(stepText)
-                        });
-                    } else if (!stepNum && !stepText) {
-                        break; // Ende der Anleitung
-                    }
-                    j++;
-                }
-            }
-        }
-        
-        return details;
-    }
-
-    /**
-     * Gibt ein spezifisches Rezept mit allen Details zurück
-     * @param {string} recipeName - Name des Rezepts
-     * @returns {Object|null} Rezept mit allen Details
-     */
-    getRecipeByName(recipeName) {
-        return this.recipes.find(r => r.name === recipeName || r.sheetName === recipeName);
-    }
-
-    /**
-     * Gibt ein Bild-URL für ein Rezept zurück (aus IndexedDB) - erstes Bild mit Transformation
-     * @param {string} recipeName - Name des Rezepts
-     * @returns {Promise<{dataUrl: string, transform: Object}|null>} Objekt mit dataUrl und transform oder null
-     */
-    async getRecipeImageURL(recipeName) {
-        if (!this.imageStore) return null;
-
-        try {
-            return await this.imageStore.getImageDataURL(recipeName);
-        } catch (error) {
-            console.error(`Fehler beim Laden des Bildes für ${recipeName}:`, error);
-            return null;
-        }
-    }
-
-    /**
-     * Gibt ALLE Bild-URLs für ein Rezept zurück (aus IndexedDB) mit Transformationen
-     * @param {string} recipeName - Name des Rezepts
-     * @returns {Promise<Array<{dataUrl: string, transform: Object}>>} Array von Objekten mit dataUrl und transform
-     */
-    async getAllRecipeImageURLs(recipeName) {
-        if (!this.imageStore) return [];
-
-        try {
-            return await this.imageStore.getAllImageDataURLs(recipeName);
-        } catch (error) {
-            console.error(`Fehler beim Laden der Bilder für ${recipeName}:`, error);
-            return [];
-        }
-    }
-
-    /**
-     * Prüft ob ein Rezept ein Bild hat
-     * @param {string} recipeName - Name des Rezepts
-     * @returns {Promise<boolean>}
-     */
-    async hasRecipeImage(recipeName) {
-        if (!this.imageStore) return false;
-
-        try {
-            return await this.imageStore.hasImage(recipeName);
-        } catch (error) {
-            return false;
-        }
-    }
-
-    /**
-     * Gibt alle Rezepte zurück
-     * @returns {Array} Array mit allen Rezepten
-     */
-    getAllRecipes() {
-        return this.recipes;
-    }
-
-    /**
-     * Filtert Rezepte nach Suchbegriff
-     * @param {string} searchTerm - Suchbegriff
-     * @returns {Array} Gefilterte Rezepte
-     */
-    searchRecipes(searchTerm) {
-        if (!searchTerm || searchTerm.trim() === '') {
+            const response = await fetch(url, { cache: 'no-cache' });
+            if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`);
+            const data = await response.json();
+            if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
+            this.recipes = data.recipes;
+            this.hasImages = this.recipes.some(recipe => recipe.images && recipe.images.length > 0);
+            if (progressCallback) progressCallback({ phase: 'complete', progress: 100, message: 'Rezepte geladen' });
             return this.recipes;
+        } catch (error) {
+            throw new Error(`Fehler beim Laden der Rezepte: ${error.message}`);
         }
-        
-        const term = searchTerm.toLowerCase().trim();
-        return this.recipes.filter(recipe => 
-            recipe.name.toLowerCase().includes(term)
-        );
     }
 
-    /**
-     * Filtert Rezepte nach Kategorie
-     * @param {string} category - Kategorie-Name
-     * @returns {Array} Gefilterte Rezepte
-     */
+    getRecipeByName(name) { return this.recipes.find(recipe => recipe.name === name || recipe.sheetName === name) || null; }
+    getAllRecipes() { return this.recipes; }
+    searchRecipes(term) {
+        if (!term || !term.trim()) return this.recipes;
+        const query = term.toLocaleLowerCase('de').trim();
+        return this.recipes.filter(recipe => recipe.name.toLocaleLowerCase('de').includes(query));
+    }
     filterByCategory(category) {
-        if (!category || category === 'Alle') {
-            return this.recipes;
-        }
-        
-        return this.recipes.filter(recipe => recipe.category === category);
+        return !category || category === 'Alle' ? this.recipes : this.recipes.filter(recipe => recipe.category === category);
     }
-
-    /**
-     * Gibt alle verfügbaren Kategorien zurück
-     * @returns {Array<string>} Array von Kategorien (sortiert)
-     */
     getAllCategories() {
-        const categories = new Set();
-        
-        this.recipes.forEach(recipe => {
-            if (recipe.category) {
-                categories.add(recipe.category);
-            }
-        });
-        
-        return Array.from(categories).sort();
+        return [...new Set(this.recipes.map(recipe => recipe.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de'));
     }
-
-    /**
-     * Gibt ein zufälliges Rezept zurück
-     * @param {Array} recipeList - Optional: Liste von Rezepten (default: alle)
-     * @returns {Object|null} Zufälliges Rezept oder null
-     */
-    getRandomRecipe(recipeList = null) {
-        const list = recipeList || this.recipes;
-        if (list.length === 0) return null;
-        
-        const randomIndex = Math.floor(Math.random() * list.length);
-        return list[randomIndex];
+    getRandomRecipe(list = this.recipes) {
+        return list.length ? list[Math.floor(Math.random() * list.length)] : null;
     }
-
-    /**
-     * Gibt mehrere zufällige Rezepte zurück
-     * @param {number} count - Anzahl der gewünschten Rezepte
-     * @returns {Array} Array mit zufälligen Rezepten
-     */
-    getRandomRecipes(count) {
-        if (count >= this.recipes.length) {
-            return [...this.recipes].sort(() => Math.random() - 0.5);
-        }
-        
-        const shuffled = [...this.recipes].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, count);
-    }
-
-    /**
-     * Speichert Rezepte in LocalStorage
-     */
+    getRandomRecipes(count) { return [...this.recipes].sort(() => Math.random() - 0.5).slice(0, count); }
     saveToLocalStorage() {
         try {
             localStorage.setItem('recipes', JSON.stringify(this.recipes));
@@ -531,70 +51,51 @@ class RecipeGenerator {
             return false;
         }
     }
-
-    /**
-     * Lädt Rezepte aus LocalStorage
-     * @returns {boolean} True wenn erfolgreich geladen
-     */
     loadFromLocalStorage() {
         try {
             const stored = localStorage.getItem('recipes');
-            if (stored) {
-                this.recipes = JSON.parse(stored);
-                return true;
-            }
-            return false;
+            if (!stored) return false;
+            this.recipes = JSON.parse(stored);
+            return Array.isArray(this.recipes);
         } catch (error) {
             console.error('Fehler beim Laden:', error);
             return false;
         }
     }
-
-    /**
-     * Löscht gespeicherte Rezepte und Bilder
-     */
-    async clearAllData() {
-        // Lösche LocalStorage
-        this.clearLocalStorage();
-        
-        // Lösche Bilder aus IndexedDB
-        if (this.imageStore) {
-            try {
-                await this.imageStore.clearAll();
-            } catch (error) {
-                console.error('Fehler beim Löschen der Bilder:', error);
-            }
+    async getRecipeImageURL(name) {
+        const images = await this.getAllRecipeImageURLs(name);
+        return images[0] || null;
+    }
+    async getAllRecipeImageURLs(name) {
+        const recipe = this.getRecipeByName(name);
+        if (recipe && Array.isArray(recipe.images)) {
+            return recipe.images.filter(image => image && image.src).map(image => ({
+                dataUrl: image.src,
+                transform: image.transform || this.defaultTransform()
+            }));
         }
-        
+        return [];
+    }
+    defaultTransform() {
+        return { rotation: 0, flipH: false, flipV: false, crop: { left: 0, top: 0, right: 0, bottom: 0 } };
+    }
+    async hasRecipeImage(name) {
+        const recipe = this.getRecipeByName(name);
+        return Boolean(recipe && recipe.images && recipe.images.length);
+    }
+    async clearAllData() {
+        this.clearLocalStorage();
         this.recipes = [];
         this.hasImages = false;
     }
-
-    /**
-     * Gibt Statistiken über die Rezepte zurück
-     * @returns {Promise<Object>} Statistik-Objekt
-     */
     async getStats() {
-        const imageCount = this.imageStore ? await this.imageStore.getCount() : 0;
-        
-        return {
-            total: this.recipes.length,
-            withImages: imageCount,
-            timestamp: localStorage.getItem('recipes_timestamp'),
-            hasImages: this.hasImages
-        };
+        const withImages = this.recipes.filter(recipe => recipe.images && recipe.images.length).length;
+        return { total: this.recipes.length, withImages, timestamp: localStorage.getItem('recipes_timestamp'), hasImages: withImages > 0 };
     }
-
-    /**
-     * Löscht gespeicherte Rezepte aus LocalStorage (Hilfsmethode)
-     */
     clearLocalStorage() {
         localStorage.removeItem('recipes');
         localStorage.removeItem('recipes_timestamp');
     }
 }
 
-// Export für Verwendung in anderen Dateien
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = RecipeGenerator;
-}
+if (typeof module !== 'undefined' && module.exports) module.exports = RecipeGenerator;

@@ -27,13 +27,7 @@
     <link rel="stylesheet" href="../css/detail.css">
     <link rel="stylesheet" href="../css/mobile.css">
     
-    <!-- JavaScript Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="../js/lib/jszip.min.js"></script>
-    
     <!-- Custom Scripts -->
-    <script src="../js/xmlParser.js"></script>
-    <script src="../js/imageStore.js"></script>
     <script src="../js/recipeGenerator.js"></script>
 </head>
 <body>
@@ -46,7 +40,7 @@
             <div class="detail-hero">
                 <div class="detail-image-gallery">
                     <div class="detail-image-main" id="recipeImageMain">
-                        <div class="emoji-placeholder">🍽️</div>
+                        <div class="emoji-placeholder">🍽️</div>
                     </div>
                     <div class="detail-image-thumbnails" id="imageThumbnails" style="display: none;"></div>
                 </div>
@@ -117,6 +111,11 @@
         let currentRecipe = null;
         let allImages = [];
         let currentImageIndex = 0;
+
+        function resolveRecipeImageURL(imageURL) {
+            if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(imageURL)) return imageURL;
+            return new URL(`../${imageURL}`, window.location.href).href;
+        }
         
         // Portion Scaler State
         let originalServings = null;
@@ -128,20 +127,29 @@
         let wakeLockSupported = 'wakeLock' in navigator;
 
         window.addEventListener('load', async () => {
-            // Lade Rezepte aus LocalStorage
-            if (!generator.loadFromLocalStorage()) {
-                // Versuche von URL zu laden
-                try {
-                    console.log('Versuche zu laden:' + localStorage?.getItem('currentRecipe'))
-                    await generator.loadFromURL('../Rezepte.xlsx');
-                    generator.saveToLocalStorage();
-                } catch (error) {
+            try {
+                if (window.location.protocol === 'file:' && generator.loadFromLocalStorage()) {
+                    // Lokale Datei-URLs können JSON nicht per fetch laden; nutze den Homepage-Cache.
+                } else {
+                    await generator.loadFromURL('../recipes.json');
+                }
+            } catch (error) {
+                if (window.location.protocol === 'file:') {
+                    try {
+                        const data = await selectLocalRecipesJson();
+                        generator.recipes = data.recipes;
+                        generator.saveToLocalStorage();
+                    } catch (fileError) {
+                        alert(`Rezeptdaten konnten nicht geladen werden: ${fileError.message}`);
+                        goBack();
+                        return;
+                    }
+                } else {
                     alert('Fehler beim Laden der Rezepte. Bitte gehe zurück zur Startseite.');
                     goBack();
                     return;
                 }
             }
-
             // Hole aktuelles Rezept
             const recipeName = localStorage.getItem('currentRecipe');
             if (!recipeName) {
@@ -159,6 +167,25 @@
 
             await displayRecipe();
         });
+
+        function selectLocalRecipesJson() {
+            return new Promise((resolve, reject) => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json,application/json';
+                input.addEventListener('change', async () => {
+                    if (!input.files.length) return reject(new Error('Keine Datei ausgewählt.'));
+                    try {
+                        const data = JSON.parse(await input.files[0].text());
+                        if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
+                        resolve(data);
+                    } catch (error) {
+                        reject(error);
+                    }
+                }, { once: true });
+                input.click();
+            });
+        }
 
         async function displayRecipe() {
             if (!currentRecipe) return;
@@ -289,7 +316,7 @@
             
             // Ersetze mit echtem Bild
             const img = document.createElement('img');
-            img.src = imageData.dataUrl;
+            img.src = resolveRecipeImageURL(imageData.dataUrl);
             img.alt = currentRecipe.name;
             img.onload = () => {
                 imageEl.innerHTML = '';
@@ -354,7 +381,7 @@
                 }
                 
                 const img = document.createElement('img');
-                img.src = imageData.dataUrl;
+                img.src = resolveRecipeImageURL(imageData.dataUrl);
                 img.alt = `Bild ${index + 1}`;
                 img.onclick = () => {
                     displayImage(index);
@@ -490,7 +517,7 @@
             if (name.includes('naan')) return '🫓';
             if (name.includes('mac')) return '🧀';
             
-            return '🍽️';
+            return '🍽️';
         }
 
         function getGradientForRecipe(recipeName) {

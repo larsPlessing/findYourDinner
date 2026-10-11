@@ -1,0 +1,4759 @@
+{
+  "version": 1,
+  "recipes": [
+    {
+      "id": 0,
+      "name": "Apfel Oatmeal",
+      "category": "Snacks - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 240,
+          "unit": "g",
+          "product": "Haferflocken",
+          "note": ""
+        },
+        {
+          "amount": 60,
+          "unit": "g",
+          "product": "Protein Pulver Vanille",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "g",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 600,
+          "unit": "g",
+          "product": "(4) Äpfel geschält",
+          "note": ""
+        },
+        {
+          "amount": 48,
+          "unit": "g",
+          "product": "Brauner Zucker",
+          "note": ""
+        },
+        {
+          "amount": 8,
+          "unit": "g",
+          "product": "Zimt",
+          "note": ""
+        },
+        {
+          "amount": 28,
+          "unit": "g",
+          "product": "Butter",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "g",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 480,
+          "unit": "g",
+          "product": "Milch (Mandelmilch)",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Wash and peel the apples. Cut them in half and remove the cores. Cut them into thin slices."
+        },
+        {
+          "step": 2,
+          "text": "Heat a large skillet over medium heat. Add 1 tbsp of butter and then add the apples."
+        },
+        {
+          "step": 3,
+          "text": "Sprinkle the cinnamon and brown sugar over the top. Cook until the sugar has reduced and the apples have become soft."
+        },
+        {
+          "step": 4,
+          "text": "Preheat your oven to 190 Grad"
+        },
+        {
+          "step": 5,
+          "text": " In a large bowl, mix together the oats, protein powder, and baking powder."
+        },
+        {
+          "step": 6,
+          "text": " In a separate bowl, whisk together the eggs, milk, and 1 tbsp of melted butter. Pour over the top of the apples and oats and mix."
+        },
+        {
+          "step": 7,
+          "text": " Spray a 13\"x9\" pan with oil and add the oat mixture and apples."
+        },
+        {
+          "step": 8,
+          "text": "Bake for 30-35 minutes."
+        }
+      ],
+      "notes": [
+        "https://youtu.be/VqqbTuPWATc?list=PLVxFeaOIY8-u8DI1x1G8vebrDKdooOYRX"
+      ],
+      "createdDate": 44609,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-0-1.png"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Apfelkuchen",
+      "category": "Nachtisch - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 3,
+          "unit": "",
+          "product": "Äpfel",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Zucker/ Ersatz",
+          "note": ""
+        },
+        {
+          "amount": 120,
+          "unit": "g",
+          "product": "Dickelmehl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pk",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Yogurth/ Skyr",
+          "note": ""
+        },
+        {
+          "amount": 0.5,
+          "unit": "",
+          "product": "Zitronen",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Mandelsplitter",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Äpfel schälen, entkernen und in Spalten (1,5 cm) schneiden."
+        },
+        {
+          "step": 2,
+          "text": "Die Eier trennen und in eine Schüssel geben. Das Eiweiß in ein hohes Gefäß geben und steif schlagen."
+        },
+        {
+          "step": 3,
+          "text": "Das Eigelb mit einem Handrührgerät ca. 1 Minute cremig schlagen."
+        },
+        {
+          "step": 4,
+          "text": "Dinkelmehl, Backpulver, Skyr, Zitronensaft und Flav‘ n Tasty hinzufügen und unterrühren, so das ein cremiger klumpenfreier Teig entsteht."
+        },
+        {
+          "step": 5,
+          "text": "Backofen auf 180°C Ober-/ Unterhitze vorheizen."
+        },
+        {
+          "step": 6,
+          "text": "Zum Schluss den Eischnee mit einem Teigschaber und vorsichtig unterheben."
+        },
+        {
+          "step": 7,
+          "text": "auf mittlerer Schiene goldbraun für etwa 40-50 Minuten backen."
+        }
+      ],
+      "notes": [
+        "https://www.instagram.com/reel/CTXcNqvovCv/?utm_source=ig_web_copy_link"
+      ],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-1-1.png"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Asiapfanne (Mie Nudeln in Erdnussoße)",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 3,
+      "name": "BBQ & Pulled Prok Burger",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 2,
+          "unit": "Reihen",
+          "product": "Rippchen",
+          "note": ""
+        },
+        {
+          "amount": 750,
+          "unit": "g",
+          "product": "Schweineschopf/ Schweinenacken",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "Apfelsaft für den Topf",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Liquid Smoke",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Paprikapulver",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Chillipulver",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Kreuzkümmel",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Koriandersamen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Schwarzer Pfeffer (Körner)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "granulierter Knoblauch",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Apfelchips",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Salbei",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Fenchelsamen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "ml",
+          "product": "BBQ Flüssigkeit",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Apfelessig",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Sojasoße",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Tl",
+          "product": "Chillisoße",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "EL",
+          "product": "Brauner Zucker",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Stärke",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Silberhaut mit Löffel von Rippchen abziehen"
+        },
+        {
+          "step": 2,
+          "text": "Salz mit Liquid Smoke mischen und Fleisch damit einsalzen"
+        },
+        {
+          "step": 3,
+          "text": "Schüssel und abdecken und 2-4h in den Kühlschrank"
+        },
+        {
+          "step": 5,
+          "text": "Alle Gewürze in einen Mixer"
+        },
+        {
+          "step": 7,
+          "text": "Nach dem Fleisch aus Kühlschrank mit Gewürzmischung einreiben"
+        },
+        {
+          "step": 8,
+          "text": "Fleisch in Ofensicheren Topf"
+        },
+        {
+          "step": 9,
+          "text": "Fleisch (ohne das sich das Fleisch gegenseitig berührt) und Apfelsaft hinzu geben"
+        },
+        {
+          "step": 10,
+          "text": "2-3h bei 150 Grad in Ofen stellen"
+        },
+        {
+          "step": 12,
+          "text": "Wenn Fleisch fertig. Dann Sud in Topf geben"
+        },
+        {
+          "step": 13,
+          "text": "Tomatenmark, Apfelessig, Sojasoße, Chillisoße, Brauner Zucker dazu"
+        },
+        {
+          "step": 14,
+          "text": "4 EL von Sud nehmen und in extra Schüssel und Stärke dazu und verühren"
+        },
+        {
+          "step": 15,
+          "text": "Löffelweiße wieder dazu geben um anzudicken"
+        },
+        {
+          "step": 17,
+          "text": "Fleisch damit einpinseln und bei 180 Grad in den Ofen"
+        },
+        {
+          "step": 18,
+          "text": "Vorgang nocheinmal wiederholen"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/_BFYpw-zQQY?list=PLVxFeaOIY8-u8DI1x1G8vebrDKdooOYRX"
+      ],
+      "createdDate": 44626,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-3-1.jpeg"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Burger",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 2,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 375,
+          "unit": "g",
+          "product": "Mehl 550 (12g Eiweis)",
+          "note": ""
+        },
+        {
+          "amount": 40,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 10,
+          "unit": "g",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Trockenhefe (7g)",
+          "note": ""
+        },
+        {
+          "amount": 75,
+          "unit": "g",
+          "product": "Milch",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Butter",
+          "note": ""
+        },
+        {
+          "amount": 170,
+          "unit": "g",
+          "product": "Ei (ca 3 Stk M)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Ei zum Bestreichen",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Sauce:",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "EL",
+          "product": "Majo",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Ketchup",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Senf",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "Spritzer",
+          "product": "Worchestershire Sauce",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 1.5,
+          "unit": "EL",
+          "product": "Weißwein Essig",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Paprika Süß",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Chilli Pulver",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Knoblauch granuliert",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Gewürzgurken",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Mehl, Zucker, Salz, Hefe, Milch, Butter und Ei in Schüssel und in Rührmaschine"
+        },
+        {
+          "step": 2,
+          "text": "so lange Kneten bis er sich von der Seite löst"
+        },
+        {
+          "step": 3,
+          "text": "Teig von Seite nochmal abkrazen und nochmal auf Mittlerer Stufe 25 Min Kneten"
+        },
+        {
+          "step": 4,
+          "text": "Mit Frischhaltefolie abdecken und 1,5 bis 2h in den Kühlschrank"
+        },
+        {
+          "step": 5,
+          "text": "3 mal durchkneten"
+        },
+        {
+          "step": 6,
+          "text": "Öl in Hände und 90g Teigbälchen machen"
+        },
+        {
+          "step": 7,
+          "text": "Für 1,5h in den Ofen nur Licht aufgehen lassen"
+        },
+        {
+          "step": 8,
+          "text": "Ofen vorheizen 165 Grad Umluft und Wasserschüssel darunter"
+        },
+        {
+          "step": 9,
+          "text": "Buns vorsichtig mit Ei bestreichen"
+        },
+        {
+          "step": 10,
+          "text": "Wenn vorgeheizt auf mittlere Schiene"
+        },
+        {
+          "step": 11,
+          "text": "Nach 5min Wasserschüssel entfernen und 10min fertig backen lassen"
+        },
+        {
+          "step": 12,
+          "text": "geschmolzene Butter drauf streichen"
+        },
+        {
+          "step": 14,
+          "text": "Sauce:"
+        },
+        {
+          "step": 15,
+          "text": "Zwiebeln schälen, in feine Würfel schneiden, in ein Feinsieb geben und mit 0,5l kochendem Wasser übergießen."
+        },
+        {
+          "step": 16,
+          "text": "Gurken in sehr feine Würfel schneiden"
+        },
+        {
+          "step": 17,
+          "text": "Alle Zutaten miteinander verrühren und gut abschmecken."
+        }
+      ],
+      "notes": [
+        "https://youtu.be/N6-IvcQHEYk?t=352",
+        "https://youtu.be/TmGRiPDnIR8?t=18"
+      ],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-4-1.png"
+        },
+        {
+          "src": "images/recipes/recipe-4-2.png"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Cheesburger OnePot",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 1362,
+          "unit": "g",
+          "product": "Hackfleisch",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Karotten",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "g",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "g",
+          "product": "Knoblauchpulver",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "g",
+          "product": "Chillipulver",
+          "note": ""
+        },
+        {
+          "amount": 10,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 960,
+          "unit": "ml",
+          "product": "Hühnerbrühe",
+          "note": ""
+        },
+        {
+          "amount": 730,
+          "unit": "ml",
+          "product": "Milch 1,5%/ Mandelmilch",
+          "note": ""
+        },
+        {
+          "amount": 454,
+          "unit": "g",
+          "product": "Nudeln",
+          "note": ""
+        },
+        {
+          "amount": 112,
+          "unit": "g",
+          "product": "Käse",
+          "note": ""
+        },
+        {
+          "amount": 180,
+          "unit": "g",
+          "product": "Blattspinat",
+          "note": ""
+        },
+        {
+          "amount": 1020,
+          "unit": "g",
+          "product": "Brokoli",
+          "note": ""
+        },
+        {
+          "amount": 44,
+          "unit": "g",
+          "product": "Olivenöl",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Über Brokoli Olivenöl, Salz und Pfeffer"
+        },
+        {
+          "step": 2,
+          "text": "Auf Backblech geben und bei 230 Grad Umluft für 10 min in Backofen"
+        },
+        {
+          "step": 3,
+          "text": "Drehen und weitere 5 - 7 min"
+        },
+        {
+          "step": 5,
+          "text": "Währen Brokoli im Backofen ist:"
+        },
+        {
+          "step": 6,
+          "text": "Zwiebeln zusammen mit Hackfleisch anbraten"
+        },
+        {
+          "step": 7,
+          "text": "Mit Salz und Pfeffer würzen"
+        },
+        {
+          "step": 8,
+          "text": "Karotten, Zwiebeln dazu"
+        },
+        {
+          "step": 9,
+          "text": "Wenn Karotten gekocht dann Hühner/ Gemüßebrühe und Milch dazu"
+        },
+        {
+          "step": 10,
+          "text": "Mehl zum andicken dazu"
+        },
+        {
+          "step": 11,
+          "text": "Chillipulver, Knoblauchpulver und Tomatenmark dazu"
+        },
+        {
+          "step": 12,
+          "text": "Wenn es anfängt zu kochen: Nudeln dazu"
+        },
+        {
+          "step": 13,
+          "text": "Wenn Nudeln fertig Spinat dazu"
+        },
+        {
+          "step": 14,
+          "text": "Käse dazu"
+        },
+        {
+          "step": 15,
+          "text": "Würzen"
+        },
+        {
+          "step": 16,
+          "text": "Falls zu flüssig ohne Deckel weiter kochen"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/lw5raPrVwIE?t=16"
+      ],
+      "createdDate": 44616,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-5-1.png"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Chicken Teriyaki",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Hühnchen/ Pute",
+          "note": ""
+        },
+        {
+          "amount": 90,
+          "unit": "g",
+          "product": "Sojasouce",
+          "note": ""
+        },
+        {
+          "amount": 30,
+          "unit": "g",
+          "product": "Brauner Zucker",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Zehen",
+          "product": "Knoblauch",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Sesamkerne",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Weizenmehl",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Hähchen in Mehl, Pfeffer und Salz einlegen"
+        },
+        {
+          "step": 2,
+          "text": "Fleisch anbraten"
+        },
+        {
+          "step": 3,
+          "text": "Fleisch raus tun"
+        },
+        {
+          "step": 4,
+          "text": "Sojasouce, Brauner Zucker, Pfeffer und Knoblauch - köcheln"
+        },
+        {
+          "step": 5,
+          "text": "Sesamkerne hinzu geben"
+        },
+        {
+          "step": 6,
+          "text": "Fleisch dazugeben und vermischen"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/V-BriQC_Sag?t=83"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-6-1.jpeg"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Ei-Muffins",
+      "category": "Snacks - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Paprika",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Champignons",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Blattspinat",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "ml",
+          "product": "Eiweiß",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer, Paprikapulver",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zwiebeln, Paprika, Champignons, Blattspinat anbraten"
+        },
+        {
+          "step": 2,
+          "text": "Eier und Eiweiß aufschlagen"
+        },
+        {
+          "step": 3,
+          "text": "Gemüße dazugeben und in Muffin form geben"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/QKNphlwUfY8?t=45"
+      ],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-7-1.png"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Frenchtoast",
+      "category": "Nachtisch - Süß",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 9,
+      "name": "Gefüllte Paprika",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Hack",
+          "note": ""
+        },
+        {
+          "amount": 6,
+          "unit": "",
+          "product": "Paprikas",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 0.5,
+          "unit": "Pkg",
+          "product": "Feta",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Petersilie",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Dose Tomaten",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Esslöffel",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": 130,
+          "unit": "g",
+          "product": "Reis",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Reibekäse",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zwiebeln, Knoblauch andünsten (Reis schon vorher kochen)"
+        },
+        {
+          "step": 2,
+          "text": "1 Teelöffel Kreuzkümmel und Paprikapulver dazu"
+        },
+        {
+          "step": 3,
+          "text": "zum ungekochten Hack geben"
+        },
+        {
+          "step": 4,
+          "text": "Salz, und Pfeffer, Tomatenfruchtfleisch und Fetakäse"
+        },
+        {
+          "step": 5,
+          "text": "Paprika aushölen mit Löffel"
+        },
+        {
+          "step": 6,
+          "text": "Hackmasse in die Paprika geben und Deckel drauf"
+        },
+        {
+          "step": 7,
+          "text": "Restliche Tomaten in die Auflaufform geben und gefüllte Paprika dazu"
+        },
+        {
+          "step": 8,
+          "text": "Bei 200 Grad Umluft in den Ofen - 35 min"
+        },
+        {
+          "step": 9,
+          "text": "Sud salzen und pfeffern, Petersilie hinzu "
+        }
+      ],
+      "notes": [
+        "https://youtu.be/hNQgZ9rZ3Lg?t=20"
+      ],
+      "createdDate": 44462,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 10,
+      "name": "Gnocchi Bolognese",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Gnocchi",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Puten/ Hühnchenhack",
+          "note": "Sojahack"
+        },
+        {
+          "amount": 800,
+          "unit": "g",
+          "product": "Tomaten (Dose)",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Koblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 40,
+          "unit": "g",
+          "product": "Mozarella",
+          "note": ""
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Oregano",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Chiliflocken",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Gemüsebrühe",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Basilikum",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zwiebeln, Knoblauch andünsten"
+        },
+        {
+          "step": 2,
+          "text": "Hack dazugeben und anbraten"
+        },
+        {
+          "step": 3,
+          "text": "Tomatenmark dazugeben"
+        },
+        {
+          "step": 4,
+          "text": "Tomaten dazugeben"
+        },
+        {
+          "step": 5,
+          "text": "Oregano dazugeben"
+        },
+        {
+          "step": 6,
+          "text": "Würzen mit Salz, Pfeffer, Chilliflocken, Basilikum"
+        },
+        {
+          "step": 7,
+          "text": "Gnocchi dazugeben"
+        },
+        {
+          "step": 8,
+          "text": "Gemüsebrühe dazugeben damit alles bedeckt ist - 5min"
+        },
+        {
+          "step": 9,
+          "text": "Mozarella dazugeben"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/RDFMJENsbYY?list=PL3BGZiQzj6EN2FztE2H-0BZltz5dwL_yS&t=69"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-10-1.png"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Gnocchi in Tomatensahnesoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 12,
+      "name": "Gnochi mit Gemüße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Paprika",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "",
+          "product": "Karotten",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Pkg",
+          "product": "Gnochi",
+          "note": ""
+        }
+      ],
+      "instructions": [],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 13,
+      "name": "Hackbälchen Sahnesoße mit Penne",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 14,
+      "name": "Haferflocken Apfel Brot",
+      "category": "Snacks - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 120,
+          "unit": "g",
+          "product": "Haferflocken",
+          "note": ""
+        },
+        {
+          "amount": 5,
+          "unit": "g",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "g",
+          "product": "Zimt",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Prise Salz",
+          "note": ""
+        },
+        {
+          "amount": 35,
+          "unit": "g",
+          "product": "Proteinpulver",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Süßungsmittel",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "Milch (Mandel)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Apfel",
+          "note": ""
+        },
+        {
+          "amount": 20,
+          "unit": "g",
+          "product": "Nüsse",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Alles mixen und dann Äpfel und Nüsse kleingeschnitte dazu in Brotfrom geben"
+        },
+        {
+          "step": 2,
+          "text": "30 min für 170 Grad Umluft"
+        }
+      ],
+      "notes": [
+        "https://www.tiktok.com/@just.miiin/video/7058650560660065541?is_from_webapp=1&sender_device=pc&web_id7067637886032856582"
+      ],
+      "createdDate": 44614,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-14-1.png"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Haferflocken Pizza Brot",
+      "category": "Snacks - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Haferflocken",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Magerquark",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Ei",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 60,
+          "unit": "ml",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Ei",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Schnittlauch",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Zehen",
+          "product": "Knoblauch",
+          "note": ""
+        },
+        {
+          "amount": 125,
+          "unit": "g",
+          "product": "Mozarella leicht",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Haferflocken mixen"
+        },
+        {
+          "step": 2,
+          "text": "Danach in Schüssel mit Magerquark und Prise Salz"
+        },
+        {
+          "step": 3,
+          "text": "vermengen"
+        },
+        {
+          "step": 4,
+          "text": "Ei, Backpulver und Wasser dazu und vermengen"
+        },
+        {
+          "step": 5,
+          "text": "Hände befeuchten und auf Backblech mit Backpapier zur flachem Kreis formen"
+        },
+        {
+          "step": 6,
+          "text": "mit Löffel befeuchten und platt drücken"
+        },
+        {
+          "step": 7,
+          "text": "mit Messer einschneiden"
+        },
+        {
+          "step": 9,
+          "text": "E, Schnittlauch und Koblauch vermengen und darüber streichen"
+        },
+        {
+          "step": 11,
+          "text": "evtl Mozarella darüber geben"
+        }
+      ],
+      "notes": [
+        "https://www.tiktok.com/@furki_berlin/video/7067564491004792066?is_from_webapp=1&sender_device=pc&web_id7067637886032856582"
+      ],
+      "createdDate": 44615,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-15-1.png"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Hähchen Curry",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 30,
+          "unit": "g",
+          "product": "Tomatensouce (Tomaten)",
+          "note": ""
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "Currypulver Kukuma",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Hähchenbrust",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "ml",
+          "product": "Kokosmilch",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zwiebeln, Knoblauch andünsten und Salzen und Pfeffern - 5 min"
+        },
+        {
+          "step": 2,
+          "text": "Tomatensouce + Curry + Kukuma dazugeben"
+        },
+        {
+          "step": 3,
+          "text": "Hähchen dazugeben und anbraten"
+        },
+        {
+          "step": 4,
+          "text": "Kokosmilch dazugeben"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/QIAG22T6OWg?t=1"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 17,
+      "name": "Hühnchen Eintopf",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Hähnchenschenkel ",
+          "note": ""
+        },
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Kartoffeln",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Karotten",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Lorbeerblatt",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Hühnerbrühe",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Petersilie",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Mehl",
+          "note": "zum verdicken"
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Hähnchen anbaraten bis durch"
+        },
+        {
+          "step": 2,
+          "text": "Fleisch raus und Karotten, Zwiebeln, Koblauch andünsten - 5min"
+        },
+        {
+          "step": 3,
+          "text": "Hühnerbrühe mit Mehl dazugeben"
+        },
+        {
+          "step": 4,
+          "text": "Fleisch wieder dazugeben"
+        },
+        {
+          "step": 5,
+          "text": "Rest der Hühnerbrühe dazugeben sodass alles bedeckt ist"
+        },
+        {
+          "step": 6,
+          "text": "Lorbeerblatt dazugeben und würzen - 10 min"
+        },
+        {
+          "step": 7,
+          "text": "Kartoffeln dazugeben bis Kartoffeln durch"
+        },
+        {
+          "step": 8,
+          "text": "Petersilie dazugeben"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/RDFMJENsbYY?list=PL3BGZiQzj6EN2FztE2H-0BZltz5dwL_yS&t=315"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 18,
+      "name": "Kaiserschmarn",
+      "category": "Mittagessen - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "ml",
+          "product": "Sahne oder Milch",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "ml",
+          "product": "glattes/ 405 Mehl (150g)",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Zucker (abschmecken)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Vanillezucker",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Butter für die Pfanne",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Apfelmus:",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Äpfel",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Zimstangen",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Gewürznelken",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Zitronenschale",
+          "note": ""
+        },
+        {
+          "amount": 0.5,
+          "unit": "",
+          "product": "Zitronensaft",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Eiweiß und Eigelb trennen"
+        },
+        {
+          "step": 2,
+          "text": "Eiweiß steifschlagen"
+        },
+        {
+          "step": 3,
+          "text": "Eigelb mit Sahne/Milch, Mehl und Zucker verühren"
+        },
+        {
+          "step": 4,
+          "text": "Eiweiß vorsichtig unterheben"
+        },
+        {
+          "step": 6,
+          "text": "Teig in Pfanne mit Butter für ca 1min"
+        },
+        {
+          "step": 7,
+          "text": "Dann in Ofen bei 200 Grad OberUnterhitze für 10min"
+        },
+        {
+          "step": 9,
+          "text": "Dann 1-2 EL Zucker in Pfanne geben bei Stufe 6 langsam erhitzen lassen bis karamelisiert"
+        },
+        {
+          "step": 10,
+          "text": "Pfannkuchen dazu und verupfen"
+        },
+        {
+          "step": 12,
+          "text": "Apfelmuß:"
+        },
+        {
+          "step": 13,
+          "text": "Äpfel klein schneiden"
+        },
+        {
+          "step": 14,
+          "text": "In Topf mit Zimstangen, Gewürznelken und Zitronenschale geben"
+        },
+        {
+          "step": 15,
+          "text": "Saft einer halben Zitronen und einen Schucker Wasser dazu "
+        },
+        {
+          "step": 16,
+          "text": "Köcheln lassen bis Äpfel weich"
+        },
+        {
+          "step": 17,
+          "text": "Gewürze und Zitronenschale entfernen"
+        },
+        {
+          "step": 18,
+          "text": "Pürieren"
+        },
+        {
+          "step": 19,
+          "text": "Mit Zucker abschmecken"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/WAbJ1KVEYx0?list=PLVxFeaOIY8-u8DI1x1G8vebrDKdooOYRX"
+      ],
+      "createdDate": 44625,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-18-1.png"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "Kartoffel - Hackfleisch - Salat",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 20,
+      "name": "Kartoffelgratin",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 21,
+      "name": "Kartoffelpizza",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Kartoffeln",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Becher",
+          "product": "Creme Fraiche Kräuter",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "geriebenen Käse",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        }
+      ],
+      "instructions": [],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 22,
+      "name": "Lasagne",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 23,
+      "name": "Lauch in Hackfleisch Sahnesoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 24,
+      "name": "Linsen mit Spätzle",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 25,
+      "name": "Magerquark Pizza",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Dinkelmehl",
+          "note": ""
+        },
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Magerquark",
+          "note": ""
+        },
+        {
+          "amount": 160,
+          "unit": "g",
+          "product": "Haferflockenmehl",
+          "note": ""
+        },
+        {
+          "amount": 14,
+          "unit": "g",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Prise",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pizzabelag",
+          "note": "Wurst, Käse, Plize"
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dinkel und Haferflockenmehl und Backpulver und Salz zu Teig vermengen"
+        },
+        {
+          "step": 2,
+          "text": "Im Ofen ca 15min vorbacken bis fest"
+        },
+        {
+          "step": 3,
+          "text": "Tomatenmark mit Wasser und Gewürze vermengen und auf Teig geben"
+        },
+        {
+          "step": 4,
+          "text": "Belgen und fertig backen"
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 26,
+      "name": "Maisfladen",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 160,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 160,
+          "unit": "g",
+          "product": "Maismehl",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Olivenöl",
+          "note": ""
+        },
+        {
+          "amount": 70,
+          "unit": "g",
+          "product": "Mais",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "g",
+          "product": "Frühlingszwiebel",
+          "note": " Champignons, Karotten, Paprika"
+        },
+        {
+          "amount": 80,
+          "unit": "g",
+          "product": "Tomaten",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Chilischote",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Knoblauchzehe",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Hack",
+          "note": ""
+        },
+        {
+          "amount": 80,
+          "unit": "g",
+          "product": "Wermut",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer, Grieß, Zucker",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Für die Fladen aus Mehl, Maismehl, 220 ml lauwarmem Wasser, Salz und 2 El Öl einen geschmeidigen Teig kneten. Mit Folie zudecken und 1 Stunde ruhen lassen."
+        },
+        {
+          "step": 2,
+          "text": "Gemüße etc schneiden und kurz anbarten und wieder raus."
+        },
+        {
+          "step": 3,
+          "text": "Zwiebeln und Knoblauch anschwitzen"
+        },
+        {
+          "step": 4,
+          "text": "Hack dazu"
+        },
+        {
+          "step": 5,
+          "text": "Gemüße dazu - 6 min"
+        },
+        {
+          "step": 6,
+          "text": "Mit Wermut ablöschen und einkochen lassen"
+        },
+        {
+          "step": 7,
+          "text": "Gemüße wieder dazu geben"
+        },
+        {
+          "step": 8,
+          "text": "Teig in gleich große Teile machen"
+        },
+        {
+          "step": 9,
+          "text": "mit Grieß ausrollen"
+        },
+        {
+          "step": 10,
+          "text": "Füllung rein und Wasser an den Rand "
+        }
+      ],
+      "notes": [
+        "https://www.essen-und-trinken.de/rezepte/53643-rzpt-gebackene-maisfladen-mit-hackfuellung-und-gurkensalat"
+      ],
+      "createdDate": 44437,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-26-1.png"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "name": "MieNudeln Crispy Chicken",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Hähnchen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Ei",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knäckebrot bzw Paniermehl",
+          "note": ""
+        },
+        {
+          "amount": 125,
+          "unit": "g",
+          "product": "Mie-Nudeln",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "ml",
+          "product": "Sojasouce",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Zehen",
+          "product": "Knoblauch",
+          "note": ""
+        },
+        {
+          "amount": 10,
+          "unit": "g",
+          "product": "Butter",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Champions",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Karotten",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Paprika",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Fleisch platt machen und mit Ei und Paniermehl/ Knäckebrot panieren und für 10 min jede Seite in Airfryer"
+        },
+        {
+          "step": 2,
+          "text": "Wasser im Wasserkocher kochen und Mie Nudel 5 min rein tun"
+        },
+        {
+          "step": 3,
+          "text": "Butter schmelzen"
+        },
+        {
+          "step": 4,
+          "text": "Sojasouce dazu"
+        },
+        {
+          "step": 5,
+          "text": "Knoblauch dazu"
+        },
+        {
+          "step": 6,
+          "text": "aufkochen lassen"
+        },
+        {
+          "step": 7,
+          "text": "Nudeln & Gemüße dazu"
+        },
+        {
+          "step": 8,
+          "text": "2 Eier dazu"
+        }
+      ],
+      "notes": [
+        "https://www.pinterest.de/pin/466122630193996197/"
+      ],
+      "createdDate": 44609,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-27-1.png"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "name": "Milchreis",
+      "category": "Mittagessen - Süß",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 29,
+      "name": "Naan mit Gemüßerahmsoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "ml",
+          "product": "Milch, lauwarm",
+          "note": ""
+        },
+        {
+          "amount": 2.5,
+          "unit": "EL",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "TL",
+          "product": "Hefe",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Pflanzenöl",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "ml",
+          "product": "Vollmichjoghurt",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Mehl zum ausrollen",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Paprika, Pilze, Karotten etc.",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "ml",
+          "product": "Sahne",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "heller Soßenbinder",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauch",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer, Muskatnuss   ",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "El",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "ml",
+          "product": "Gemüsebrühe ",
+          "note": ""
+        },
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Hack",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Gemüße kurz anbraten und wieder entnehmen"
+        },
+        {
+          "step": 2,
+          "text": "Zwiebeln und Knoblauch glasig braten"
+        },
+        {
+          "step": 3,
+          "text": "Hack dazu und braten"
+        },
+        {
+          "step": 4,
+          "text": "Mit Salz, Pfeffer und frisch gemahlener Muskatnuss würzen. Mit Mehl bestäuben und kurz anschwitzen. "
+        },
+        {
+          "step": 5,
+          "text": "Gemüße wieder dazu"
+        },
+        {
+          "step": 6,
+          "text": "Brühe und Sahne unter Rühren zugießen, aufkochen und ca. 3 Minuten köcheln lassen. Mit Salz und Pfeffer abschmecken."
+        }
+      ],
+      "notes": [
+        "https://www.chefkoch.de/rezepte/246931098493642/Indisches-Naan-Brot.html",
+        "https://www.lecker.de/champignon-rahmsosse-82242.html"
+      ],
+      "createdDate": 44509,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 30,
+      "name": "Nacho Schichtsalat",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Hackfleisch (gemischt)",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Chilli con Carne Gewürzmischung",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Kopf ",
+          "product": "Eisbergsalat",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Tomaten",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "rote Paprika",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Dose",
+          "product": "Meis",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Flasche",
+          "product": "Salsa Soße",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Becher",
+          "product": "Schmand",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Becher",
+          "product": "Creme Fraiche",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tüte",
+          "product": "Nachos",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Dose",
+          "product": "evtl Kidney Bohnen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Käse gerieben",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Fleisch anbraten und mit Chilli con Carne Gewürzschmischung würzen"
+        },
+        {
+          "step": 2,
+          "text": "Tomaten und Paprika klein schneiden"
+        },
+        {
+          "step": 3,
+          "text": "Salat klein schneiden"
+        },
+        {
+          "step": 5,
+          "text": "Große Schüssel Lagen:"
+        },
+        {
+          "step": 6,
+          "text": "Salat"
+        },
+        {
+          "step": 7,
+          "text": "Tomaten und Paprika klein schneiden"
+        },
+        {
+          "step": 8,
+          "text": "Paprika"
+        },
+        {
+          "step": 9,
+          "text": "Mais und Bohnen"
+        },
+        {
+          "step": 10,
+          "text": "Fleisch"
+        },
+        {
+          "step": 11,
+          "text": "Salsa"
+        },
+        {
+          "step": 12,
+          "text": "Schmand und Creme Fraiche verührt"
+        },
+        {
+          "step": 13,
+          "text": "Käse"
+        },
+        {
+          "step": 14,
+          "text": "Nachos zerkleinert"
+        }
+      ],
+      "notes": [
+        "https://www.tiktok.com/@isiprisi93/video/7064159677424127237?is_from_webapp=1&sender_device=pc&web_id7067637886032856582",
+        "https://youtu.be/WROBxW_BPCo"
+      ],
+      "createdDate": 44626,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-30-1.jpeg"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "name": "Nudel-Spinat-Auflauf",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Nudeln (Penne)",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Spinat",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Tomaten",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "getrocknete Tomaten",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer, Oregano",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Paprikapulver, Olivenöl",
+          "note": ""
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "Balsamikoessig",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Sahne",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Gemüßebrühe",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Mozarella etc.",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "alles in eine Auflaufform"
+        },
+        {
+          "step": 2,
+          "text": "Bei 200 Grad in den Backofen - 25 min"
+        },
+        {
+          "step": 3,
+          "text": "Käse drüber und nochmal in den Backofen - 15 min "
+        }
+      ],
+      "notes": [
+        "https://vm.tiktok.com/ZMR9Aey9C/"
+      ],
+      "createdDate": 44460,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-31-1.png"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "name": "Nudelauflauf",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 33,
+      "name": "Nudelgratain",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 34,
+      "name": "Orsonudeln in Sahnesoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 35,
+      "name": "Paprika-Sahne-Hähnchen Gnocchi",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Pute/ Hähnchen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Paprika",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "ml",
+          "product": "Sahne",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Öl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Salz & Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Gnocchi",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Als Erstes brätst du das Fleisch scharf an, damit es nicht anfängt zu kochen."
+        },
+        {
+          "step": 2,
+          "text": "Dann gibst du Zwiebeln und Paprika dazu und dünstest das Gemüse an. Das Ganze wird mit Salz und Pfeffer gewürzt."
+        },
+        {
+          "step": 3,
+          "text": "Tomatenmark dazu"
+        },
+        {
+          "step": 4,
+          "text": "Sahne in die Pfanne und lässt die Soße einmal aufkochen"
+        },
+        {
+          "step": 5,
+          "text": "abschmecken mit Salz Pfeffer"
+        },
+        {
+          "step": 6,
+          "text": "10-15 Minuten kochen"
+        },
+        {
+          "step": 7,
+          "text": "Während die Soße vor sich hin köchelt kannst du die Gnocchi, oder eine andere Beilage, zubereiten."
+        }
+      ],
+      "notes": [
+        "https://lydiasfoodblog.de/paprika-sahne-haehnchen-mit-gnocchi/"
+      ],
+      "createdDate": 44509,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 36,
+      "name": "Pfannkuchen mit Spinat",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 700,
+          "unit": "ml",
+          "product": "Milch",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Prise",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Pkg",
+          "product": "Spinat",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Gut vermengen"
+        },
+        {
+          "step": 2,
+          "text": "Ausbraten"
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 37,
+      "name": "Pizza",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 6,
+      "ingredients": [
+        {
+          "amount": 1000,
+          "unit": "g",
+          "product": "Mehl Typ 00, > 12% Eiweiß",
+          "note": ""
+        },
+        {
+          "amount": 600,
+          "unit": "g",
+          "product": "Wasser Raumtemperatur",
+          "note": "oder vlt 620"
+        },
+        {
+          "amount": 30,
+          "unit": "g",
+          "product": "Meersalz",
+          "note": "oder vlt 25"
+        },
+        {
+          "amount": 3,
+          "unit": "g",
+          "product": "Hefe",
+          "note": "oder vlt 1,5"
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Mehl und Hefe in Knetmaschine"
+        },
+        {
+          "step": 2,
+          "text": "laufen lassen und Wasser nach und nach bis Mehl weg"
+        },
+        {
+          "step": 3,
+          "text": "Danach Salz und Zucker dazu"
+        },
+        {
+          "step": 4,
+          "text": "Fertig wenn Teigmaschine sauber bleibt wenn man den Teig entfernt"
+        },
+        {
+          "step": 5,
+          "text": "1h so abgedeckt gehen lassen"
+        },
+        {
+          "step": 6,
+          "text": "Danach in 280 g Kugeln machen und 12-18 h in Kühlschrank"
+        },
+        {
+          "step": 8,
+          "text": "Wasser in Schüssel"
+        },
+        {
+          "step": 9,
+          "text": "Hefe in Wasser auflösen"
+        },
+        {
+          "step": 10,
+          "text": "Hälfe des Mehls dazu und von Hand vermengen bis Mehl gut aufgelöst"
+        },
+        {
+          "step": 11,
+          "text": "Dann Salz dazu"
+        },
+        {
+          "step": 12,
+          "text": "Dann restliche Menge Mehl dazu"
+        },
+        {
+          "step": 13,
+          "text": "Teig für 15 min durchkneten"
+        },
+        {
+          "step": 14,
+          "text": "1h so abgedeckt gehen lassen"
+        },
+        {
+          "step": 15,
+          "text": "Danach in 280 g Kugeln machen und 12-18 h in Kühlschrank"
+        },
+        {
+          "step": 17,
+          "text": "Ofen mit Pizzastein vorheizen bis 250 Grad"
+        },
+        {
+          "step": 18,
+          "text": "Soße: Tomaten (wenn ungesalzen dann noch Salz), Pfeffer, Oregano, Balsamiko und Olivenöl"
+        },
+        {
+          "step": 19,
+          "text": "Teig weiten "
+        },
+        {
+          "step": 20,
+          "text": "In den Ofen"
+        },
+        {
+          "step": 22,
+          "text": "Für die Soße: Tomaten purriert, Salz und Olivenöl (5g)"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/jV-F6Oi4T0Y?t=495",
+        "https://youtu.be/G0PSxsM2czc?t=91"
+      ],
+      "createdDate": 44611,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-37-1.jpeg"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "name": "Pommes mit Quarkdipp",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 2,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "kg",
+          "product": "Kartoffeln (Süßkartoffeln)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Dill",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Petersillie",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Koreander",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Knoblauchzehe",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Magerquark",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Kartoffeln schälen und in Scheiben schneiden"
+        },
+        {
+          "step": 2,
+          "text": "2 mal abwaschen"
+        },
+        {
+          "step": 3,
+          "text": "Kochendes Wasser in Schüssel und 10 min stehen lassen"
+        },
+        {
+          "step": 4,
+          "text": "Kartoffeln trocknen und auf Backblech"
+        },
+        {
+          "step": 5,
+          "text": "In Ofen: Umluft 220 Grad 20 min und danach Unter/Oberhitze 10 min"
+        },
+        {
+          "step": 6,
+          "text": "Würzen"
+        },
+        {
+          "step": 8,
+          "text": "Dill, Petersillie, Koreander, Knoblauchzehe, Quark und Salz in Mixer"
+        },
+        {
+          "step": 9,
+          "text": "eventuell nachsalzen und Zitrone/ Limette dazu "
+        },
+        {
+          "step": 10,
+          "text": "nochmal mixen"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/ElMgnGEnQdg?t=110"
+      ],
+      "createdDate": 44439,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-38-1.png"
+        },
+        {
+          "src": "images/recipes/recipe-38-2.png"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "name": "Protein Pancakes",
+      "category": "Snacks - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Eiweis",
+          "note": ""
+        },
+        {
+          "amount": 30,
+          "unit": "g",
+          "product": "Proteinpulver",
+          "note": ""
+        },
+        {
+          "amount": 8,
+          "unit": "g",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 70,
+          "unit": "g",
+          "product": " Haferflocken",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Quark: Skyr etc",
+          "note": ""
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "Milch",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zutaten mixen"
+        },
+        {
+          "step": 2,
+          "text": "In Pfanne backen (Butter)"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/ZcYM6Dfh4oY?t=189"
+      ],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-39-1.png"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "name": "Protein Poridge",
+      "category": "Snacks - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 1,
+      "ingredients": [
+        {
+          "amount": 40,
+          "unit": "g",
+          "product": "Haferflocken",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Magerquark",
+          "note": ""
+        },
+        {
+          "amount": 30,
+          "unit": "g",
+          "product": "Proteinpulver",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "ml ",
+          "product": "Milch",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "geforerene Früchte",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "alles mixen und Früchte dazu (eventuell 2h in den Kühlschrank)"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/QxgXNS8_Rz8?t=30"
+      ],
+      "createdDate": 44440,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-40-1.png"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "name": "Punsch",
+      "category": "Nachtisch - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 1,
+      "ingredients": [
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "Apfelsaft",
+          "note": ""
+        },
+        {
+          "amount": 125,
+          "unit": "ml",
+          "product": "Sauerkirschsaft",
+          "note": ""
+        },
+        {
+          "amount": 0.5,
+          "unit": "Pkg",
+          "product": "Zitronenschale",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zimtstange",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "St",
+          "product": "Gewürznelken",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "ml ",
+          "product": "Orangensaft",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "Schwarztee",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Tl",
+          "product": "Zucker",
+          "note": ""
+        }
+      ],
+      "instructions": [],
+      "notes": [
+        "https://www.gutekueche.at/weihnachtspunsch-ohne-alkohol-rezept-24327"
+      ],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-41-1.jpeg"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "name": "Pute Kartoffel Auflauf",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Kartoffeln",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "ml",
+          "product": "Cremefine",
+          "note": ""
+        },
+        {
+          "amount": 20,
+          "unit": "g",
+          "product": "Creme fraiche",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tl",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Kräuter",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "rote Paprika",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Hähchen/ Pute",
+          "note": ""
+        },
+        {
+          "amount": 40,
+          "unit": "g",
+          "product": " Reibekäse",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Auflaufform einfettern, Kartoffeln und Zwiebeln in Auflaufform"
+        },
+        {
+          "step": 2,
+          "text": "Eier, Cremefine, Creme fraiche, Tomatenmark, Kräuter, Salz, Pfeffer, Paprikapulver in Schüssel und verühren"
+        },
+        {
+          "step": 3,
+          "text": "Hähchen in Auflaufform"
+        },
+        {
+          "step": 4,
+          "text": "Soße darüber"
+        },
+        {
+          "step": 5,
+          "text": "Reibekäse darüber"
+        },
+        {
+          "step": 6,
+          "text": "40-45 min bei 170 Grad Umluft backen"
+        }
+      ],
+      "notes": [
+        "https://www.tiktok.com/@albertfitlifestyle/video/7054621763115830534?is_from_webapp=1&sender_device=pc&web_id7067637886032856582"
+      ],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-42-1.png"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "name": "Putenbrustsalat",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 44,
+      "name": "Reispfanne",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Puten/ Hähnchenbrust",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Reis",
+          "note": ""
+        },
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Gemüßebrühe",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Tomaten in Dose",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Paprika, Pilze, Karotten, Tomaten, Brokoli",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer, Kurkuma",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Das Gemüse in Rauten und die Hähnchenbrust in mundgerechte Stücke schneiden"
+        },
+        {
+          "step": 2,
+          "text": "Gemüße anbraten und raus geben"
+        },
+        {
+          "step": 3,
+          "text": "In der gleichen Pfanne das Fleisch scharf anbraten und auch zur Seite stellen"
+        },
+        {
+          "step": 4,
+          "text": "Die Zwiebelwürfel in etwas Olivenöl glasig dünsten und den Reis dazugeben. Mit Brühe auffüllen und mit Salz, Pfeffer und Kurkuma würzen"
+        },
+        {
+          "step": 5,
+          "text": " Den Reis 10-15 Minuten weichkochen. Die Tomatenwürfel, das Fleisch und das Gemüse hinzugeben und nochmal alles abschmecken."
+        }
+      ],
+      "notes": [
+        "https://youtu.be/HvuHCnjY3to?t=163"
+      ],
+      "createdDate": 44460,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-44-1.png"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "name": "Risotto",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 180,
+          "unit": "g",
+          "product": "Risotto-Reis",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Garnellen",
+          "note": "Ansonsten 400g Pute/ Hühnchen"
+        },
+        {
+          "amount": 80,
+          "unit": "g",
+          "product": "Erbsen",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Weiswein",
+          "note": ""
+        },
+        {
+          "amount": 10,
+          "unit": "g",
+          "product": "Parmesan",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Zwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer, Kukuma",
+          "note": ""
+        },
+        {
+          "amount": 360,
+          "unit": "ml",
+          "product": "Gemüsebrühe",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zwiebeln, Koblauch andünsten"
+        },
+        {
+          "step": 2,
+          "text": "Risotto-Reis dazugeben - umrühren"
+        },
+        {
+          "step": 3,
+          "text": "Weiswein dazugeben - 2 min"
+        },
+        {
+          "step": 4,
+          "text": "Gemüßebrühe dazugeben und würzen - 20 min"
+        },
+        {
+          "step": 5,
+          "text": "Erbsen dazugeben"
+        },
+        {
+          "step": 6,
+          "text": "Garnellen dazugeben "
+        },
+        {
+          "step": 7,
+          "text": "Parmesan dazugeben"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/RDFMJENsbYY?list=PL3BGZiQzj6EN2FztE2H-0BZltz5dwL_yS&t=201"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-45-1.png"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "name": "Schnitzel mit Spätzle",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 47,
+      "name": "Smothie Bole",
+      "category": "Snacks - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "geforene Früche",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Milch",
+          "note": ""
+        },
+        {
+          "amount": 40,
+          "unit": "g",
+          "product": "Proteinpulver",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Topings:",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Bannenen",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Erdbeeren",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Müsli",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Früchte, Milche und Pulver in mixer und für 5 min mixen"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/jvvAP7UVxIs?t=587"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-47-1.png"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "name": "Spagethie in Erdnussoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 49,
+      "name": "Spaghetti Bolognese - Gorden",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Spaghetti",
+          "note": "Vollkorn"
+        },
+        {
+          "amount": 800,
+          "unit": "g",
+          "product": "Tomaten (Dose)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Zehen",
+          "product": "Knoblauch",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Hühnchen/ Putenhack",
+          "note": "Sojahack"
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Karotten",
+          "note": "gerieben"
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Rotwein",
+          "note": ""
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "wester sour sauce",
+          "note": "Maggi/ Sojasouce"
+        },
+        {
+          "amount": 85,
+          "unit": "g",
+          "product": "Milch",
+          "note": ""
+        },
+        {
+          "amount": 40,
+          "unit": "g",
+          "product": " Mozarella",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Oregano",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Spaghetti abkochen - 10 min"
+        },
+        {
+          "step": 2,
+          "text": "Karotten reiben und mit den Zwiebel anschwitzen"
+        },
+        {
+          "step": 3,
+          "text": "Knoblauch dazugeben"
+        },
+        {
+          "step": 4,
+          "text": "Würzen mit Salz, Pfeffer, Oregano"
+        },
+        {
+          "step": 5,
+          "text": "Hack dazugeben und durchbraten - 5min"
+        },
+        {
+          "step": 6,
+          "text": "In die Mitte Tomatenmark geben"
+        },
+        {
+          "step": 7,
+          "text": "Rotwein dazugeben - 1min"
+        },
+        {
+          "step": 8,
+          "text": "Tomaten dazugeben"
+        },
+        {
+          "step": 9,
+          "text": "Würzen mit wester sour sauce - 5min"
+        },
+        {
+          "step": 10,
+          "text": "Milch dazugeben"
+        }
+      ],
+      "notes": [
+        "https://www.youtube.com/watch?v=wcj80v67YJ4"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-49-1.png"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "name": "Spaghetti Gemüßesoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Spaghetti",
+          "note": "Vollkorn"
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Paprika",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Zehen",
+          "product": "Knoblauch",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Hühnchen/ Pute",
+          "note": ""
+        },
+        {
+          "amount": 40,
+          "unit": "g",
+          "product": "Mozarella",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Karotten",
+          "note": "optional"
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Championions",
+          "note": "optional"
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Paprika geräuchert",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Oregano",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Spaghetti abkochen - 10 min"
+        },
+        {
+          "step": 2,
+          "text": "Zwiebeln, Paprika, Karotten, Koblauch anbraten"
+        },
+        {
+          "step": 3,
+          "text": "Zutaten mixen mit 150ml Pastawasser und würzen"
+        },
+        {
+          "step": 4,
+          "text": "Fleisch mit Salz, Pfeffer, Paprika, Olivenöl marinieren und anbraten"
+        },
+        {
+          "step": 5,
+          "text": "Spaghetti und Soße dazugeben"
+        }
+      ],
+      "notes": [
+        "https://www.tiktok.com/@its.razi/video/6902531837311077633?is_from_webapp=1&sender_device=pc&web_id6904198717584098822"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 51,
+      "name": "Spätzle in Champignionrahmsoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": [
+        {
+          "src": "images/recipes/recipe-51-1.png"
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "name": "Spinat Nudeln",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Spaghetti",
+          "note": ""
+        },
+        {
+          "amount": 1000,
+          "unit": "ml",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Blattspinat",
+          "note": "gefroren"
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Tomaten",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Ricotta",
+          "note": "Hüttenkäse/ Sahne"
+        },
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Lachs",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz, Pfeffer",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zwiebeln und Knoblauch andünsten"
+        },
+        {
+          "step": 2,
+          "text": "Nudeln und Spinat dazugeben"
+        },
+        {
+          "step": 3,
+          "text": "1 Teelöffel Salz"
+        },
+        {
+          "step": 4,
+          "text": "Mit Wasser aufgießen"
+        },
+        {
+          "step": 5,
+          "text": "Nudeln verteilen"
+        },
+        {
+          "step": 6,
+          "text": "Kochen - 10-12 min köcheln"
+        },
+        {
+          "step": 7,
+          "text": "Ricotta, Tomaten dazugeben"
+        },
+        {
+          "step": 8,
+          "text": "Pfeffern"
+        },
+        {
+          "step": 10,
+          "text": "Lachs mit Meersalz auf beiden Seiten gut einsalzen und 20 min einziehen lassen"
+        },
+        {
+          "step": 11,
+          "text": "Danach abwaschen und abtrocknen"
+        },
+        {
+          "step": 12,
+          "text": "Herd auf Stufe 5 langsam auf Hautseite anbraten - 15-20 min"
+        },
+        {
+          "step": 13,
+          "text": "Wenn Haut wie gewünscht auf andere Seite so braten wie gewollt"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/tj_FnWPhdjk?t=16"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 53,
+      "name": "Subway Sandwhiches Teryiaki",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Sandwiches",
+          "note": ""
+        },
+        {
+          "amount": 520,
+          "unit": "g",
+          "product": "Weizenmehl Typ00",
+          "note": ""
+        },
+        {
+          "amount": 330,
+          "unit": "g",
+          "product": "Milch",
+          "note": ""
+        },
+        {
+          "amount": 20,
+          "unit": "g",
+          "product": "weiche Butter",
+          "note": ""
+        },
+        {
+          "amount": 15,
+          "unit": "g",
+          "product": "frische Hefe / 5g trockene",
+          "note": ""
+        },
+        {
+          "amount": 13,
+          "unit": "g",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 7,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Chicken Teriyaki",
+          "note": ""
+        },
+        {
+          "amount": 600,
+          "unit": "g",
+          "product": "Hähnchenbrust",
+          "note": ""
+        },
+        {
+          "amount": 80,
+          "unit": "g",
+          "product": "Sojasoße",
+          "note": ""
+        },
+        {
+          "amount": 30,
+          "unit": "g",
+          "product": "Honig",
+          "note": ""
+        },
+        {
+          "amount": 10,
+          "unit": "g",
+          "product": "brauner Zucker",
+          "note": ""
+        },
+        {
+          "amount": 20,
+          "unit": "g",
+          "product": "Apfelessig",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Alle Zutaten (außer Butter) in eine Schüssel geben & kneten. Dann die Butter einarbeiten. Nach 12-15 Minuten ist der Teig geschmeidig ausgeknetet. Von Hand dauert das etwa 20 Minuten."
+        },
+        {
+          "step": 2,
+          "text": " Dehnen, falten & zu einer Kugel formen. In einer geölten Schüssel 60 Minuten mit einem feuchten Küchentuch ruhen lassen."
+        },
+        {
+          "step": 3,
+          "text": "Teig entgasen, auf die Arbeitsplatte stürzen in 3 Stücke teilen, rundwirken & 15 Minuten abgedeckt mit einem feuchten Küchentuch entspannen lassen."
+        },
+        {
+          "step": 4,
+          "text": "Ausrollen, rechteckig formen, aufrollen & Naht verschließen. Aufs Blech legen & 60 Minuten mit einem feuchten Küchentuch gehen lassen."
+        },
+        {
+          "step": 5,
+          "text": "Mit Ei-Milch-Mix bestreichen, einschneiden, toppen & bei 190°C für 19-21 Minuten mit viel Dampf backen. Nach dem Backen direkt mit einem Küchentuch abdecken und auskühlen lassen. So werden sie besonders weich."
+        },
+        {
+          "step": 7,
+          "text": "Hähnchen vorbereiten: In Würfel schneiden, salzen, pfeffern, 1 Ei, 1 Esslöfel Stärke & beiseite stellen."
+        },
+        {
+          "step": 8,
+          "text": "Teriyaki-Soße mixen: Sojasauce, Essig, Zucker, Honig in eine Schüssel geben und vermengen."
+        },
+        {
+          "step": 9,
+          "text": "Hähnchen bei hoher Hitze anbraten: In Öl scharf anbraten (ca. 3 Min.)"
+        },
+        {
+          "step": 10,
+          "text": "Soße dazugeben: Mit dem Hähnchen unter rühren erhitzen, bis sie eindickt."
+        }
+      ],
+      "notes": [
+        "https://www.instagram.com/reel/DH8rtnmtbee/?hl=de",
+        "https://www.instagram.com/reel/DH0G-0bNeSI/"
+      ],
+      "createdDate": null,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-53-1.png"
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "name": "Tiramisu",
+      "category": "Nachtisch - Süß",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier (getrennt)",
+          "note": ""
+        },
+        {
+          "amount": 125,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 450,
+          "unit": "g",
+          "product": "Maskapone",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "ml",
+          "product": "Sahne",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Spritzer",
+          "product": "Zitrone",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tasse",
+          "product": "Kaffee",
+          "note": ""
+        },
+        {
+          "amount": 125,
+          "unit": "ml",
+          "product": "Alkohol (Rum/ Vin Santo)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Löffelbusciuts",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Kakaopulver",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Eigelb und Eiweiß trennen"
+        },
+        {
+          "step": 2,
+          "text": "Zucker zu Eigelb und verühren"
+        },
+        {
+          "step": 3,
+          "text": "Maskapone dazu und verühren"
+        },
+        {
+          "step": 4,
+          "text": "Sahne und verühren"
+        },
+        {
+          "step": 5,
+          "text": "Spritzer Zitronensaft zu Eiweiß und steif schlagen und vorsichtig zu anderem unterrühren"
+        },
+        {
+          "step": 6,
+          "text": "Kaffee in Schüssel und bisschen Zucker und Alkohol (Rum) dazu"
+        },
+        {
+          "step": 7,
+          "text": "Löffelbiscuits kurz in Kaffee einlegen und in Schüsssel"
+        },
+        {
+          "step": 9,
+          "text": "1 Schicht: Creme"
+        },
+        {
+          "step": 10,
+          "text": "2 Schicht: Biscuits"
+        },
+        {
+          "step": 11,
+          "text": "3 Schicht: Creme"
+        },
+        {
+          "step": 12,
+          "text": "4: Biscuits usw."
+        },
+        {
+          "step": 13,
+          "text": "Letzte Schicht: Kreme und mit Kakaopulver bestreuen"
+        },
+        {
+          "step": 15,
+          "text": "Über Nacht in Kühlschrank"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/HykFyrhuyMk"
+      ],
+      "createdDate": 44636,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-54-1.jpeg"
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "name": "Tortelloni Brokoli-Sahnesoße",
+      "category": "Mittagessen - Salzig",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Brokoli",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "Sahne",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "ger Käse",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Frischkäse",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Pilze",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Tortelloni",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Pilze kurz anbraten"
+        },
+        {
+          "step": 2,
+          "text": "Brokoli dazu"
+        },
+        {
+          "step": 3,
+          "text": "Mit Sahne ablöschen"
+        },
+        {
+          "step": 4,
+          "text": "Würzen"
+        },
+        {
+          "step": 5,
+          "text": "Tortelloni dazu"
+        },
+        {
+          "step": 6,
+          "text": "Käse drüber"
+        }
+      ],
+      "notes": [],
+      "createdDate": 46065,
+      "modifiedDate": 46086,
+      "images": []
+    },
+    {
+      "id": 56,
+      "name": "Versunkener Kirschkuchen",
+      "category": "Nachtisch - Süß",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 57,
+      "name": "Waffeln",
+      "category": "Mittagessen - Süß",
+      "hasImage": false,
+      "imageCount": 0,
+      "isPlaceholder": true,
+      "servings": null,
+      "ingredients": [],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
+        }
+      ],
+      "notes": [],
+      "createdDate": null,
+      "modifiedDate": null,
+      "images": []
+    },
+    {
+      "id": 58,
+      "name": "Wraps",
+      "category": "Mittagessen - Salzig",
+      "hasImage": true,
+      "imageCount": 1,
+      "isPlaceholder": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 600,
+          "unit": "g",
+          "product": "Allzeckmehl 550",
+          "note": ""
+        },
+        {
+          "amount": 7.4,
+          "unit": "g",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 60,
+          "unit": "ml",
+          "product": "Natives Olivenöl extra",
+          "note": ""
+        },
+        {
+          "amount": 395,
+          "unit": "ml",
+          "product": "kochendes Wasser",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zutaten in eine Schüssel geben"
+        },
+        {
+          "step": 2,
+          "text": "Umrühren und dann 10 min Kneten"
+        },
+        {
+          "step": 3,
+          "text": "zu flüssig --> Mehl dazugeben, zu fest --> Wasser"
+        },
+        {
+          "step": 4,
+          "text": "30 min in Küchentuch gehen lassen"
+        },
+        {
+          "step": 5,
+          "text": "Teig aufteilen und dünn ausrollen (25cm Durchmesser)"
+        },
+        {
+          "step": 6,
+          "text": "Pfanne auf mitllere Hitze erhitzen"
+        },
+        {
+          "step": 7,
+          "text": "Teig anbraten auf beiden Seiten für 1 min"
+        },
+        {
+          "step": 8,
+          "text": "In Küchentuch einrollen 10 min"
+        },
+        {
+          "step": 9,
+          "text": "Je nach Zutaten nochmal anbraten"
+        },
+        {
+          "step": 11,
+          "text": "Zutaten (Majo als Grundlage):"
+        },
+        {
+          "step": 12,
+          "text": "Fleisch, Ei, Käse"
+        },
+        {
+          "step": 13,
+          "text": "Salat, Champignons, Tomaten, Putenwurst"
+        }
+      ],
+      "notes": [
+        "https://youtu.be/7VKuUL5osRs?t=77"
+      ],
+      "createdDate": 44430,
+      "modifiedDate": 46086,
+      "images": [
+        {
+          "src": "images/recipes/recipe-58-1.png"
+        }
+      ]
+    }
+  ]
+}
