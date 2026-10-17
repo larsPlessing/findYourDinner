@@ -24,11 +24,18 @@ test('every recipe has the fields used by the application', () => {
         assert.equal(typeof recipe.name, 'string');
         assert.ok(recipe.name.trim().length > 0);
         assert.equal(typeof recipe.category, 'string');
+        assert.ok(['Salzig', 'Süß'].includes(recipe.category), `${recipe.name} has unsupported category ${recipe.category}`);
+        assert.equal(typeof recipe.healthy, 'boolean', `${recipe.name} needs a healthy boolean`);
         assert.ok(Array.isArray(recipe.ingredients));
         assert.ok(Array.isArray(recipe.instructions));
         assert.ok(Array.isArray(recipe.notes));
         assert.ok(Array.isArray(recipe.images));
     }
+});
+
+test('healthy is set on recipes with clearly lighter or more balanced ingredients', () => {
+    const healthyRecipes = data.recipes.filter(recipe => recipe.healthy).map(recipe => recipe.id);
+    assert.deepEqual(healthyRecipes, [0, 1, 7, 10, 12, 14, 15, 17, 25, 38, 39, 40, 42, 44, 45, 47, 49, 50, 52]);
 });
 
 test('recipe text does not contain common mojibake sequences', () => {

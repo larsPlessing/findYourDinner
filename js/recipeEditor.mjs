@@ -76,7 +76,7 @@ function selectRecipeForEdit(index) {
     const form = document.getElementById('recipeEditForm');
     form.innerHTML = '';
     addEditorField(form, 'Name', 'name', recipe.name || '');
-    addCategoryField(form, recipe.category || '');
+    addCategoryField(form, recipe.category || '', recipe.healthy);
     addEditorField(form, 'Portionen', 'servings', recipe.servings ?? '', 'number');
     addIngredientsEditor(form, recipe.ingredients || []);
     addInstructionsEditor(form, recipe.instructions || []);
@@ -196,47 +196,31 @@ function addEditorField(form, labelText, name, value, type = 'text') {
     form.appendChild(label);
 }
 
-function addCategoryField(form, selectedCategory) {
+function addCategoryField(form, selectedCategory, isHealthy) {
     const label = document.createElement('label');
     label.className = 'editor-field';
     const title = document.createElement('span');
     title.textContent = 'Kategorie';
-    const controls = document.createElement('div');
-    controls.className = 'editor-category-controls';
     const select = document.createElement('select');
     select.name = 'category';
-    const categories = generator.getAllCategories();
-    if (selectedCategory && !categories.includes(selectedCategory)) categories.push(selectedCategory);
-    const emptyOption = document.createElement('option');
-    emptyOption.value = '';
-    emptyOption.textContent = 'Kategorie auswählen';
-    select.appendChild(emptyOption);
-    categories.sort((a, b) => a.localeCompare(b, 'de')).forEach(category => {
+    ['Salzig', 'Süß'].forEach(category => {
         const option = document.createElement('option');
         option.value = category;
         option.textContent = category;
         select.appendChild(option);
     });
-    select.value = selectedCategory;
-    const addButton = document.createElement('button');
-    addButton.type = 'button';
-    addButton.className = 'editor-add-category';
-    addButton.textContent = '＋ Neue Kategorie';
-    addButton.addEventListener('click', () => {
-        const category = prompt('Name der neuen Kategorie:')?.trim();
-        if (!category) return;
-        let option = Array.from(select.options).find(item => item.value === category);
-        if (!option) {
-            option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            select.appendChild(option);
-        }
-        select.value = category;
-    });
-    controls.append(select, addButton);
-    label.append(title, controls);
+    select.value = selectedCategory === 'Süß' ? 'Süß' : 'Salzig';
+    label.append(title, select);
     form.appendChild(label);
+
+    const healthyLabel = document.createElement('label');
+    healthyLabel.className = 'editor-checkbox';
+    const healthyInput = document.createElement('input');
+    healthyInput.type = 'checkbox';
+    healthyInput.name = 'healthy';
+    healthyInput.checked = isHealthy === true;
+    healthyLabel.append(healthyInput, document.createTextNode(' healthy'));
+    form.appendChild(healthyLabel);
 }
 
 function addIngredientsEditor(form, ingredients) {
@@ -383,6 +367,7 @@ async function saveEditedRecipe(event) {
     updated.name = form.elements.name.value.trim();
     if (!updated.name) { form.elements.name.focus(); return; }
     updated.category = form.elements.category.value.trim();
+    updated.healthy = form.elements.healthy.checked;
     updated.servings = form.elements.servings.value ? Number(form.elements.servings.value) : null;
     updated.ingredients = readIngredientRows(form);
     updated.instructions = readInstructionRows(form);
@@ -403,7 +388,7 @@ async function commitRecipeChanges(recipe, index) {
 }
 
 function newRecipe() {
-    const recipe = { id: Math.max(-1, ...generator.recipes.map(item => Number(item.id) || 0)) + 1, name: 'Neues Rezept', category: '', servings: null, ingredients: [], instructions: [], notes: [], images: [], isPlaceholder: false };
+    const recipe = { id: Math.max(-1, ...generator.recipes.map(item => Number(item.id) || 0)) + 1, name: 'Neues Rezept', category: 'Salzig', healthy: false, servings: null, ingredients: [], instructions: [], notes: [], images: [], isPlaceholder: false };
     generator.recipes.push(recipe);
     editingRecipeIndex = generator.recipes.length - 1;
     persistRecipeEdits();

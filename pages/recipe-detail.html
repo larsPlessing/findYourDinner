@@ -152,20 +152,32 @@
         window.addEventListener('load', async () => {
             try {
                 const savedEdits = localStorage.getItem('recipes_user_edits');
+                let loadedFromCache = false;
                 if (savedEdits) {
                     generator.recipes = JSON.parse(savedEdits);
                     if (!Array.isArray(generator.recipes)) throw new Error('Lokale Rezeptdaten sind ungültig.');
+                    generator.normalizeCategories();
+                    loadedFromCache = true;
                 } else if (generator.loadFromLocalStorage()) {
                     // Verwende denselben Rezept-Cache wie die Übersicht.
+                    loadedFromCache = true;
                 } else {
                     await generator.loadFromURL('../recipes.json');
                     generator.saveToLocalStorage();
+                }
+                if (loadedFromCache && window.location.protocol !== 'file:') {
+                    try {
+                        await generator.syncHealthyClassifications('../recipes.json');
+                    } catch (error) {
+                        console.warn(`Healthy-Kennzeichnungen konnten nicht aktualisiert werden: ${error.message}`);
+                    }
                 }
             } catch (error) {
                 if (window.location.protocol === 'file:') {
                     try {
                         const data = await selectLocalRecipesJson();
                         generator.recipes = data.recipes;
+                        generator.normalizeCategories();
                         generator.saveToLocalStorage();
                     } catch (fileError) {
                         alert(`Rezeptdaten konnten nicht geladen werden: ${fileError.message}`);
@@ -225,7 +237,7 @@
             // Kategorie
             const categoryEl = document.getElementById('recipeCategory');
             if (currentRecipe.category) {
-                categoryEl.textContent = currentRecipe.category;
+                categoryEl.textContent = currentRecipe.healthy ? `${currentRecipe.category} · healthy` : currentRecipe.category;
                 categoryEl.style.display = 'inline-block';
             }
 

@@ -46,3 +46,11 @@ test('detail page opens the editor in place with the current recipe selected', (
     assert.match(recipeEditor, /generator\.recipes\.findIndex\(recipe => recipe\.name === recipeName \|\| recipe\.sheetName === recipeName\)/);
     assert.doesNotMatch(detailPage, /function editCurrentRecipe\(\)\s*\{[^}]*window\.location\.href/s);
 });
+
+test('recipe editor restricts base categories and offers healthy as an optional flag', () => {
+    assert.match(recipeEditor, /\['Salzig', 'Süß'\]/);
+    assert.match(recipeEditor, /name: 'Neues Rezept', category: 'Salzig', healthy: false/);
+    assert.match(recipeEditor, /healthyInput\.name = 'healthy'/);
+    assert.match(recipeEditor, /updated\.healthy = form\.elements\.healthy\.checked/);
+    assert.doesNotMatch(recipeEditor, /editor-add-category|Neue Kategorie/);
+});

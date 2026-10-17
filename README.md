@@ -4,7 +4,8 @@ Ein mobiler Rezeptfinder mit Suche, Kategorien, Rezeptdetailseiten und einem Edi
 
 ## Funktionen
 
-- Rezeptübersicht mit Suche, Kategorien, Zufallsauswahl und gemischter Sortierung
+- Rezeptübersicht mit Suche und kombinierbaren Filtern: genau eine Hauptkategorie („Salzig“ oder „Süß“, Standard: „Salzig“) sowie optional „healthy“
+- URL- und Bildimport klassifizieren Rezepte zusätzlich optional als „healthy“; die Kennzeichnung lässt sich im Editor anpassen
 - Rezeptdetailseite mit Zutaten, Zubereitung, Bildern und Portionsanpassung
 - Editor auf der Startseite und direkt auf der Detailseite
 - Kategorienauswahl mit vorhandenen Kategorien und Möglichkeit, neue Kategorien hinzuzufügen
@@ -57,7 +58,8 @@ Die Datei `recipes.json` enthält ein Objekt mit Versionsnummer und Rezeptliste:
     {
       "id": 12,
       "name": "Beispielrezept",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
+      "healthy": true,
       "servings": 4,
       "ingredients": [
         { "amount": 200, "unit": "g", "product": "Mehl", "note": "gesiebt" }

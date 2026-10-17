@@ -8,7 +8,8 @@ const sampleRecipes = [
     {
         id: 1,
         name: 'Apfelkuchen',
-        category: 'Nachtisch',
+        category: 'Süß',
+        healthy: true,
         images: [{ src: 'images/recipes/apfelkuchen.jpg' }],
         ingredients: [],
         instructions: []
@@ -16,7 +17,8 @@ const sampleRecipes = [
     {
         id: 2,
         name: 'Kartoffelsuppe',
-        category: 'Mittagessen - Salzig',
+        category: 'Salzig',
+        healthy: false,
         images: [],
         ingredients: [],
         instructions: []
@@ -82,11 +84,57 @@ test('searches, filters and returns recipe images', async t => {
     const generator = new RecipeGenerator();
     generator.recipes = sampleRecipes;
     assert.deepEqual(generator.searchRecipes(' APFEL '), [sampleRecipes[0]]);
-    assert.deepEqual(generator.filterByCategory('Nachtisch'), [sampleRecipes[0]]);
-    assert.deepEqual(generator.getAllCategories(), ['Mittagessen - Salzig', 'Nachtisch']);
+    assert.deepEqual(generator.filterByCategory('Süß'), [sampleRecipes[0]]);
+    assert.deepEqual(generator.filterByCategory('Salzig', true), []);
+    assert.deepEqual(generator.filterByCategory('healthy'), [sampleRecipes[0]]);
+    assert.deepEqual(generator.getAllCategories(), ['Salzig', 'Süß', 'healthy']);
     assert.equal((await generator.getRecipeImageURL('Apfelkuchen')).dataUrl, 'images/recipes/apfelkuchen.jpg');
     assert.deepEqual(await generator.getAllRecipeImageURLs('Kartoffelsuppe'), []);
     assert.equal(await generator.hasRecipeImage('Apfelkuchen'), true);
+});
+
+test('normalizes legacy category labels from saved recipes', t => {
+    installBrowserMocks(t, { storage: { recipes: JSON.stringify([
+        { name: 'Kuchen', category: 'Nachtisch - Süß', healthy: true },
+        { name: 'Suppe', category: 'Mittagessen - Salzig' }
+    ]) } });
+    const generator = new RecipeGenerator();
+    assert.equal(generator.loadFromLocalStorage(), true);
+    assert.deepEqual(generator.recipes.map(recipe => recipe.category), ['Süß', 'Salzig']);
+    assert.deepEqual(generator.recipes.map(recipe => recipe.healthy), [true, false]);
+});
+
+test('syncs newly classified healthy recipes into existing browser caches', async t => {
+    const storage = {
+        recipes: JSON.stringify([{ id: 0, name: 'Apfel Oatmeal', category: 'Süß', healthy: false }]),
+        recipes_user_edits: JSON.stringify([{ id: 0, name: 'Apfel Oatmeal', category: 'Süß', healthy: false, notes: ['Eigene Notiz'] }])
+    };
+    installBrowserMocks(t, { storage });
+    const generator = new RecipeGenerator();
+    generator.recipes = JSON.parse(storage.recipes_user_edits);
+    t.mock.method(globalThis, 'fetch', async () => ({
+        ok: true,
+        json: async () => ({ recipes: [{ id: 0, healthy: true }] })
+    }));
+
+    assert.equal(await generator.syncHealthyClassifications('recipes.json'), true);
+    assert.equal(generator.recipes[0].healthy, true);
+    assert.deepEqual(generator.recipes[0].notes, ['Eigene Notiz']);
+    assert.deepEqual(JSON.parse(storage.recipes_user_edits), generator.recipes);
+    assert.equal(storage.healthy_classification_version, '1');
+    assert.equal(await generator.syncHealthyClassifications('recipes.json'), false);
+});
+
+test('filters combine one exclusive base category with optional healthy', () => {
+    const generator = new RecipeGenerator();
+    generator.recipes = [
+        { name: 'Salziger Salat', category: 'Salzig', healthy: true },
+        { name: 'Süßer Kuchen', category: 'Süß', healthy: true },
+        { name: 'Salzige Pommes', category: 'Salzig', healthy: false }
+    ];
+    assert.deepEqual(generator.filterByCategory('Salzig', true), [generator.recipes[0]]);
+    assert.deepEqual(generator.filterByCategory('Süß', true), [generator.recipes[1]]);
+    assert.deepEqual(generator.filterByCategory('Alle', true), generator.recipes.slice(0, 2));
 });
 
 test('stores and restores recipes in local storage', t => {

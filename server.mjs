@@ -107,11 +107,12 @@ function getRecipeCategories(root) {
         throw new Error(`Rezeptkategorien konnten nicht aus recipes.json geladen werden: ${error.message}`);
     }
 
-    const categories = [...new Set(
+    const availableCategories = new Set(
         (Array.isArray(recipeData.recipes) ? recipeData.recipes : [])
             .map(recipe => typeof recipe?.category === 'string' ? recipe.category.trim() : '')
             .filter(Boolean)
-    )];
+    );
+    const categories = ['Salzig', 'Süß'].filter(category => availableCategories.has(category));
     if (!categories.length) throw new Error('In recipes.json wurden keine Rezeptkategorien gefunden.');
     return categories;
 }

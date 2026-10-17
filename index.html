@@ -118,7 +118,8 @@
         globalThis.generator = new RecipeGenerator();
         let allRecipes = [];
         let filteredRecipes = [];
-        let currentCategory = 'Mittagessen - Salzig';
+        let currentCategory = 'Salzig';
+        let healthyOnly = false;
 
         const searchInput = document.getElementById('searchInput');
         const masonryGrid = document.getElementById('masonryGrid');
@@ -138,21 +139,32 @@
                 loadingState.textContent = 'Lade Rezepte...';
                 if (forceRemote) localStorage.removeItem('recipes_user_edits');
                 const savedRecipes = forceRemote ? null : localStorage.getItem('recipes_user_edits');
+                let loadedFromCache = false;
                 if (savedRecipes) {
                     const parsed = JSON.parse(savedRecipes);
                     if (!Array.isArray(parsed)) throw new Error('Lokal gespeicherte Rezeptdaten sind ungültig.');
                     generator.recipes = parsed;
+                    generator.normalizeCategories();
                     generator.hasImages = parsed.some(recipe => recipe.images && recipe.images.length);
+                    loadedFromCache = true;
                 } else if (!forceRemote && generator.loadFromLocalStorage()) {
                     generator.hasImages = generator.recipes.some(recipe => recipe.images && recipe.images.length);
+                    loadedFromCache = true;
                 } else {
                     await generator.loadFromURL('recipes.json');
                     generator.saveToLocalStorage();
                 }
+                if (loadedFromCache && window.location.protocol !== 'file:') {
+                    try {
+                        await generator.syncHealthyClassifications('recipes.json');
+                    } catch (error) {
+                        console.warn(`Healthy-Kennzeichnungen konnten nicht aktualisiert werden: ${error.message}`);
+                    }
+                }
                 allRecipes = generator.getAllRecipes();
                 filteredRecipes = [...allRecipes];
                 initializeCategoryFilter();
-                applyFilters('', currentCategory);
+                applyFilters('');
                 uploadOverlay.style.display = 'none';
                 uploadStatus.textContent = '';
                 uploadStatus.classList.remove('error');
@@ -168,8 +180,9 @@
             const data = JSON.parse(await file.text());
             if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
             generator.recipes = data.recipes;
+            generator.normalizeCategories();
             generator.hasImages = data.recipes.some(recipe => recipe.images && recipe.images.length > 0);
-            localStorage.setItem('recipes_user_edits', JSON.stringify(data.recipes));
+            localStorage.setItem('recipes_user_edits', JSON.stringify(generator.recipes));
             generator.saveToLocalStorage();
             allRecipes = generator.getAllRecipes();
             filteredRecipes = [...allRecipes];
@@ -177,7 +190,7 @@
             uploadStatus.textContent = '';
             loadingState.style.display = 'none';
             initializeCategoryFilter();
-            applyFilters('', currentCategory);
+            applyFilters('');
         }
 
         async function handleLocalJsonFile(event) {
@@ -256,7 +269,7 @@
                 if (recipe.category) {
                     const category = document.createElement('div');
                     category.className = 'recipe-category-badge';
-                    category.textContent = recipe.category;
+                    category.textContent = recipe.healthy ? `${recipe.category} · healthy` : recipe.category;
                     content.appendChild(category);
                 }
 
@@ -504,26 +517,26 @@
 
         function handleSearch(e) {
             const searchTerm = e.target.value;
-            applyFilters(searchTerm, currentCategory);
+            applyFilters(searchTerm);
         }
 
         function filterByCategory(category) {
-            currentCategory = category;
-            
-            // Update active state
-            document.querySelectorAll('.category-chip').forEach(chip => {
-                chip.classList.remove('active');
-                if (chip.dataset.category === category) {
-                    chip.classList.add('active');
-                }
-            });
-            
-            applyFilters(searchInput.value, category);
+            if (category === 'Alle') {
+                currentCategory = null;
+                healthyOnly = false;
+            } else if (category === 'healthy') {
+                healthyOnly = !healthyOnly;
+            } else {
+                currentCategory = currentCategory === category ? null : category;
+            }
+            updateCategoryFilterState();
+            applyFilters(searchInput.value);
         }
 
-        function applyFilters(searchTerm, category) {
-            // Zuerst nach Kategorie filtern
-            let recipes = category === 'Alle' ? allRecipes : generator.filterByCategory(category);
+        function applyFilters(searchTerm) {
+            let recipes = currentCategory
+                ? generator.filterByCategory(currentCategory, healthyOnly)
+                : healthyOnly ? generator.filterByCategory('healthy') : allRecipes;
             
             // Dann nach Suchbegriff filtern
             if (searchTerm && searchTerm.trim() !== '') {
@@ -545,12 +558,9 @@
                 return;
             }
             
-            // Prüfe ob Standard-Kategorie existiert
-            const defaultCategoryExists = categories.includes(currentCategory);
-            
             const allCategoriesButton = document.createElement('button');
             allCategoriesButton.type = 'button';
-            allCategoriesButton.className = `category-chip ${!defaultCategoryExists ? 'active' : ''}`;
+            allCategoriesButton.className = 'category-chip';
             allCategoriesButton.dataset.category = 'Alle';
             allCategoriesButton.textContent = 'Alle';
             allCategoriesButton.addEventListener('click', () => filterByCategory('Alle'));
@@ -559,14 +569,28 @@
             categories.forEach(category => {
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = `category-chip${category === currentCategory && defaultCategoryExists ? ' active' : ''}`;
+                button.className = 'category-chip';
                 button.dataset.category = category;
                 button.textContent = category;
                 button.addEventListener('click', () => filterByCategory(category));
                 categoryFilter.appendChild(button);
             });
 
+            updateCategoryFilterState();
             categoryFilter.style.display = 'flex';
+        }
+
+        function updateCategoryFilterState() {
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                const category = chip.dataset.category;
+                const active = category === 'Alle'
+                    ? !currentCategory && !healthyOnly
+                    : category === 'healthy'
+                        ? healthyOnly
+                        : category === currentCategory;
+                chip.classList.toggle('active', active);
+                chip.setAttribute('aria-pressed', String(active));
+            });
         }
 
         function selectRandomRecipe() {
@@ -604,7 +628,7 @@
         globalThis.refreshRecipesAfterEdit = () => {
             allRecipes = generator.recipes;
             initializeCategoryFilter();
-            applyFilters(searchInput.value, currentCategory);
+            applyFilters(searchInput.value);
         };
         Object.assign(globalThis, {
             closeUploadOverlay, filterByCategory, loadDefaultRecipes,

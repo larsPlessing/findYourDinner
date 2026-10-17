@@ -4,7 +4,7 @@
     {
       "id": 0,
       "name": "Apfel Oatmeal",
-      "category": "Snacks - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -108,12 +108,13 @@
         {
           "src": "images/recipes/recipe-0-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 1,
       "name": "Apfelkuchen",
-      "category": "Nachtisch - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -207,12 +208,13 @@
         {
           "src": "images/recipes/recipe-1-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 2,
       "name": "Asiapfanne (Mie Nudeln in Erdnussoße)",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -227,12 +229,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 3,
       "name": "BBQ & Pulled Prok Burger",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -438,12 +441,13 @@
         {
           "src": "images/recipes/recipe-3-1.jpeg"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 4,
       "name": "Burger",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 2,
       "isPlaceholder": false,
@@ -655,12 +659,13 @@
         {
           "src": "images/recipes/recipe-4-2.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 5,
       "name": "Cheesburger OnePot",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -828,12 +833,13 @@
         {
           "src": "images/recipes/recipe-5-1.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 6,
       "name": "Chicken Teriyaki",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -917,12 +923,13 @@
         {
           "src": "images/recipes/recipe-6-1.jpeg"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 7,
       "name": "Ei-Muffins",
-      "category": "Snacks - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -994,12 +1001,13 @@
         {
           "src": "images/recipes/recipe-7-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 8,
       "name": "Frenchtoast",
-      "category": "Nachtisch - Süß",
+      "category": "Süß",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -1014,12 +1022,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 9,
       "name": "Gefüllte Paprika",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -1135,12 +1144,13 @@
       ],
       "createdDate": 44462,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 10,
       "name": "Gnocchi Bolognese",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -1272,12 +1282,13 @@
         {
           "src": "images/recipes/recipe-10-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 11,
       "name": "Gnocchi in Tomatensahnesoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -1292,12 +1303,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 12,
       "name": "Gnochi mit Gemüße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -1330,12 +1342,13 @@
         {
           "src": "images/recipes/gnochi-mit-gemu-e-12-1.jpg"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 13,
       "name": "Hackbälchen Sahnesoße mit Penne",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -1350,12 +1363,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 14,
       "name": "Haferflocken Apfel Brot",
-      "category": "Snacks - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -1435,12 +1449,13 @@
         {
           "src": "images/recipes/recipe-14-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 15,
       "name": "Haferflocken Pizza Brot",
-      "category": "Snacks - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -1548,12 +1563,13 @@
         {
           "src": "images/recipes/recipe-15-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 16,
       "name": "Hähchen Curry",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -1625,12 +1641,13 @@
       ],
       "createdDate": 44430,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 17,
       "name": "Hühnchen Eintopf",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -1736,12 +1753,13 @@
       ],
       "createdDate": 44430,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": true
     },
     {
       "id": 18,
       "name": "Kaiserschmarn",
-      "category": "Mittagessen - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -1895,12 +1913,13 @@
         {
           "src": "images/recipes/recipe-18-1.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 19,
       "name": "Kartoffel - Hackfleisch - Salat",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -1915,12 +1934,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 20,
       "name": "Kartoffelgratin",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -1935,12 +1955,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 21,
       "name": "Kartoffelpizza",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -1981,12 +2002,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 22,
       "name": "Lasagne",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -2001,12 +2023,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 23,
       "name": "Lauch in Hackfleisch Sahnesoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -2021,32 +2044,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
-    },
-    {
-      "id": 24,
-      "name": "Linsen mit Spätzle",
-      "category": "Mittagessen - Salzig",
-      "hasImage": false,
-      "imageCount": 0,
-      "isPlaceholder": true,
-      "servings": null,
-      "ingredients": [],
-      "instructions": [
-        {
-          "step": 1,
-          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
-        }
-      ],
-      "notes": [],
-      "createdDate": null,
-      "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 25,
       "name": "Magerquark Pizza",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -2116,12 +2120,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": true
     },
     {
       "id": 26,
       "name": "Maisfladen",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -2245,12 +2250,13 @@
         {
           "src": "images/recipes/recipe-26-1.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 27,
       "name": "MieNudeln Crispy Chicken",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -2366,12 +2372,13 @@
         {
           "src": "images/recipes/recipe-27-1.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 28,
       "name": "Milchreis",
-      "category": "Mittagessen - Süß",
+      "category": "Süß",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -2386,12 +2393,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 29,
       "name": "Naan mit Gemüßerahmsoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -2544,12 +2552,13 @@
       ],
       "createdDate": 44509,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 30,
       "name": "Nacho Schichtsalat",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -2692,12 +2701,13 @@
         {
           "src": "images/recipes/recipe-30-1.jpeg"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 31,
       "name": "Nudel-Spinat-Auflauf",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -2799,12 +2809,13 @@
         {
           "src": "images/recipes/recipe-31-1.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 32,
       "name": "Nudelauflauf",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -2819,12 +2830,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 33,
       "name": "Nudelgratain",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -2839,12 +2851,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 34,
       "name": "Orsonudeln in Sahnesoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -2859,12 +2872,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 35,
       "name": "Paprika-Sahne-Hähnchen Gnocchi",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -2954,12 +2968,13 @@
       ],
       "createdDate": 44509,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 36,
       "name": "Pfannkuchen mit Spinat",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -3009,12 +3024,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 37,
       "name": "Pizza",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3139,12 +3155,13 @@
         {
           "src": "images/recipes/recipe-37-1.jpeg"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 38,
       "name": "Pommes mit Quarkdipp",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 2,
       "isPlaceholder": false,
@@ -3237,12 +3254,13 @@
         {
           "src": "images/recipes/recipe-38-2.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 39,
       "name": "Protein Pancakes",
-      "category": "Snacks - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3310,12 +3328,13 @@
         {
           "src": "images/recipes/recipe-39-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 40,
       "name": "Protein Poridge",
-      "category": "Snacks - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3367,12 +3386,13 @@
         {
           "src": "images/recipes/recipe-40-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 41,
       "name": "Punsch",
-      "category": "Nachtisch - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3437,12 +3457,13 @@
         {
           "src": "images/recipes/recipe-41-1.jpeg"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 42,
       "name": "Pute Kartoffel Auflauf",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3556,12 +3577,13 @@
         {
           "src": "images/recipes/recipe-42-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 43,
       "name": "Putenbrustsalat",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -3576,12 +3598,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 44,
       "name": "Reispfanne",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3661,12 +3684,13 @@
         {
           "src": "images/recipes/recipe-44-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 45,
       "name": "Risotto",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3766,12 +3790,13 @@
         {
           "src": "images/recipes/recipe-45-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 46,
       "name": "Schnitzel mit Spätzle",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -3786,12 +3811,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 47,
       "name": "Smothie Bole",
-      "category": "Snacks - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -3855,12 +3881,13 @@
         {
           "src": "images/recipes/recipe-47-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 48,
       "name": "Spagethie in Erdnussoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -3875,12 +3902,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 49,
       "name": "Spaghetti Bolognese - Gorden",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -4022,12 +4050,13 @@
         {
           "src": "images/recipes/recipe-49-1.png"
         }
-      ]
+      ],
+      "healthy": true
     },
     {
       "id": 50,
       "name": "Spaghetti Gemüßesoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -4133,12 +4162,13 @@
       ],
       "createdDate": 44430,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": true
     },
     {
       "id": 51,
       "name": "Spätzle in Champignionrahmsoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": true,
@@ -4157,12 +4187,13 @@
         {
           "src": "images/recipes/recipe-51-1.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 52,
       "name": "Spinat Nudeln",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -4278,12 +4309,13 @@
       ],
       "createdDate": 44430,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": true
     },
     {
       "id": 53,
       "name": "Subway Sandwhiches Teryiaki",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -4416,12 +4448,13 @@
         {
           "src": "images/recipes/recipe-53-1.png"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 54,
       "name": "Tiramisu",
-      "category": "Nachtisch - Süß",
+      "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -4545,12 +4578,13 @@
         {
           "src": "images/recipes/recipe-54-1.jpeg"
         }
-      ]
+      ],
+      "healthy": false
     },
     {
       "id": 55,
       "name": "Tortelloni Brokoli-Sahnesoße",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": false,
@@ -4622,12 +4656,13 @@
       "notes": [],
       "createdDate": 46065,
       "modifiedDate": 46086,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 56,
       "name": "Versunkener Kirschkuchen",
-      "category": "Nachtisch - Süß",
+      "category": "Süß",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -4642,12 +4677,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 57,
       "name": "Waffeln",
-      "category": "Mittagessen - Süß",
+      "category": "Süß",
       "hasImage": false,
       "imageCount": 0,
       "isPlaceholder": true,
@@ -4662,12 +4698,13 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": null,
-      "images": []
+      "images": [],
+      "healthy": false
     },
     {
       "id": 58,
       "name": "Wraps",
-      "category": "Mittagessen - Salzig",
+      "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
       "isPlaceholder": false,
@@ -4757,7 +4794,228 @@
         {
           "src": "images/recipes/recipe-58-1.png"
         }
-      ]
+      ],
+      "healthy": false
+    },
+    {
+      "name": "Versunkener Kirschkuchen – Omas schnelles Klassiker-Rezept",
+      "category": "Süß",
+      "servings": 1,
+      "ingredients": [
+        {
+          "amount": 700,
+          "unit": "g",
+          "product": "Süßkirsche",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "weiche Butter",
+          "note": ""
+        },
+        {
+          "amount": 120,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Packung",
+          "product": "Vanillinzucker",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Prise",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Ei (Gr. M)",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "TL",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Naturjoghurt",
+          "note": ""
+        },
+        {
+          "amount": "etwas",
+          "unit": "",
+          "product": "Butter für die Form",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "gestiftelte Mandeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Prise",
+          "product": "Zimt",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Springform (Ø 26 cm) einfetten. Backofen auf 180 Grad (Umluft: 160 Grad) vorheizen. Kirschen waschen und trocken tupfen. Mit einem Entsteiner Kirschkerne entfernen."
+        },
+        {
+          "step": 2,
+          "text": "Weiche Butter mit Zucker, Vanillezucker und Salz schaumig schlagen. Nach und nach zwei Eier zugeben und weiter schaumig schlagen. Mehl mit Backpulver mischen. Mehl-Mischung und Joghurt abwechselnd unter die Butter-Zucker-Mischung rühren. Teig zur Hälfte in die Form einfüllen und die Hälfte der Kirschen darauf verteilen. Restlichen Teig darauf geben, verstreichen und mit den übrigen Kirschen bedecken."
+        },
+        {
+          "step": 3,
+          "text": "Zucker mit Zimt und Mandeln mischen und darauf streuen. Ca. 40 Min. im vorgeheizten Ofen backen. Nach Belieben lauwarm mit frischer Schlagsahne servieren."
+        }
+      ],
+      "notes": [
+        "https://www.einfachbacken.de/rezepte/versunkener-kirschkuchen-omas-schnelles-klassiker-rezept",
+        "Dieser Kirschkuchen aus Omas Rezeptebuch wird durch den Joghurt besonders saftig. Getoppt mit Mandeln wird dieses Rezept ganz schnell zum Liebling auf der Kuchentafel.",
+        "Vorbereitung: 35 Min.",
+        "Kochzeit: 40 Min."
+      ],
+      "tags": [
+        "Kuchen",
+        "Kirschkuchen",
+        "Obstkuchen",
+        "Sommer"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/versunkener-kirschkuchen-omas-schnelles-klass-59-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 59,
+      "healthy": false
+    },
+    {
+      "name": "Linsen mit Spätzle / Nudeln",
+      "category": "Salzig",
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "Teil",
+          "product": "Linsen",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "Teile",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Essig",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Brühewürfel",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Lorbeerblatt",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "EL",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "kaltes Wasser",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Spätzle / Nudeln",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Linsen waschen und über Nacht / morgens einweichen."
+        },
+        {
+          "step": 2,
+          "text": "Linsen mit 3 Teilen Wasser zu 1 Teil Linsen ca. 10 Minuten kochen."
+        },
+        {
+          "step": 3,
+          "text": "Nach dem Kochen Salz, Essig, Brühewürfel und Lorbeerblatt hinzugeben."
+        },
+        {
+          "step": 4,
+          "text": "Entweder Mehlschwitze zubereiten oder in einem Becher 3 EL Mehl mit kaltem Wasser glattrühren, zu den Linsen geben und nochmals kochen (nebenher rühren!)."
+        },
+        {
+          "step": 5,
+          "text": "Nudeln / Spätzle abkochen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Kochzeit: 10 Min."
+      ],
+      "tags": [
+        "Schwäbisch",
+        "Linsen",
+        "Eintopf",
+        "Hauptgericht"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/linsen-mit-spatzle-nudeln-60-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 60,
+      "healthy": false
     }
   ]
 }

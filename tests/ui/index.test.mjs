@@ -14,6 +14,14 @@ test('homepage provides the DOM elements used by recipe browsing', () => {
     }
 });
 
+test('homepage defaults to the salty category', () => {
+    assert.match(html, /let currentCategory = ['"]Salzig['"]/);
+    assert.match(html, /let healthyOnly = false/);
+    assert.match(html, /healthyOnly = !healthyOnly/);
+    assert.match(html, /currentCategory = currentCategory === category \? null : category/);
+    assert.match(html, /applyFilters\(searchInput\.value\)/);
+});
+
 test('homepage wires search, category filtering and recipe navigation', () => {
     assert.match(html, /searchInput\.addEventListener\(['"]input['"],\s*handleSearch\)/);
     assert.match(html, /button\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*filterByCategory\(category\)\)/);

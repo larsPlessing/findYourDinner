@@ -16,6 +16,7 @@ export default class RecipeGenerator {
             const data = await response.json();
             if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
             this.recipes = data.recipes;
+            this.normalizeCategories();
             this.hasImages = this.recipes.some(recipe => recipe.images && recipe.images.length > 0);
             if (progressCallback) progressCallback({ phase: 'complete', progress: 100, message: 'Rezepte geladen' });
             return this.recipes;
@@ -26,16 +27,54 @@ export default class RecipeGenerator {
 
     getRecipeByName(name) { return this.recipes.find(recipe => recipe.name === name || recipe.sheetName === name) || null; }
     getAllRecipes() { return this.recipes; }
+    normalizeCategories() {
+        this.recipes = this.recipes.map(recipe => {
+            const legacyCategories = Array.isArray(recipe.categories) ? recipe.categories : [];
+            const categoryLabels = [recipe.category, ...legacyCategories].filter(value => typeof value === 'string');
+            const categoryText = categoryLabels.join(' ').toLocaleLowerCase('de');
+            const { categories, ...normalizedRecipe } = recipe;
+            return {
+                ...normalizedRecipe,
+                category: /süß|süss|sweet|nachtisch|dessert/.test(categoryText) ? 'Süß' : 'Salzig',
+                healthy: recipe.healthy === true || categoryLabels.some(value => value.toLocaleLowerCase('de') === 'healthy')
+            };
+        });
+    }
+    async syncHealthyClassifications(url) {
+        const migrationKey = 'healthy_classification_version';
+        if (localStorage.getItem(migrationKey) === '1') return false;
+
+        const response = await fetch(url, { cache: 'no-cache' });
+        if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`);
+        const data = await response.json();
+        if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
+
+        const healthyIds = new Set(data.recipes.filter(recipe => recipe.healthy === true).map(recipe => String(recipe.id)));
+        this.recipes = this.recipes.map(recipe => ({
+            ...recipe,
+            healthy: recipe.healthy === true || healthyIds.has(String(recipe.id))
+        }));
+        if (localStorage.getItem('recipes_user_edits') !== null) {
+            localStorage.setItem('recipes_user_edits', JSON.stringify(this.recipes));
+        }
+        this.saveToLocalStorage();
+        localStorage.setItem(migrationKey, '1');
+        return true;
+    }
     searchRecipes(term) {
         if (!term || !term.trim()) return this.recipes;
         const query = term.toLocaleLowerCase('de').trim();
         return this.recipes.filter(recipe => recipe.name.toLocaleLowerCase('de').includes(query));
     }
-    filterByCategory(category) {
-        return !category || category === 'Alle' ? this.recipes : this.recipes.filter(recipe => recipe.category === category);
+    filterByCategory(category, healthyOnly = false) {
+        return this.recipes.filter(recipe =>
+            (!category || category === 'Alle' || category === 'healthy' || recipe.category === category)
+            && (category !== 'healthy' || recipe.healthy)
+            && (!healthyOnly || recipe.healthy)
+        );
     }
     getAllCategories() {
-        return [...new Set(this.recipes.map(recipe => recipe.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de'));
+        return ['Salzig', 'Süß', 'healthy'];
     }
     getRandomRecipe(list = this.recipes) {
         return list.length ? list[Math.floor(Math.random() * list.length)] : null;
@@ -56,7 +95,9 @@ export default class RecipeGenerator {
             const stored = localStorage.getItem('recipes');
             if (!stored) return false;
             this.recipes = JSON.parse(stored);
-            return Array.isArray(this.recipes);
+            if (!Array.isArray(this.recipes)) return false;
+            this.normalizeCategories();
+            return true;
         } catch (error) {
             console.error('Fehler beim Laden:', error);
             return false;

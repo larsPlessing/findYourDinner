@@ -114,9 +114,9 @@ test('localhost import API passes current recipe categories to the importer', as
     const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
     fs.writeFileSync(path.join(projectDirectory, 'recipes.json'), JSON.stringify({
         recipes: [
-            { category: 'Nachtisch - Süß' },
-            { category: ' Mittagessen - Salzig ' },
-            { category: 'Nachtisch - Süß' }
+            { category: 'Süß' },
+            { category: 'Salzig' },
+            { category: 'Süß' }
         ]
     }));
     const server = createServer({
@@ -136,5 +136,5 @@ test('localhost import API passes current recipe categories to the importer', as
     });
 
     assert.equal(response.status, 200);
-    assert.deepEqual((await response.json()).recipe.categories, ['Nachtisch - Süß', 'Mittagessen - Salzig']);
+    assert.deepEqual((await response.json()).recipe.categories, ['Salzig', 'Süß']);
 });

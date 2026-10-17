@@ -7,7 +7,9 @@ Regeln:
 - Erfinde nichts. Fehlende Angaben bleiben leer (null bzw. leeres Array).
 - Zutaten einzeln aufführen: amount (als Text, z. B. "1/2" oder "200"), unit und name getrennt.
 - Zubereitungsschritte in der richtigen Reihenfolge, ein Schritt pro Eintrag.
-- Kategorie exakt aus der vorgegebenen Liste wählen.
+- category exakt aus der vorgegebenen Liste wählen; jedes Rezept ist entweder "Salzig" oder "Süß".
+- healthy als true setzen, wenn das Rezept insgesamt ausgewogen und nährstoffreich wirkt; sonst false. Im Zweifel false.
+- Wenn kein Rezeptname angegeben oder lesbar ist, einen kurzen passenden deutschen Namen aus Zutaten und Zubereitung bilden.
 - Zeiten gut lesbar angeben (z. B. "30 Min." statt "PT30M").
 - tags: 2-5 passende Schlagworte.`;
 
@@ -16,6 +18,7 @@ const schema = {
     properties: {
         title: { type: 'STRING' },
         category: { type: 'STRING' },
+        healthy: { type: 'BOOLEAN' },
         description: { type: 'STRING', nullable: true },
         servings: { type: 'STRING', nullable: true },
         prepTime: { type: 'STRING', nullable: true },
@@ -24,7 +27,7 @@ const schema = {
         steps: { type: 'ARRAY', items: { type: 'STRING' } },
         tags: { type: 'ARRAY', items: { type: 'STRING' } }
     },
-    required: ['title', 'category', 'ingredients', 'steps']
+    required: ['title', 'category', 'healthy', 'ingredients', 'steps']
 };
 
 function extractRecipeNode(node) {
@@ -184,10 +187,14 @@ function normalizeRecipe(recipe, source, categories, imageDataUrl) {
         amount: ingredient.amount || '', unit: ingredient.unit || '', product: ingredient.name || '', note: ''
     })).filter(ingredient => ingredient.product) : [];
     const instructions = Array.isArray(recipe.steps) ? recipe.steps.filter(Boolean).map((text, index) => ({ step: index + 1, text })) : [];
-    if (!recipe.title || !ingredients.length || !instructions.length) throw new Error('Die extrahierten Daten sind unvollständig.');
+    if (!ingredients.length || !instructions.length) throw new Error('Die extrahierten Daten sind unvollständig.');
+    const title = typeof recipe.title === 'string' && recipe.title.trim()
+        ? recipe.title.trim()
+        : `Rezept mit ${ingredients.slice(0, 2).map(ingredient => ingredient.product).join(' und ')}`;
     return {
-        name: recipe.title,
+        name: title,
         category: categories.includes(recipe.category) ? recipe.category : categories[0],
+        healthy: recipe.healthy === true,
         servings: Number.parseFloat(recipe.servings) || null,
         ingredients,
         instructions,
@@ -206,7 +213,7 @@ export async function importRecipe({ url, image, categories }) {
     if (image) {
         const imageInput = validateImageDataUrl(image);
         const recipe = await callGemini([
-            { text: `Du bekommst ein Foto oder einen Screenshot eines Rezepts.\n${RULES}` },
+            { text: `Du bekommst ein Foto oder einen Screenshot eines Rezepts. Falls kein Rezeptname darauf steht oder er nicht lesbar ist, erstelle einen passenden Namen anhand des Gerichts, der Zutaten und der Zubereitung.\n${RULES}` },
             { inline_data: { mime_type: imageInput.mimeType, data: imageInput.data } }
         ], validCategories);
         return normalizeRecipe(recipe, 'Importiert aus Bild', validCategories, imageInput.dataUrl);
