@@ -2,7 +2,6 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { importRecipe } from './server/recipeImporter.mjs';
 
 const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 const host = '127.0.0.1';
@@ -92,13 +91,12 @@ function readJsonRequest(request, response) {
 
 function createServer(options = {}) {
     const root = path.resolve(options.rootDirectory || rootDirectory);
-    const recipeImporter = options.importRecipe || importRecipe;
 
     return http.createServer(async (request, response) => {
         const requestUrl = new URL(request.url, `http://${host}`);
 
         if (request.method === 'POST') {
-            if (!['/api/save-recipes', '/api/import-recipe'].includes(requestUrl.pathname)) {
+            if (requestUrl.pathname !== '/api/save-recipes') {
                 sendJson(response, 404, { error: 'Unbekannter API-Endpunkt.' });
                 return;
             }
@@ -111,10 +109,6 @@ function createServer(options = {}) {
             try {
                 const payload = await readJsonRequest(request, response);
                 if (response.writableEnded) return;
-                if (requestUrl.pathname === '/api/import-recipe') {
-                    sendJson(response, 200, { recipe: await recipeImporter(payload || {}) });
-                    return;
-                }
                 if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
 
                 const imageDirectory = path.join(root, 'images', 'recipes');

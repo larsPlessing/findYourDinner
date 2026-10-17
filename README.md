@@ -17,15 +17,7 @@ Ein mobiler Rezeptfinder mit Suche, Kategorien, Rezeptdetailseiten und einem Edi
 
 ## Lokal starten
 
-Voraussetzung ist Node.js 22.9 oder neuer. Zusätzliche npm-Pakete müssen nicht installiert werden.
-
-Für den Rezeptimport über Gemini speichere den API-Key in einer Datei `.env` im Projekt-Hauptordner:
-
-```text
-GEMINI_API_KEY=dein_api_key
-```
-
-Die `.env`-Datei wird beim lokalen Serverstart automatisch geladen und ist in `.gitignore` eingetragen. Teile sie nicht und committe sie nicht. Ohne Gemini-Import kannst du den Server auch ohne `.env` starten.
+Voraussetzung ist eine aktuelle Node.js-Installation. Zusätzliche npm-Pakete müssen nicht installiert werden.
 
 ```bash
 npm run serve

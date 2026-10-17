@@ -39,7 +39,6 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
             getElementById(id) {
                 if (id === 'editorSearch') return { addEventListener() {} };
                 if (id === 'editorSaveStatus') return status;
-                if (id === 'recipeImportImageInput') return { addEventListener() {} };
                 throw new Error(`Unerwartetes Element: ${id}`);
             }
         },
@@ -65,4 +64,50 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
     assert.equal(legacyStorageSaves, 1, 'RecipeGenerator localStorage cache should also be updated');
     assert.equal(networkRequests, 0, 'non-localhost saves must not call the filesystem API');
     assert.match(status.textContent, /auf diesem Gerät gespeichert/i);
+});
+
+test('deleting the last recipe saves the empty recipe list to the local server', async () => {
+    const storage = {};
+    let savedPayload;
+    const status = { textContent: '' };
+    const recipeList = { replaceChildren() {} };
+    const recipeForm = { innerHTML: '' };
+    const sandbox = {
+        window: { location: { hostname: 'localhost' } },
+        document: {
+            getElementById(id) {
+                if (id === 'editorSearch') return { value: '', addEventListener() {} };
+                if (id === 'editorSaveStatus') return status;
+                if (id === 'editorRecipeList') return recipeList;
+                if (id === 'recipeEditForm') return recipeForm;
+                throw new Error(`Unerwartetes Element: ${id}`);
+            }
+        },
+        localStorage: {
+            setItem(key, value) { storage[key] = String(value); }
+        },
+        confirm: () => true,
+        generator: {
+            recipes: [{ id: 4, name: 'Zu löschendes Rezept', images: [] }],
+            saveToLocalStorage() { return true; }
+        },
+        fetch: async (url, options) => {
+            assert.equal(url, '/api/save-recipes');
+            savedPayload = JSON.parse(options.body);
+            return {
+                ok: true,
+                async json() { return { recipes: savedPayload.recipes, savedImages: 0, deletedImages: 0 }; }
+            };
+        }
+    };
+    vm.runInNewContext(editorSource, sandbox);
+    vm.runInNewContext('editingRecipeIndex = 0;', sandbox);
+
+    await sandbox.deleteCurrentRecipe();
+
+    assert.deepEqual(savedPayload.recipes, []);
+    assert.deepEqual(JSON.parse(storage.recipes_user_edits), []);
+    assert.deepEqual(sandbox.generator.recipes, []);
+    assert.match(status.textContent, /Gespeichert: recipes\.json/);
+    assert.match(recipeForm.innerHTML, /Noch keine Rezepte/);
 });
