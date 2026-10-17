@@ -421,7 +421,7 @@ async function saveRecipeProjectToFolder() {
         selectRecipeForEdit(editingRecipeIndex);
         status.textContent = `Gespeichert: recipes.json, ${result.savedImages} Bild(er) hinzugefügt und ${result.deletedImages || 0} nicht mehr verwendete Bild(er) aus images/recipes entfernt.`;
     } catch (error) {
-        status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den Projektserver mit „node server.js“ und öffne die App über http://127.0.0.1:4004.`;
+        status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den Projektserver mit „node server.mjs“ und öffne die App über http://127.0.0.1:4004.`;
     }
 }
 if (typeof document !== 'undefined') {

@@ -2,7 +2,7 @@
   "name": "find-your-dinner",
   "private": true,
   "scripts": {
-    "serve": "node server.js",
+    "serve": "node server.mjs",
     "test": "node --test",
     "test:backend": "node --test \"tests/backend/*.test.js\"",
     "test:ui": "node --test \"tests/ui/*.test.js\" \"tests/ui/css/*.test.js\""

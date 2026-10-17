@@ -25,7 +25,7 @@ npm run serve
 
 Öffne anschließend <http://localhost:4004>. Der Server bindet nur an die lokale Loopback-Adresse.
 
-Beim Speichern im Editor schreibt der lokale Server die Rezeptdaten direkt nach `recipes.json` und neue Bilder nach `images/recipes/`. In der JSON-Datei werden die Bilder mit relativen Pfaden wie `images/recipes/rezept-12-1.jpg` referenziert. Der Browser-Editor sendet die Änderungen an die lokale Speicher-API in [server.js](./server.js).
+Beim Speichern im Editor schreibt der lokale Server die Rezeptdaten direkt nach `recipes.json` und neue Bilder nach `images/recipes/`. In der JSON-Datei werden die Bilder mit relativen Pfaden wie `images/recipes/rezept-12-1.jpg` referenziert. Der Browser-Editor sendet die Änderungen an die lokale Speicher-API in [server.mjs](./server.mjs).
 
 Wenn der Servercode geändert wurde und Port 4004 noch von einer alten Serverinstanz belegt ist, beende diese Instanz im Terminal mit `Ctrl+C` und starte `npm run serve` erneut.
 
@@ -70,7 +70,7 @@ Der Editor erhält weitere Rezeptfelder, die er nicht selbst bearbeitet, soweit 
 findYourDinner/
 ├── index.html                    # Rezeptübersicht und Editor
 ├── recipes.json                  # Rezeptdaten
-├── server.js                     # Lokaler statischer Server und Schreib-API
+├── server.mjs                    # Lokaler statischer Server und Schreib-API
 ├── css/
 │   ├── main.css                  # Basisstile
 │   ├── pinterest.css             # Rezeptübersicht

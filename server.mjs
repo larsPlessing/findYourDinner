@@ -1,8 +1,9 @@
-const http = require('node:http');
-const fs = require('node:fs');
-const path = require('node:path');
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const rootDirectory = __dirname;
+const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 const host = '127.0.0.1';
 const port = Number(process.env.PORT || 4004);
 const maxRequestBytes = 50 * 1024 * 1024;
@@ -177,7 +178,7 @@ function createServer(options = {}) {
     });
 }
 
-if (require.main === module) {
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
     const server = createServer();
     server.listen(port, host, () => {
         console.log(`Rezeptfinder läuft auf http://localhost:${port}`);
@@ -185,7 +186,7 @@ if (require.main === module) {
     });
     server.on('error', error => {
         if (error.code === 'EADDRINUSE') {
-            console.error(`Port ${port} wird bereits verwendet. Starte mit PORT=4005 node server.js für einen anderen Port.`);
+            console.error(`Port ${port} wird bereits verwendet. Starte mit PORT=4005 node server.mjs für einen anderen Port.`);
         } else {
             console.error('Server konnte nicht gestartet werden:', error.message);
         }
@@ -193,4 +194,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { createServer };
+export { createServer };

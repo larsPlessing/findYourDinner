@@ -3,7 +3,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { createServer } = require('../../server.js');
+let createServer;
+
+test.before(async () => {
+    ({ createServer } = await import('../../server.mjs'));
+});
 
 test('localhost save API writes image files and recipes.json into the project', async t => {
     const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
