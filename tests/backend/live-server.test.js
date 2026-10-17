@@ -39,6 +39,7 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
             getElementById(id) {
                 if (id === 'editorSearch') return { addEventListener() {} };
                 if (id === 'editorSaveStatus') return status;
+                if (id === 'recipeImportImageInput') return { addEventListener() {} };
                 throw new Error(`Unerwartetes Element: ${id}`);
             }
         },

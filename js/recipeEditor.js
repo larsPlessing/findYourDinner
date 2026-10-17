@@ -16,6 +16,45 @@ function closeRecipeEditor() {
     document.getElementById('recipeEditor').hidden = true;
 }
 
+async function importRecipeFromUrl() {
+    const url = prompt('Adresse der Rezeptseite eingeben:')?.trim();
+    if (!url) return;
+    await importRecipe({ url });
+}
+
+async function importRecipeFromImage(file) {
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        document.getElementById('editorSaveStatus').textContent = 'Bitte wähle ein JPEG-, PNG- oder WebP-Bild aus.';
+        return;
+    }
+    await importRecipe({ image: await compressRecipeImage(file) });
+}
+
+async function importRecipe(payload) {
+    const status = document.getElementById('editorSaveStatus');
+    if (!['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)) {
+        status.textContent = 'Der KI-Import ist nur über den lokalen Projektserver verfügbar.';
+        return;
+    }
+    try {
+        status.textContent = 'Rezept wird importiert …';
+        const response = await fetch('/api/import-recipe', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+        const id = Math.max(-1, ...generator.recipes.map(recipe => Number(recipe.id) || 0)) + 1;
+        generator.recipes.push({ ...result.recipe, id });
+        editingRecipeIndex = generator.recipes.length - 1;
+        persistRecipeEdits();
+        selectRecipeForEdit(editingRecipeIndex);
+        status.textContent = 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.';
+    } catch (error) {
+        status.textContent = `Import fehlgeschlagen: ${error.message}`;
+    }
+}
+
 function renderEditorRecipeList() {
     const query = document.getElementById('editorSearch').value.trim().toLocaleLowerCase('de');
     const list = document.getElementById('editorRecipeList');
@@ -426,6 +465,10 @@ async function saveRecipeProjectToFolder() {
 }
 if (typeof document !== 'undefined') {
     document.getElementById('editorSearch').addEventListener('input', renderEditorRecipeList);
+    document.getElementById('recipeImportImageInput').addEventListener('change', async event => {
+        await importRecipeFromImage(event.target.files[0]);
+        event.target.value = '';
+    });
 }
 
 if (typeof module !== 'undefined' && module.exports) {

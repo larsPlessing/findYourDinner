@@ -60,3 +60,22 @@ test('localhost save API rejects non-local origins', async t => {
     assert.equal(response.status, 403);
     assert.deepEqual(fs.existsSync(path.join(projectDirectory, 'recipes.json')), false);
 });
+
+test('localhost import API returns a recipe draft and preserves the supplied image', async t => {
+    const importedRecipe = { name: 'Importierter Kuchen', ingredients: [], instructions: [], images: [{ src: 'data:image/jpeg;base64,aW1hZ2U=' }] };
+    const server = createServer({ importRecipe: async payload => ({ ...importedRecipe, source: payload.image }) });
+    t.after(async () => new Promise(resolve => server.close(resolve)));
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+
+    const image = 'data:image/jpeg;base64,aW1hZ2U=';
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/api/import-recipe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Origin: 'http://localhost:4004' },
+        body: JSON.stringify({ image })
+    });
+
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.equal(result.recipe.name, 'Importierter Kuchen');
+    assert.equal(result.recipe.source, image);
+});

@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { importRecipe } from './server/recipeImporter.mjs';
 
 const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 const host = '127.0.0.1';
@@ -63,77 +64,90 @@ function removeUnusedRecipeImages(imageDirectory, recipes) {
     return deletedImages;
 }
 
+function isLocalOrigin(origin) {
+    if (!origin) return true;
+    try { return ['localhost', '127.0.0.1', '::1'].includes(new URL(origin).hostname); } catch { return false; }
+}
+
+function readJsonRequest(request, response) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        let requestSize = 0;
+        request.on('data', chunk => {
+            requestSize += chunk.length;
+            if (requestSize > maxRequestBytes) {
+                sendJson(response, 413, { error: 'Die Anfrage ist zu groß.' });
+                request.destroy();
+                return;
+            }
+            chunks.push(chunk);
+        });
+        request.on('end', () => {
+            if (response.writableEnded) return resolve(null);
+            try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8'))); } catch { reject(new Error('Die Anfrage enthält kein gültiges JSON.')); }
+        });
+        request.on('error', reject);
+    });
+}
+
 function createServer(options = {}) {
     const root = path.resolve(options.rootDirectory || rootDirectory);
+    const recipeImporter = options.importRecipe || importRecipe;
 
-    return http.createServer((request, response) => {
+    return http.createServer(async (request, response) => {
         const requestUrl = new URL(request.url, `http://${host}`);
 
         if (request.method === 'POST') {
-            if (requestUrl.pathname !== '/api/save-recipes') {
+            if (!['/api/save-recipes', '/api/import-recipe'].includes(requestUrl.pathname)) {
                 sendJson(response, 404, { error: 'Unbekannter API-Endpunkt.' });
                 return;
             }
 
-            const origin = request.headers.origin;
-            if (origin) {
-                let originHost;
-                try { originHost = new URL(origin).hostname; } catch { originHost = ''; }
-                if (!['localhost', '127.0.0.1', '::1'].includes(originHost)) {
-                    sendJson(response, 403, { error: 'Nur lokale Anfragen sind erlaubt.' });
-                    return;
-                }
+            if (!isLocalOrigin(request.headers.origin)) {
+                sendJson(response, 403, { error: 'Nur lokale Anfragen sind erlaubt.' });
+                return;
             }
 
-            const chunks = [];
-            let requestSize = 0;
-            request.on('data', chunk => {
-                requestSize += chunk.length;
-                if (requestSize > maxRequestBytes) {
-                    sendJson(response, 413, { error: 'Die Anfrage ist zu groß.' });
-                    request.destroy();
+            try {
+                const payload = await readJsonRequest(request, response);
+                if (response.writableEnded) return;
+                if (requestUrl.pathname === '/api/import-recipe') {
+                    sendJson(response, 200, { recipe: await recipeImporter(payload || {}) });
                     return;
                 }
-                chunks.push(chunk);
-            });
-            request.on('end', () => {
-                if (response.writableEnded) return;
-                try {
-                    const payload = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-                    if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
+                if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
 
-                    const imageDirectory = path.join(root, 'images', 'recipes');
-                    fs.mkdirSync(imageDirectory, { recursive: true });
-                    let savedImages = 0;
-                    payload.recipes.forEach((recipe, recipeIndex) => {
-                        if (!recipe || typeof recipe !== 'object' || Array.isArray(recipe)) throw new Error(`Rezept ${recipeIndex + 1} ist ungültig.`);
-                        if (recipe.images === undefined) recipe.images = [];
-                        if (!Array.isArray(recipe.images)) throw new Error(`Bilderliste in Rezept ${recipeIndex + 1} ist ungültig.`);
-                        recipe.images.forEach((image, imageIndex) => {
-                            if (!image || typeof image.src !== 'string') return;
-                            const match = image.src.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/);
-                            if (!match) return;
-                            const bytes = Buffer.from(match[2], 'base64');
-                            if (!bytes.length || bytes.length > 15 * 1024 * 1024) throw new Error('Ein Bild ist leer oder größer als 15 MB.');
-                            const extension = match[1] === 'jpeg' ? 'jpg' : match[1];
-                            const id = String(recipe.id ?? recipeIndex).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30) || String(recipeIndex);
-                            const filename = `${safeSlug(recipe.name)}-${id}-${imageIndex + 1}.${extension}`;
-                            fs.writeFileSync(path.join(imageDirectory, filename), bytes);
-                            image.src = `images/recipes/${filename}`;
-                            savedImages++;
-                        });
+                const imageDirectory = path.join(root, 'images', 'recipes');
+                fs.mkdirSync(imageDirectory, { recursive: true });
+                let savedImages = 0;
+                payload.recipes.forEach((recipe, recipeIndex) => {
+                    if (!recipe || typeof recipe !== 'object' || Array.isArray(recipe)) throw new Error(`Rezept ${recipeIndex + 1} ist ungültig.`);
+                    if (recipe.images === undefined) recipe.images = [];
+                    if (!Array.isArray(recipe.images)) throw new Error(`Bilderliste in Rezept ${recipeIndex + 1} ist ungültig.`);
+                    recipe.images.forEach((image, imageIndex) => {
+                        if (!image || typeof image.src !== 'string') return;
+                        const match = image.src.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/);
+                        if (!match) return;
+                        const bytes = Buffer.from(match[2], 'base64');
+                        if (!bytes.length || bytes.length > 15 * 1024 * 1024) throw new Error('Ein Bild ist leer oder größer als 15 MB.');
+                        const extension = match[1] === 'jpeg' ? 'jpg' : match[1];
+                        const id = String(recipe.id ?? recipeIndex).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30) || String(recipeIndex);
+                        const filename = `${safeSlug(recipe.name)}-${id}-${imageIndex + 1}.${extension}`;
+                        fs.writeFileSync(path.join(imageDirectory, filename), bytes);
+                        image.src = `images/recipes/${filename}`;
+                        savedImages++;
                     });
+                });
 
-                    const recipeFile = path.join(root, 'recipes.json');
-                    const temporaryFile = `${recipeFile}.tmp`;
-                    fs.writeFileSync(temporaryFile, `${JSON.stringify({ version: 1, recipes: payload.recipes }, null, 2)}\n`, 'utf8');
-                    fs.renameSync(temporaryFile, recipeFile);
-                    const deletedImages = removeUnusedRecipeImages(imageDirectory, payload.recipes);
-                    sendJson(response, 200, { recipes: payload.recipes, savedImages, deletedImages });
-                } catch (error) {
-                    sendJson(response, 400, { error: error.message });
-                }
-            });
+                const recipeFile = path.join(root, 'recipes.json');
+                const temporaryFile = `${recipeFile}.tmp`;
+                fs.writeFileSync(temporaryFile, `${JSON.stringify({ version: 1, recipes: payload.recipes }, null, 2)}\n`, 'utf8');
+                fs.renameSync(temporaryFile, recipeFile);
+                const deletedImages = removeUnusedRecipeImages(imageDirectory, payload.recipes);
+                sendJson(response, 200, { recipes: payload.recipes, savedImages, deletedImages });
+            } catch (error) {
+                if (!response.writableEnded) sendJson(response, 400, { error: error.message });
+            }
             return;
         }
 
