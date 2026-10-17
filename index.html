@@ -53,13 +53,11 @@
                     <span class="btn-text">Aktualisieren</span>
                 </button>
                 <button class="secondary-btn recipe-editor-btn" onclick="openRecipeEditor()" title="Rezepte bearbeiten" aria-label="Rezepte bearbeiten"><span class="recipe-editor-icon">✏️</span><span class="recipe-editor-text">Bearbeiten</span></button>
-            </div>
-            
-            <!-- Category Filter -->
-            <div class="category-filter" id="categoryFilter" style="display: none;">
-                <button class="category-chip active" data-category="Alle" onclick="filterByCategory('Alle')">
-                    Alle
-                </button>
+                <div class="category-filter" id="categoryFilter" style="display: none;">
+                    <button class="category-chip active" data-category="Alle" onclick="filterByCategory('Alle')">
+                        Alle
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -757,9 +755,11 @@
 
         /* Category Filter Styles */
         .category-filter {
+            grid-column: 1 / -1;
             display: flex;
             gap: 10px;
-            padding: 15px 20px;
+            min-width: 0;
+            padding: 8px 0 0;
             overflow-x: auto;
             scrollbar-width: thin;
             scrollbar-color: #667eea #f0f0f0;

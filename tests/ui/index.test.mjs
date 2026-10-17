@@ -14,6 +14,12 @@ test('homepage provides the DOM elements used by recipe browsing', () => {
     }
 });
 
+test('category filters are inside the search container', () => {
+    const searchContainer = html.match(/<div class="search-container">([\s\S]*?)<\/div>\s*<\/div>/)?.[1];
+    assert.ok(searchContainer, 'search container should exist');
+    assert.match(searchContainer, /id="categoryFilter"/);
+});
+
 test('homepage defaults to the salty category', () => {
     assert.match(html, /let currentCategory = ['"]Salzig['"]/);
     assert.match(html, /let healthyOnly = false/);

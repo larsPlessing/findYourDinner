@@ -8,7 +8,10 @@ Regeln:
 - Zutaten einzeln aufführen: amount (als Text, z. B. "1/2" oder "200"), unit und name getrennt.
 - Zubereitungsschritte in der richtigen Reihenfolge, ein Schritt pro Eintrag.
 - category exakt aus der vorgegebenen Liste wählen; jedes Rezept ist entweder "Salzig" oder "Süß".
-- healthy als true setzen, wenn das Rezept insgesamt ausgewogen und nährstoffreich wirkt; sonst false. Im Zweifel false.
+- healthy bedeutet hier kalorienarm und zum Abnehmen geeignet, nicht allgemein gesund oder nährstoffreich.
+- healthy nur dann auf true setzen, wenn Zutaten, Mengen und Portionen klar auf vergleichsweise wenige Kalorien pro Portion hindeuten und das Gericht damit eine leichtere Alternative zu einer üblichen Variante ist.
+- Viel Zucker, Sahne, Käse, Butter, Öl oder große Mengen energiereicher Zutaten sprechen gegen healthy. Eiweißreich oder gemüsereich allein reicht nicht.
+- Wenn Mengen oder Portionsgröße fehlen oder die Kalorien nicht zuverlässig einzuschätzen sind, healthy auf false setzen.
 - Wenn kein Rezeptname angegeben oder lesbar ist, einen kurzen passenden deutschen Namen aus Zutaten und Zubereitung bilden.
 - Zeiten gut lesbar angeben (z. B. "30 Min." statt "PT30M").
 - tags: 2-5 passende Schlagworte.`;
@@ -18,7 +21,10 @@ const schema = {
     properties: {
         title: { type: 'STRING' },
         category: { type: 'STRING' },
-        healthy: { type: 'BOOLEAN' },
+        healthy: {
+            type: 'BOOLEAN',
+            description: 'True nur bei klar kalorienarmem Gericht mit plausibel wenigen Kalorien pro Portion, geeignet zum Abnehmen; sonst false.'
+        },
         description: { type: 'STRING', nullable: true },
         servings: { type: 'STRING', nullable: true },
         prepTime: { type: 'STRING', nullable: true },
