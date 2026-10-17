@@ -35,7 +35,7 @@ test('every recipe has the fields used by the application', () => {
 
 test('healthy is set on recipes with clearly lighter or more balanced ingredients', () => {
     const healthyRecipes = data.recipes.filter(recipe => recipe.healthy).map(recipe => recipe.id);
-    assert.deepEqual(healthyRecipes, [0, 1, 7, 10, 12, 14, 15, 17, 25, 38, 39, 40, 42, 44, 45, 47, 49, 50, 52]);
+    assert.deepEqual(healthyRecipes, [0, 1, 7, 10, 12, 14, 15, 17, 25, 38, 39, 40, 42, 44, 45, 47, 49, 50, 52, 60]);
 });
 
 test('recipe text does not contain common mojibake sequences', () => {

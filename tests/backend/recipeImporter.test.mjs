@@ -23,9 +23,10 @@ test('URL recipe import uses the provided category enum and imports a webpage im
             const request = JSON.parse(options.body);
             assert.deepEqual(request.generationConfig.responseSchema.properties.category.enum, categories);
             assert.equal(request.generationConfig.responseSchema.properties.healthy.type, 'BOOLEAN');
-            assert.match(request.generationConfig.responseSchema.properties.healthy.description, /kalorienarm.*wenigen Kalorien pro Portion.*Abnehmen/i);
-            assert.match(request.contents[0].parts[0].text, /healthy bedeutet hier kalorienarm und zum Abnehmen geeignet/i);
-            assert.match(request.contents[0].parts[0].text, /Mengen oder Portionsgröße fehlen.*healthy auf false setzen/i);
+            assert.match(request.generationConfig.responseSchema.properties.healthy.description, /kalorienärmer und zum Abnehmen geeignet.*ohne Portionsangaben oder Kalorienberechnung/i);
+            assert.match(request.contents[0].parts[0].text, /healthy ist true, wenn Zutaten und Zubereitung insgesamt eine kalorienärmere, zum Abnehmen geeignete Variante ergeben/i);
+            assert.match(request.contents[0].parts[0].text, /ohne Portionsangaben oder Kalorienberechnung/i);
+            assert.doesNotMatch(request.contents[0].parts[0].text, /Linsen mit Wasser|Nudeln oder Spätzle/);
             assert.ok(request.generationConfig.responseSchema.required.includes('healthy'));
             return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(recipe) }] } }] }));
         }
@@ -60,7 +61,7 @@ test('image recipe import falls back to an existing category if Gemini returns a
     globalThis.fetch = async (input, options) => {
         const request = JSON.parse(options.body);
         assert.deepEqual(request.generationConfig.responseSchema.properties.category.enum, categories);
-        assert.match(request.contents[0].parts[0].text, /healthy bedeutet hier kalorienarm und zum Abnehmen geeignet/i);
+        assert.match(request.contents[0].parts[0].text, /healthy ist true, wenn Zutaten und Zubereitung insgesamt eine kalorienärmere, zum Abnehmen geeignete Variante ergeben/i);
         assert.match(request.contents[0].parts[0].text, /erstelle einen passenden Namen anhand des Gerichts, der Zutaten und der Zubereitung/i);
         return new Response(JSON.stringify({
             candidates: [{ content: { parts: [{ text: JSON.stringify({
