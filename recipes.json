@@ -5016,6 +5016,60 @@
       "isPlaceholder": false,
       "id": 60,
       "healthy": true
+    },
+    {
+      "name": "Spätzle",
+      "category": "Salzig",
+      "servings": 0,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Gries",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Wasser nach Bedarf",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Immer abschrecken"
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild"
+      ],
+      "tags": [
+        "Spätzle",
+        "Grundrezept",
+        "Schwäbisch",
+        "Beilage"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/spatzle-61-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 61,
+      "healthy": false
     }
   ]
 }
