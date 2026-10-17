@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { importRecipe } from './server/recipeImporter.mjs';
 
 const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 const host = '127.0.0.1';
@@ -63,9 +64,17 @@ function removeUnusedRecipeImages(imageDirectory, recipes) {
     return deletedImages;
 }
 
-function isLocalOrigin(origin) {
-    if (!origin) return true;
-    try { return ['localhost', '127.0.0.1', '::1'].includes(new URL(origin).hostname); } catch { return false; }
+function isSameLocalOrigin(origin, hostHeader) {
+    if (!origin || !hostHeader) return false;
+    try {
+        const originUrl = new URL(origin);
+        const requestUrl = new URL(`http://${hostHeader}`);
+        return originUrl.protocol === 'http:'
+            && originUrl.origin === requestUrl.origin
+            && ['localhost', '127.0.0.1', '::1'].includes(originUrl.hostname);
+    } catch {
+        return false;
+    }
 }
 
 function readJsonRequest(request, response) {
@@ -89,26 +98,54 @@ function readJsonRequest(request, response) {
     });
 }
 
+function getRecipeCategories(root) {
+    const recipesPath = path.join(root, 'recipes.json');
+    let recipeData;
+    try {
+        recipeData = JSON.parse(fs.readFileSync(recipesPath, 'utf8'));
+    } catch (error) {
+        throw new Error(`Rezeptkategorien konnten nicht aus recipes.json geladen werden: ${error.message}`);
+    }
+
+    const categories = [...new Set(
+        (Array.isArray(recipeData.recipes) ? recipeData.recipes : [])
+            .map(recipe => typeof recipe?.category === 'string' ? recipe.category.trim() : '')
+            .filter(Boolean)
+    )];
+    if (!categories.length) throw new Error('In recipes.json wurden keine Rezeptkategorien gefunden.');
+    return categories;
+}
+
 function createServer(options = {}) {
     const root = path.resolve(options.rootDirectory || rootDirectory);
+    const recipeImporter = options.importRecipe || importRecipe;
 
     return http.createServer(async (request, response) => {
         const requestUrl = new URL(request.url, `http://${host}`);
 
         if (request.method === 'POST') {
-            if (requestUrl.pathname !== '/api/save-recipes') {
+            if (!['/api/save-recipes', '/api/import-recipe'].includes(requestUrl.pathname)) {
                 sendJson(response, 404, { error: 'Unbekannter API-Endpunkt.' });
                 return;
             }
 
-            if (!isLocalOrigin(request.headers.origin)) {
-                sendJson(response, 403, { error: 'Nur lokale Anfragen sind erlaubt.' });
+            if (!isSameLocalOrigin(request.headers.origin, request.headers.host)) {
+                sendJson(response, 403, { error: 'Nur gleich-originige lokale Anfragen sind erlaubt.' });
+                return;
+            }
+
+            if (request.headers['content-type']?.split(';', 1)[0].trim().toLowerCase() !== 'application/json') {
+                sendJson(response, 415, { error: 'Content-Type muss application/json sein.' });
                 return;
             }
 
             try {
                 const payload = await readJsonRequest(request, response);
                 if (response.writableEnded) return;
+                if (requestUrl.pathname === '/api/import-recipe') {
+                    sendJson(response, 200, { recipe: await recipeImporter({ ...(payload || {}), categories: getRecipeCategories(root) }) });
+                    return;
+                }
                 if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
 
                 const imageDirectory = path.join(root, 'images', 'recipes');
@@ -166,6 +203,11 @@ function createServer(options = {}) {
         if (pathFromRoot === '..' || pathFromRoot.startsWith(`..${path.sep}`) || path.isAbsolute(pathFromRoot)) {
             response.writeHead(403);
             response.end('Forbidden');
+            return;
+        }
+        if (pathFromRoot.split(path.sep).some(segment => segment.startsWith('.'))) {
+            response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+            response.end('Not found');
             return;
         }
 

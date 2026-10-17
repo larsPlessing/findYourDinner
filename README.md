@@ -17,13 +17,23 @@ Ein mobiler Rezeptfinder mit Suche, Kategorien, Rezeptdetailseiten und einem Edi
 
 ## Lokal starten
 
-Voraussetzung ist eine aktuelle Node.js-Installation. Zusätzliche npm-Pakete müssen nicht installiert werden.
+Voraussetzung ist Node.js 22.9 oder neuer. Zusätzliche npm-Pakete müssen nicht installiert werden.
+
+Der URL- und Bildimport ist nur lokal verfügbar. Lege den Gemini-Schlüssel in einer `.env`-Datei im Projekt-Hauptordner ab:
+
+```text
+GEMINI_API_KEY=dein_api_key
+```
+
+Die `.env`-Datei wird beim lokalen Start automatisch geladen und ist in `.gitignore` eingetragen. Der Schlüssel wird nicht an GitHub Pages ausgeliefert.
 
 ```bash
 npm run serve
 ```
 
 Öffne anschließend <http://localhost:4004>. Der Server bindet nur an die lokale Loopback-Adresse.
+
+Die Schaltflächen zum Importieren per URL oder Bild erscheinen nur bei lokalem Aufruf über `localhost`.
 
 Beim Speichern im Editor schreibt der lokale Server die Rezeptdaten direkt nach `recipes.json` und neue Bilder nach `images/recipes/`. In der JSON-Datei werden die Bilder mit relativen Pfaden wie `images/recipes/rezept-12-1.jpg` referenziert. Der Browser-Editor sendet die Änderungen an die lokale Speicher-API in [server.mjs](./server.mjs).
 

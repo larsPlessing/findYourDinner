@@ -7,6 +7,25 @@ const vm = require('node:vm');
 const serverUrl = process.env.LOCAL_RECIPE_SERVER_URL || 'http://127.0.0.1:4004';
 const editorSource = fs.readFileSync(path.resolve(__dirname, '../../js/recipeEditor.js'), 'utf8');
 
+test('recipe import controls are shown only on localhost', () => {
+    for (const [hostname, expectedHidden] of [['localhost', false], ['my-recipes.github.io', true]]) {
+        const controls = [{ hidden: true }, { hidden: true }];
+        const sandbox = {
+            window: { location: { hostname } },
+            document: {
+                getElementById(id) {
+                    if (id === 'editorSearch') return { addEventListener() {} };
+                    if (id === 'recipeImportImageInput') return null;
+                    throw new Error(`Unerwartetes Element: ${id}`);
+                },
+                querySelectorAll() { return controls; }
+            }
+        };
+        vm.runInNewContext(editorSource, sandbox);
+        assert.deepEqual(controls.map(control => control.hidden), [expectedHidden, expectedHidden]);
+    }
+});
+
 test('running localhost server exposes the recipe save API', async t => {
     let response;
     try {
@@ -39,8 +58,10 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
             getElementById(id) {
                 if (id === 'editorSearch') return { addEventListener() {} };
                 if (id === 'editorSaveStatus') return status;
+                if (id === 'recipeImportImageInput') return null;
                 throw new Error(`Unerwartetes Element: ${id}`);
-            }
+            },
+            querySelectorAll() { return []; }
         },
         localStorage: {
             setItem(key, value) { storage[key] = String(value); }
@@ -80,8 +101,10 @@ test('deleting the last recipe saves the empty recipe list to the local server',
                 if (id === 'editorSaveStatus') return status;
                 if (id === 'editorRecipeList') return recipeList;
                 if (id === 'recipeEditForm') return recipeForm;
+                if (id === 'recipeImportImageInput') return null;
                 throw new Error(`Unerwartetes Element: ${id}`);
-            }
+            },
+            querySelectorAll() { return []; }
         },
         localStorage: {
             setItem(key, value) { storage[key] = String(value); }

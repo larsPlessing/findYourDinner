@@ -100,7 +100,10 @@
             </header>
             <div class="editor-toolbar">
                 <input id="editorSearch" type="search" placeholder="Rezept suchen…" aria-label="Rezept suchen">
+                <button type="button" class="secondary-btn" data-local-recipe-import hidden onclick="importRecipeFromUrl()">URL importieren</button>
+                <button type="button" class="secondary-btn" data-local-recipe-import hidden onclick="document.getElementById('recipeImportImageInput').click()">Bild importieren</button>
                 <button type="button" class="primary-btn" onclick="newRecipe()">＋ Neues Rezept</button>
+                <input id="recipeImportImageInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
             </div>
             <div class="editor-layout">
                 <nav id="editorRecipeList" class="editor-recipe-list" aria-label="Rezeptliste"></nav>
@@ -234,25 +237,61 @@
                 const gradient = `gradient-${(index % 8) + 1}`;
                 const heightClass = getRandomHeight(recipe.name);
 
-                item.innerHTML = `
-                    <div class="recipe-pin" onclick="openRecipe('${recipe.name.replace(/'/g, "\\'")}')">
-                        <div class="recipe-pin-image ${gradient} ${heightClass}" data-recipe="${recipe.name}">
-                            ${emoji}
-                        </div>
-                        <div class="recipe-pin-content">
-                            <div class="recipe-pin-title">${recipe.name}</div>
-                            ${recipe.category ? `<div class="recipe-category-badge">${recipe.category}</div>` : ''}
-                            ${recipe.isPlaceholder ? `<div class="recipe-placeholder-badge">⏳ In Vorbereitung</div>` : ''}
-                            <div class="recipe-pin-info">
-                                ${recipe.servings ? `<div class="recipe-pin-info-item">👥 ${recipe.servings} Portionen</div>` : ''}
-                                ${recipe.ingredients && !recipe.isPlaceholder ? `<div class="recipe-pin-info-item">📝 ${recipe.ingredients.length} Zutaten</div>` : ''}
-                            </div>
-                        </div>
-                        <div class="recipe-pin-overlay">
-                            <button>Rezept ansehen</button>
-                        </div>
-                    </div>
-                `;
+                const pin = document.createElement('div');
+                pin.className = 'recipe-pin';
+                pin.addEventListener('click', () => openRecipe(recipe.name));
+
+                const image = document.createElement('div');
+                image.className = `recipe-pin-image ${gradient} ${heightClass}`;
+                image.dataset.recipe = recipe.name;
+                image.textContent = emoji;
+
+                const content = document.createElement('div');
+                content.className = 'recipe-pin-content';
+                const title = document.createElement('div');
+                title.className = 'recipe-pin-title';
+                title.textContent = recipe.name;
+                content.appendChild(title);
+
+                if (recipe.category) {
+                    const category = document.createElement('div');
+                    category.className = 'recipe-category-badge';
+                    category.textContent = recipe.category;
+                    content.appendChild(category);
+                }
+
+                if (recipe.isPlaceholder) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'recipe-placeholder-badge';
+                    placeholder.textContent = '⏳ In Vorbereitung';
+                    content.appendChild(placeholder);
+                }
+
+                const info = document.createElement('div');
+                info.className = 'recipe-pin-info';
+                if (recipe.servings) {
+                    const servings = document.createElement('div');
+                    servings.className = 'recipe-pin-info-item';
+                    servings.textContent = `👥 ${recipe.servings} Portionen`;
+                    info.appendChild(servings);
+                }
+                if (recipe.ingredients && !recipe.isPlaceholder) {
+                    const ingredientCount = document.createElement('div');
+                    ingredientCount.className = 'recipe-pin-info-item';
+                    ingredientCount.textContent = `📝 ${recipe.ingredients.length} Zutaten`;
+                    info.appendChild(ingredientCount);
+                }
+                content.appendChild(info);
+
+                const overlay = document.createElement('div');
+                overlay.className = 'recipe-pin-overlay';
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = 'Rezept ansehen';
+                overlay.appendChild(button);
+
+                pin.append(image, content, overlay);
+                item.appendChild(pin);
 
                 fragment.appendChild(item);
             }
@@ -395,6 +434,13 @@
             
             const colorPair = colors[hash % colors.length];
             const displayName = recipeName.length > 25 ? recipeName.substring(0, 22) + '...' : recipeName;
+            const safeDisplayName = displayName.replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&apos;'
+            })[character]);
             
             const svg = `
                 <svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
@@ -406,7 +452,7 @@
                     </defs>
                     <rect width="400" height="400" fill="url(#grad${hash})"/>
                     <text x="200" y="180" font-size="120" text-anchor="middle" fill="white" opacity="0.9">${emoji}</text>
-                    <text x="200" y="280" font-size="24" text-anchor="middle" fill="white" font-weight="600" opacity="0.95">${displayName}</text>
+                    <text x="200" y="280" font-size="24" text-anchor="middle" fill="white" font-weight="600" opacity="0.95">${safeDisplayName}</text>
                 </svg>
             `;
             
@@ -502,16 +548,24 @@
             // Prüfe ob Standard-Kategorie existiert
             const defaultCategoryExists = categories.includes(currentCategory);
             
-            // Baue Category Chips
-            let html = `<button class="category-chip ${!defaultCategoryExists ? 'active' : ''}" data-category="Alle" onclick="filterByCategory('Alle')">Alle</button>`;
-            
+            const allCategoriesButton = document.createElement('button');
+            allCategoriesButton.type = 'button';
+            allCategoriesButton.className = `category-chip ${!defaultCategoryExists ? 'active' : ''}`;
+            allCategoriesButton.dataset.category = 'Alle';
+            allCategoriesButton.textContent = 'Alle';
+            allCategoriesButton.addEventListener('click', () => filterByCategory('Alle'));
+            categoryFilter.replaceChildren(allCategoriesButton);
+
             categories.forEach(category => {
-                const escapedCategory = category.replace(/'/g, "\\'");
-                const isActive = category === currentCategory && defaultCategoryExists ? 'active' : '';
-                html += `<button class="category-chip ${isActive}" data-category="${category}" onclick="filterByCategory('${escapedCategory}')">${category}</button>`;
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `category-chip${category === currentCategory && defaultCategoryExists ? ' active' : ''}`;
+                button.dataset.category = category;
+                button.textContent = category;
+                button.addEventListener('click', () => filterByCategory(category));
+                categoryFilter.appendChild(button);
             });
-            
-            categoryFilter.innerHTML = html;
+
             categoryFilter.style.display = 'flex';
         }
 

@@ -110,7 +110,10 @@
             </header>
             <div class="editor-toolbar">
                 <input id="editorSearch" type="search" placeholder="Rezept suchen…" aria-label="Rezept suchen">
+                <button type="button" class="secondary-btn" data-local-recipe-import hidden onclick="importRecipeFromUrl()">URL importieren</button>
+                <button type="button" class="secondary-btn" data-local-recipe-import hidden onclick="document.getElementById('recipeImportImageInput').click()">Bild importieren</button>
                 <button type="button" class="primary-btn" onclick="newRecipe()">＋ Neues Rezept</button>
+                <input id="recipeImportImageInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
             </div>
             <div class="editor-layout">
                 <nav id="editorRecipeList" class="editor-recipe-list" aria-label="Rezeptliste"></nav>
@@ -229,11 +232,12 @@
             // Zeige Hinweis wenn Placeholder-Rezept
             if (currentRecipe.isPlaceholder) {
                 const infoEl = document.getElementById('recipeMeta');
-                infoEl.innerHTML = `
-                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <strong>ℹ️ Hinweis:</strong> Dieses Rezept ist noch nicht vollständig erfasst.
-                    </div>
-                `;
+                const notice = document.createElement('div');
+                notice.style.cssText = 'background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px;';
+                const noticeTitle = document.createElement('strong');
+                noticeTitle.textContent = 'ℹ️ Hinweis:';
+                notice.append(noticeTitle, document.createTextNode(' Dieses Rezept ist noch nicht vollständig erfasst.'));
+                infoEl.replaceChildren(notice);
             }
 
             // Bild/Emoji
@@ -287,34 +291,33 @@
 
             // Meta-Informationen
             const metaEl = document.getElementById('recipeMeta');
-            
-            // Nur für Nicht-Placeholder oder falls bereits Hinweis gesetzt wurde
-            if (!currentRecipe.isPlaceholder) {
-                metaEl.innerHTML = '';
-            }
+            if (!currentRecipe.isPlaceholder) metaEl.replaceChildren();
 
             if (currentRecipe.servings) {
-                metaEl.innerHTML += `
-                    <div class="detail-meta-item">
-                        👥 <strong>${currentRecipe.servings}</strong> Portionen
-                    </div>
-                `;
+                const servings = document.createElement('div');
+                servings.className = 'detail-meta-item';
+                const servingsValue = document.createElement('strong');
+                servingsValue.textContent = currentRecipe.servings;
+                servings.append(document.createTextNode('👥 '), servingsValue, document.createTextNode(' Portionen'));
+                metaEl.appendChild(servings);
             }
 
             if (currentRecipe.ingredients && currentRecipe.ingredients.length > 0 && !currentRecipe.isPlaceholder) {
-                metaEl.innerHTML += `
-                    <div class="detail-meta-item">
-                        📝 <strong>${currentRecipe.ingredients.length}</strong> Zutaten
-                    </div>
-                `;
+                const ingredientCount = document.createElement('div');
+                ingredientCount.className = 'detail-meta-item';
+                const count = document.createElement('strong');
+                count.textContent = currentRecipe.ingredients.length;
+                ingredientCount.append(document.createTextNode('📝 '), count, document.createTextNode(' Zutaten'));
+                metaEl.appendChild(ingredientCount);
             }
 
             if (currentRecipe.instructions && currentRecipe.instructions.length > 0 && !currentRecipe.isPlaceholder) {
-                metaEl.innerHTML += `
-                    <div class="detail-meta-item">
-                        👨‍🍳 <strong>${currentRecipe.instructions.length}</strong> Schritte
-                    </div>
-                `;
+                const instructionCount = document.createElement('div');
+                instructionCount.className = 'detail-meta-item';
+                const count = document.createElement('strong');
+                count.textContent = currentRecipe.instructions.length;
+                instructionCount.append(document.createTextNode('👨‍🍳 '), count, document.createTextNode(' Schritte'));
+                metaEl.appendChild(instructionCount);
             }
 
             // Zutaten
@@ -440,18 +443,29 @@
                 return;
             }
 
-            listEl.innerHTML = '';
+            listEl.replaceChildren();
             currentRecipe.ingredients.forEach(ingredient => {
                 const li = document.createElement('li');
                 li.className = 'ingredient-item';
-                
-                li.innerHTML = `
-                    <span class="ingredient-amount">${ingredient.amount || ''}</span>
-                    <span class="ingredient-unit">${ingredient.unit || ''}</span>
-                    <span class="ingredient-product">${ingredient.product}</span>
-                    ${ingredient.note ? `<span class="ingredient-note">${ingredient.note}</span>` : ''}
-                `;
-                
+
+                for (const [className, value] of [
+                    ['ingredient-amount', ingredient.amount || ''],
+                    ['ingredient-unit', ingredient.unit || ''],
+                    ['ingredient-product', ingredient.product || '']
+                ]) {
+                    const span = document.createElement('span');
+                    span.className = className;
+                    span.textContent = value;
+                    li.appendChild(span);
+                }
+
+                if (ingredient.note) {
+                    const note = document.createElement('span');
+                    note.className = 'ingredient-note';
+                    note.textContent = ingredient.note;
+                    li.appendChild(note);
+                }
+
                 listEl.appendChild(li);
             });
         }
@@ -470,7 +484,10 @@
                 .forEach(instruction => {
                     const li = document.createElement('li');
                     li.className = 'instruction-item';
-                    li.innerHTML = `<div class="instruction-text">${instruction.text}</div>`;
+                    const text = document.createElement('div');
+                    text.className = 'instruction-text';
+                    text.textContent = instruction.text;
+                    li.appendChild(text);
                     listEl.appendChild(li);
                 });
         }
@@ -490,20 +507,29 @@
             currentRecipe.notes.forEach(note => {
                 const noteEl = document.createElement('div');
                 noteEl.className = 'note-item';
-                
-                // Prüfe ob es ein Link ist (URL-Muster)
-                const urlPattern = /(https?:\/\/[^\s]+)/g;
-                const hasLink = urlPattern.test(note);
-                
-                if (hasLink) {
-                    // Konvertiere URLs zu anklickbaren Links
-                    const noteWithLinks = note.replace(urlPattern, (url) => {
-                        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="note-link">${url} 🔗</a>`;
-                    });
-                    noteEl.innerHTML = noteWithLinks;
-                } else {
-                    noteEl.textContent = note;
+
+                const value = String(note);
+                const urlPattern = /https?:\/\/[^\s]+/g;
+                let lastIndex = 0;
+                for (const match of value.matchAll(urlPattern)) {
+                    noteEl.appendChild(document.createTextNode(value.slice(lastIndex, match.index)));
+                    let link;
+                    try {
+                        const url = new URL(match[0]);
+                        if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error('Unsupported link protocol');
+                        link = document.createElement('a');
+                        link.href = url.href;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        link.className = 'note-link';
+                        link.textContent = `${match[0]} 🔗`;
+                    } catch {
+                        noteEl.appendChild(document.createTextNode(match[0]));
+                    }
+                    if (link) noteEl.appendChild(link);
+                    lastIndex = match.index + match[0].length;
                 }
+                noteEl.appendChild(document.createTextNode(value.slice(lastIndex)));
                 
                 listEl.appendChild(noteEl);
             });
@@ -594,6 +620,13 @@
             
             const colorPair = colors[hash % colors.length];
             const displayName = recipeName.length > 30 ? recipeName.substring(0, 27) + '...' : recipeName;
+            const safeDisplayName = displayName.replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&apos;'
+            })[character]);
             
             const svg = `
                 <svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
@@ -605,7 +638,7 @@
                     </defs>
                     <rect width="600" height="400" fill="url(#grad${hash})"/>
                     <text x="300" y="200" font-size="140" text-anchor="middle" fill="white" opacity="0.9">${emoji}</text>
-                    <text x="300" y="310" font-size="28" text-anchor="middle" fill="white" font-weight="600" opacity="0.95">${displayName}</text>
+                    <text x="300" y="310" font-size="28" text-anchor="middle" fill="white" font-weight="600" opacity="0.95">${safeDisplayName}</text>
                 </svg>
             `;
             
@@ -773,13 +806,24 @@
                     }
                 }
                 
-                li.innerHTML = `
-                    <span class="ingredient-amount">${scaledAmount || ''}</span>
-                    <span class="ingredient-unit">${ingredient.unit || ''}</span>
-                    <span class="ingredient-product">${ingredient.product}</span>
-                    ${ingredient.note ? `<span class="ingredient-note">${ingredient.note}</span>` : ''}
-                `;
-                
+                for (const [className, value] of [
+                    ['ingredient-amount', scaledAmount || ''],
+                    ['ingredient-unit', ingredient.unit || ''],
+                    ['ingredient-product', ingredient.product || '']
+                ]) {
+                    const span = document.createElement('span');
+                    span.className = className;
+                    span.textContent = value;
+                    li.appendChild(span);
+                }
+
+                if (ingredient.note) {
+                    const note = document.createElement('span');
+                    note.className = 'ingredient-note';
+                    note.textContent = ingredient.note;
+                    li.appendChild(note);
+                }
+
                 listEl.appendChild(li);
             });
         }

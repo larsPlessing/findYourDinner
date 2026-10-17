@@ -13,9 +13,16 @@ test('homepage provides the DOM elements used by recipe browsing', () => {
 
 test('homepage wires search, category filtering and recipe navigation', () => {
     assert.match(html, /searchInput\.addEventListener\(['"]input['"],\s*handleSearch\)/);
-    assert.match(html, /onclick="filterByCategory\(/);
-    assert.match(html, /onclick="openRecipe\(/);
+    assert.match(html, /button\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*filterByCategory\(category\)\)/);
+    assert.match(html, /pin\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*openRecipe\(recipe\.name\)\)/);
     assert.match(html, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeName\)/);
+});
+
+test('homepage renders recipe and category data without HTML interpolation', () => {
+    assert.doesNotMatch(html, /item\.innerHTML\s*=/);
+    assert.doesNotMatch(html, /categoryFilter\.innerHTML\s*=/);
+    assert.match(html, /title\.textContent\s*=\s*recipe\.name/);
+    assert.match(html, /button\.textContent\s*=\s*category/);
 });
 
 test('homepage uses the JSON source and offers local file selection', () => {

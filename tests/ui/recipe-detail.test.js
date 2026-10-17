@@ -69,5 +69,15 @@ describe('recipe detail page', () => {
             assert.match(html, /getAllRecipeImageURLs\(currentRecipe\.name\)/);
             assert.match(html, /displayThumbnails\(\)/);
         });
+
+        it('renders untrusted recipe fields as text and creates note links safely', () => {
+            assert.doesNotMatch(html, /li\.innerHTML\s*=/);
+            assert.doesNotMatch(html, /noteEl\.innerHTML\s*=/);
+            assert.doesNotMatch(html, /metaEl\.innerHTML\s*\+/);
+            assert.match(html, /span\.textContent\s*=\s*value/);
+            assert.match(html, /text\.textContent\s*=\s*instruction\.text/);
+            assert.match(html, /link\.href\s*=\s*url\.href/);
+            assert.match(html, /link\.textContent\s*=/);
+        });
     });
 });
