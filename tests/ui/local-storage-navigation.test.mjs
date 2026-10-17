@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const __dirname = import.meta.dirname;
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -6,7 +9,7 @@ const path = require('node:path');
 const projectRoot = path.resolve(__dirname, '../..');
 const homepage = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 const detailPage = fs.readFileSync(path.join(projectRoot, 'pages/recipe-detail.html'), 'utf8');
-const recipeEditor = fs.readFileSync(path.join(projectRoot, 'js/recipeEditor.js'), 'utf8');
+const recipeEditor = fs.readFileSync(path.join(projectRoot, 'js/recipeEditor.mjs'), 'utf8');
 
 test('recipe data stays available across navigation on a GitHub Pages project URL', () => {
     const githubPagesHome = new URL('https://example.github.io/findYourDinner/');
@@ -36,7 +39,7 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
 test('detail page opens the editor in place with the current recipe selected', () => {
     assert.match(detailPage, /onclick=["']editCurrentRecipe\(\)["']/);
     assert.match(detailPage, /id=["']recipeEditor["']/);
-    assert.match(detailPage, /<script src=["']\.\.\/js\/recipeEditor\.js["']/);
+    assert.match(detailPage, /<script type=["']module["'] src=["']\.\.\/js\/recipeEditor\.mjs["']/);
     assert.match(detailPage, /function editCurrentRecipe\(\)\s*\{\s*if\s*\(!currentRecipe\)\s*return;\s*openRecipeEditor\(currentRecipe\.name\);\s*\}/);
     assert.match(detailPage, /async function onRecipeEditorSaved\(recipe\)[\s\S]*?currentRecipe = recipe;[\s\S]*?await displayRecipe\(\);/);
     assert.match(recipeEditor, /function openRecipeEditor\(recipeName = null\)/);

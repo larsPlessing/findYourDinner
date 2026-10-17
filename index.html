@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="css/recipe-editor.css">
     
     <!-- Custom Scripts -->
-    <script src="js/recipeGenerator.js"></script>
+    <script type="module" src="js/recipeGenerator.mjs"></script>
 </head>
 <body>
     <div class="container">
@@ -114,8 +114,8 @@
         </section>
     </div>
 
-    <script>
-        const generator = new RecipeGenerator();
+    <script type="module">
+        globalThis.generator = new RecipeGenerator();
         let allRecipes = [];
         let filteredRecipes = [];
         let currentCategory = 'Mittagessen - Salzig';
@@ -601,8 +601,17 @@
                 }
             }
         });
+        globalThis.refreshRecipesAfterEdit = () => {
+            allRecipes = generator.recipes;
+            initializeCategoryFilter();
+            applyFilters(searchInput.value, currentCategory);
+        };
+        Object.assign(globalThis, {
+            closeUploadOverlay, filterByCategory, loadDefaultRecipes,
+            selectRandomRecipe, showUploadDialog, shuffleRecipes
+        });
     </script>
-    <script src="js/recipeEditor.js"></script>
+    <script type="module" src="js/recipeEditor.mjs"></script>
 
     <style>
         .upload-overlay {

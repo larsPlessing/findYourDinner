@@ -3,7 +3,7 @@
  * Speichert und lädt Bilder offline-fähig
  */
 
-class ImageStore {
+export default class ImageStore {
     constructor() {
         this.dbName = 'RecipeImagesDB';
         this.dbVersion = 1;
@@ -406,9 +406,4 @@ class ImageStore {
 }
 
 // Globale Instanz erstellen
-const imageStore = new ImageStore();
-
-// Export für Verwendung in anderen Dateien
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ImageStore;
-}
+globalThis.imageStore = new ImageStore();

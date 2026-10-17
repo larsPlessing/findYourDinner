@@ -397,8 +397,8 @@ async function commitRecipeChanges(recipe, index) {
     generator.recipes[index] = recipe;
     persistRecipeEdits();
     await saveRecipeProjectToFolder();
-    if (typeof onRecipeEditorSaved === 'function') {
-        onRecipeEditorSaved(generator.recipes[index]);
+    if (typeof globalThis.onRecipeEditorSaved === 'function') {
+        globalThis.onRecipeEditorSaved(generator.recipes[index]);
     }
 }
 
@@ -427,11 +427,7 @@ function persistRecipeEdits() {
     try {
         localStorage.setItem('recipes_user_edits', JSON.stringify(generator.recipes));
         generator.saveToLocalStorage();
-        if (typeof initializeCategoryFilter === 'function' && typeof applyFilters === 'function' && typeof searchInput !== 'undefined') {
-            allRecipes = generator.recipes;
-            initializeCategoryFilter();
-            applyFilters(searchInput.value, currentCategory);
-        }
+        globalThis.refreshRecipesAfterEdit?.();
         document.getElementById('editorSaveStatus').textContent = `Lokal gespeichert · ${generator.recipes.length} Rezepte`;
         renderEditorRecipeList();
     } catch (error) {
@@ -473,6 +469,9 @@ if (typeof document !== 'undefined') {
     });
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { commitRecipeChanges, deleteCurrentRecipe, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder };
-}
+globalThis.openRecipeEditor = openRecipeEditor;
+globalThis.closeRecipeEditor = closeRecipeEditor;
+globalThis.importRecipeFromUrl = importRecipeFromUrl;
+globalThis.newRecipe = newRecipe;
+
+export { commitRecipeChanges, deleteCurrentRecipe, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder };

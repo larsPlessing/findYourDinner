@@ -1,5 +1,5 @@
 /** Lädt Rezeptdaten aus der JSON-Datei im Repository. */
-class RecipeGenerator {
+export default class RecipeGenerator {
     constructor() {
         this.recipes = [];
         this.imageStore = typeof imageStore !== 'undefined' ? imageStore : null;
@@ -98,4 +98,4 @@ class RecipeGenerator {
     }
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = RecipeGenerator;
+globalThis.RecipeGenerator = RecipeGenerator;

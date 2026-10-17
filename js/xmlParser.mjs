@@ -2,7 +2,7 @@
  * XMLParser - Helper für XML-Parsing in Excel-Dateien
  */
 
-class XMLParser {
+export default class XMLParser {
     /**
      * Parst XML-String zu DOM
      * @param {string} xmlString - XML als String
@@ -292,7 +292,4 @@ class XMLParser {
     }
 }
 
-// Export für Verwendung in anderen Dateien
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = XMLParser;
-}
+globalThis.XMLParser = XMLParser;

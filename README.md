@@ -14,6 +14,7 @@ Ein mobiler Rezeptfinder mit Suche, Kategorien, Rezeptdetailseiten und einem Edi
 - Lokale Speicherung von Änderungen im Browser
 - Direkter Schreibzugriff auf `recipes.json` und `images/recipes/` über den lokalen Node-Server
 - Offlinefreundliche Rezeptdaten und zwischengespeicherte Bilder
+- JavaScript-ES-Module (`.mjs`), die auch unter GitHub Pages mit relativen URLs geladen werden
 
 ## Lokal starten
 
@@ -87,10 +88,10 @@ findYourDinner/
 │   ├── detail.css                # Detailansicht
 │   └── recipe-editor.css         # Editor und Formulare
 ├── js/
-│   ├── recipeGenerator.js        # Laden, Suche und Rezeptdaten
-│   ├── recipeEditor.js           # Editor, lokale Speicherung und Bildauswahl
-│   ├── imageStore.js             # IndexedDB für Bilder
-│   └── xmlParser.js              # Excel-XML-Hilfsfunktionen
+│   ├── recipeGenerator.mjs       # Laden, Suche und Rezeptdaten
+│   ├── recipeEditor.mjs          # Editor, lokale Speicherung und Bildauswahl
+│   ├── imageStore.mjs            # IndexedDB für Bilder
+│   └── xmlParser.mjs             # Excel-XML-Hilfsfunktionen
 ├── pages/
 │   └── recipe-detail.html        # Rezeptdetails mit Editorzugriff
 ├── images/recipes/               # Rezeptbilder
@@ -117,7 +118,7 @@ Nur die Backend-Tests ausführen:
 npm run test:backend
 ```
 
-Der Live-Server-Test in `tests/backend/live-server.test.js` prüft die laufende Speicher-API auf `http://127.0.0.1:4004`. Er wird übersprungen, wenn dort kein Server erreichbar ist. Ist ein alter statischer Server aktiv, schlägt der Test mit `405 Method Not Allowed` fehl.
+Der Live-Server-Test in `tests/backend/live-server.test.mjs` prüft die laufende Speicher-API auf `http://127.0.0.1:4004`. Er wird übersprungen, wenn dort kein Server erreichbar ist. Ist ein alter statischer Server aktiv, schlägt der Test mit `405 Method Not Allowed` fehl.
 
 ## Browserhinweise
 

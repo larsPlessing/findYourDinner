@@ -1326,7 +1326,11 @@
       "notes": [],
       "createdDate": null,
       "modifiedDate": 46086,
-      "images": []
+      "images": [
+        {
+          "src": "images/recipes/gnochi-mit-gemu-e-12-1.jpg"
+        }
+      ]
     },
     {
       "id": 13,

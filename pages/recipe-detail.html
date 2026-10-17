@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="../css/recipe-editor.css">
     
     <!-- Custom Scripts -->
-    <script src="../js/recipeGenerator.js"></script>
+    <script type="module" src="../js/recipeGenerator.mjs"></script>
 </head>
 <body>
     <div class="detail-container">
@@ -129,8 +129,8 @@
         🎲
     </button>
 
-    <script>
-        const generator = new RecipeGenerator();
+    <script type="module">
+        globalThis.generator = new RecipeGenerator();
         let currentRecipe = null;
         let allImages = [];
         let currentImageIndex = 0;
@@ -853,8 +853,12 @@
             document.getElementById('portionScaler').style.display = 'flex';
             updatePortionsDisplay();
         }
+        Object.assign(globalThis, {
+            adjustPortions, editCurrentRecipe, goBack, printRecipe, resetPortions,
+            onRecipeEditorSaved, selectRandomRecipe, toggleWakeLock
+        });
     </script>
-    <script src="../js/recipeEditor.js"></script>
+    <script type="module" src="../js/recipeEditor.mjs"></script>
 
     <style>
         .random-fab {

@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const __dirname = import.meta.dirname;
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -5,7 +8,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const serverUrl = process.env.LOCAL_RECIPE_SERVER_URL || 'http://127.0.0.1:4004';
-const editorSource = fs.readFileSync(path.resolve(__dirname, '../../js/recipeEditor.js'), 'utf8');
+const editorSource = fs.readFileSync(path.resolve(__dirname, '../../js/recipeEditor.mjs'), 'utf8')
+    .replace(/^export \{[^}]+\};$/m, '');
 
 test('recipe import controls are shown only on localhost', () => {
     for (const [hostname, expectedHidden] of [['localhost', false], ['my-recipes.github.io', true]]) {

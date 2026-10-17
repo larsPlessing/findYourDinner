@@ -1,9 +1,11 @@
+import { createRequire } from 'node:module';
+import RecipeGenerator from '../../js/recipeGenerator.mjs';
+const require = createRequire(import.meta.url);
+const __dirname = import.meta.dirname;
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const RecipeGenerator = require('../../js/recipeGenerator');
-
 const projectRoot = path.resolve(__dirname, '../..');
 const homeHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 const detailHtml = fs.readFileSync(path.join(projectRoot, 'pages/recipe-detail.html'), 'utf8');
@@ -49,4 +51,19 @@ test('homepage and detail page use the same existing image files for every recip
     }
 
     assert.ok(checkedImageCount > 0, 'the test should check at least one image file');
+});
+
+test('homepage and detail-page modules use existing relative mjs paths', () => {
+    for (const [pagePath, html] of [['index.html', homeHtml], ['pages/recipe-detail.html', detailHtml]]) {
+        const modulePaths = [...html.matchAll(/<script\s+type=["']module["']\s+src=["']([^"']+)["']/g)]
+            .map(([, source]) => source);
+        assert.ok(modulePaths.length > 0, `${pagePath} should load at least one ES module`);
+
+        for (const source of modulePaths) {
+            assert.ok(source.endsWith('.mjs'), `${pagePath} should use .mjs module files`);
+            assert.ok(!source.startsWith('/'), `${pagePath} module paths must work under a GitHub Pages project URL`);
+            const modulePath = path.resolve(projectRoot, path.dirname(pagePath), source);
+            assert.ok(fs.existsSync(modulePath), `${pagePath} references missing module ${source}`);
+        }
+    }
 });

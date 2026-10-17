@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -90,6 +92,22 @@ test('static server does not serve dotfiles or files inside hidden directories',
     const publicPage = await fetch(`${baseUrl}/`);
     assert.equal(publicPage.status, 200);
     assert.equal(await publicPage.text(), 'public page');
+});
+
+test('static server serves mjs files with a JavaScript MIME type', async t => {
+    const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+    fs.writeFileSync(path.join(projectDirectory, 'app.mjs'), 'export default true;');
+    const server = createServer({ rootDirectory: projectDirectory });
+    t.after(async () => {
+        await new Promise(resolve => server.close(resolve));
+        fs.rmSync(projectDirectory, { recursive: true, force: true });
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/app.mjs`);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type'), /^text\/javascript\b/);
+    assert.equal(await response.text(), 'export default true;');
 });
 
 test('localhost import API passes current recipe categories to the importer', async t => {

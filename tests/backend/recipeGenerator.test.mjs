@@ -1,6 +1,8 @@
+import { createRequire } from 'node:module';
+import RecipeGenerator from '../../js/recipeGenerator.mjs';
+const require = createRequire(import.meta.url);
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const RecipeGenerator = require('../../js/recipeGenerator.js');
 
 const sampleRecipes = [
     {

@@ -4,7 +4,7 @@
   "scripts": {
     "serve": "node --env-file-if-exists=.env server.mjs",
     "test": "node --test",
-    "test:backend": "node --test \"tests/backend/*.test.js\"",
-    "test:ui": "node --test \"tests/ui/*.test.js\" \"tests/ui/css/*.test.js\""
+    "test:backend": "node --test \"tests/backend/*.test.mjs\"",
+    "test:ui": "node --test \"tests/ui/*.test.mjs\" \"tests/ui/css/*.test.mjs\""
   }
 }

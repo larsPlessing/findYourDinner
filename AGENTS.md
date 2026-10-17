@@ -10,16 +10,15 @@ Coding standards and commands for AI agents working in this repository.
 - Stores data offline (LocalStorage + IndexedDB)
 - Optimized for iOS Safari and mobile-first design
 
-**Tech Stack:** Vanilla JavaScript (ES6+), HTML5, CSS3, IndexedDB, SheetJS, JSZip
+**Tech Stack:** JavaScript ES-Modules (`.mjs`), HTML5, CSS3, IndexedDB, SheetJS, JSZip
 
 ## Build/Lint/Test Commands
 
 ### No Build System
-**No package.json, npm, webpack, or build tools** - pure vanilla JavaScript:
-- **Run locally:** `python3 -m http.server 8000` or `npx serve`, then open `http://localhost:8000`
-- **No automated tests:** Manual testing only (see Testing Approach below)
+There is no bundler or install-time dependency. The project uses native JavaScript ES modules:
+- **Run locally:** `npm run serve`, then open `http://localhost:4004`
+- **Tests:** `npm test`, `npm run test:backend`, or `npm run test:ui`
 - **No linter/formatter:** No ESLint or Prettier configured
-- **Single test:** N/A (no test framework)
 
 ### Git Workflow
 ```bash
@@ -48,9 +47,9 @@ Since no automated tests exist:
 Core structure:
 - `index.html` - Main Pinterest-style homepage
 - `pages/recipe-detail.html` - Recipe detail page
-- `js/recipeGenerator.js` - Main recipe loader/manager
-- `js/imageStore.js` - IndexedDB image manager
-- `js/xmlParser.js` - Excel XML parser for images
+- `js/recipeGenerator.mjs` - Main recipe loader/manager
+- `js/imageStore.mjs` - IndexedDB image manager
+- `js/xmlParser.mjs` - Excel XML parser for images
 - `css/*.css` - Modular styles (main, pinterest, detail, mobile, chrome-ios)
 
 ### JavaScript Standards
@@ -78,18 +77,13 @@ Core structure:
 - User-facing errors in German: `throw new Error(\`Fehler beim Laden: \${error.message}\`);`
 
 **Imports/Dependencies:**
-- No ES6 modules - uses global scope
+- Use native ES modules and `.mjs` extensions; HTML entry scripts use `type="module"`.
+- Browser globals required by inline HTML handlers are explicitly attached to `globalThis`.
 - Script load order in HTML:
   1. External libraries (SheetJS CDN, JSZip)
-  2. Utilities (xmlParser.js)
-  3. Core classes (imageStore.js, recipeGenerator.js)
-  4. Page-specific logic (inline scripts)
-- Include CommonJS export for Node.js compatibility:
-  ```javascript
-  if (typeof module !== 'undefined' && module.exports) {
-      module.exports = ClassName;
-  }
-  ```
+  2. Utilities (`xmlParser.mjs`)
+  3. Core classes (`imageStore.mjs`, `recipeGenerator.mjs`)
+  4. Page-specific module scripts
 
 ### CSS Standards
 
@@ -189,7 +183,7 @@ generator.clearAllData();                      // Clear all data
 
 ## Important Notes for Agents
 
-1. **No npm/package.json:** This is a vanilla JS project, don't suggest npm install
+1. **No bundler or third-party npm dependencies:** preserve the native ES-module workflow
 2. **German UI:** Keep all user-facing text in German
 3. **Mobile-first:** Always test mobile responsive behavior
 4. **Excel-dependent:** Core functionality requires specific Excel structure
