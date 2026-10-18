@@ -248,7 +248,8 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
     if (isInstagram) {
         instagramPost = await fetchInstagramPost(source, {
             fetchImpl,
-            authenticatedLoader: dependencies.authenticatedInstagramLoader
+            authenticatedLoader: dependencies.authenticatedInstagramLoader,
+            ytDlpDownloader: dependencies.ytDlpDownloader
         });
         html = instagramPost.html;
         pageUrl = instagramPost.url || source;
@@ -304,6 +305,9 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
             mimeType: instagramPost.video.mimeType,
             data: instagramPost.video.data
         };
+    }
+    if (isInstagram && Array.isArray(instagramPost?.warnings) && instagramPost.warnings.length) {
+        importedRecipe.importWarnings = instagramPost.warnings;
     }
     return importedRecipe;
 }

@@ -15,6 +15,7 @@ function dependencies(t, fetchImplementation, extras = {}) {
     return {
         fetchImpl: t.mock.fn(fetchImplementation),
         apiKey: testApiKey,
+        ytDlpDownloader: t.mock.fn(async () => null),
         ...extras
     };
 }
@@ -217,7 +218,7 @@ test('Instagram reel retries video download with the authenticated session when 
     assert.deepEqual(imported.video, { mimeType: 'video/mp4', data: videoData });
 });
 
-test('Instagram reel import reports an error instead of succeeding without a playable video', async t => {
+test('Instagram reel imports the available caption and returns a warning without a playable video', async t => {
     const authLoader = t.mock.fn(async url => ({
         html: '<html><meta property="og:description" content="A complete recipe caption with ingredients and cooking instructions that is long enough to be processed."></html>',
         url,
@@ -227,13 +228,15 @@ test('Instagram reel import reports an error instead of succeeding without a pla
         authenticatedInstagramLoader: authLoader
     });
 
-    await assert.rejects(
-        importRecipe({
-            url: 'https://www.instagram.com/reel/C_gp9oXPMNq/?rpxt=cnJyd2VraHBpdXg0',
-            categories
-        }, deps),
-        /kein abspielbares Video geliefert/
-    );
+    const imported = await importRecipe({
+        url: 'https://www.instagram.com/reel/C_gp9oXPMNq/?rpxt=cnJyd2VraHBpdXg0',
+        categories
+    }, deps);
+
+    assert.equal(imported.video, undefined);
+    assert.deepEqual(imported.importWarnings, [
+        'Für diesen Instagram-Beitrag wurde kein abspielbares Video gefunden. Das Rezept wurde nur anhand der verfügbaren Beschreibung importiert.'
+    ]);
 });
 
 test('Instagram imports use the authenticated loader if anonymous access is unavailable', async t => {

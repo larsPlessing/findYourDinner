@@ -94,9 +94,13 @@ async function importRecipe(payload) {
         }
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
-        setImportStatus('success', existingIndex >= 0
+        const importedMessage = existingIndex >= 0
             ? 'Video wurde dem vorhandenen Rezept zugeordnet. Bitte speichere die Änderung.'
-            : 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.');
+            : 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.';
+        const warnings = Array.isArray(result.warnings) ? result.warnings.filter(warning => typeof warning === 'string' && warning.trim()) : [];
+        setImportStatus(warnings.length ? 'warning' : 'success', warnings.length
+            ? `${importedMessage} Hinweis: ${warnings.join(' ')}`
+            : importedMessage);
     } catch (error) {
         setImportStatus('error', formatImportError(error));
     } finally {
@@ -118,7 +122,7 @@ function setImportControlsDisabled(controls, disabled) {
 function setImportStatus(state, message) {
     const status = document.getElementById('editorSaveStatus');
     status.textContent = message;
-    status.classList.remove('editor-status--loading', 'editor-status--success', 'editor-status--error');
+    status.classList.remove('editor-status--loading', 'editor-status--success', 'editor-status--warning', 'editor-status--error');
     if (state) status.classList.add(`editor-status--${state}`);
     status.setAttribute('aria-busy', String(state === 'loading'));
     status.setAttribute('role', state === 'error' ? 'alert' : 'status');

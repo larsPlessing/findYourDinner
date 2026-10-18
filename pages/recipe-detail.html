@@ -167,6 +167,7 @@
         let ingredientSectionObserver = null;
         let ingredientDockHasIngredients = false;
         let ingredientSectionVisible = true;
+        let ingredientSectionWasVisible = false;
         
         // Wake Lock State
         let wakeLock = null;
@@ -539,7 +540,7 @@
 
         function updateIngredientDockVisibility() {
             const dock = document.getElementById('ingredientDock');
-            const shouldShowDock = ingredientDockHasIngredients && !ingredientSectionVisible;
+            const shouldShowDock = ingredientDockHasIngredients && ingredientSectionWasVisible && !ingredientSectionVisible;
             if (!shouldShowDock) collapseIngredientDock();
             dock.hidden = !shouldShowDock;
             requestAnimationFrame(updateIngredientDockSpace);
@@ -559,6 +560,7 @@
             ingredientSectionObserver?.disconnect();
             ingredientSectionObserver = new IntersectionObserver(([entry]) => {
                 ingredientSectionVisible = entry.isIntersecting;
+                if (entry.isIntersecting) ingredientSectionWasVisible = true;
                 updateIngredientDockVisibility();
             });
             ingredientSectionObserver.observe(document.getElementById('ingredientsSection'));

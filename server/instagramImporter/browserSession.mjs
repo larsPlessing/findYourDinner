@@ -3,7 +3,7 @@ import os from 'node:os';
 import { hasPostContent } from './postUtils.mjs';
 import { downloadAuthenticatedVideo } from './videoDownloader.mjs';
 
-const INSTAGRAM_USER_DATA_DIRECTORY = path.join(
+export const INSTAGRAM_USER_DATA_DIRECTORY = path.join(
     process.env.LOCALAPPDATA || path.join(os.homedir(), '.local', 'share'),
     'find-your-dinner',
     'instagram-session'

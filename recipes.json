@@ -5371,6 +5371,88 @@
       ],
       "isPlaceholder": false,
       "id": 63
+    },
+    {
+      "name": "Mayo ohne schlechtes Gewissen",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 3,
+          "unit": "",
+          "product": "gekochte Eier",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "körniger Frischkäse",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "neutrales Öl",
+          "note": ""
+        },
+        {
+          "amount": "1-2",
+          "unit": "EL",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "geh. TL",
+          "product": "Senf",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "TL",
+          "product": "Zitronensaft",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "TL",
+          "product": "Salz",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Alle Zutaten in einen Mixer oder Zerkleinerer geben."
+        },
+        {
+          "step": 2,
+          "text": "Alles fein pürieren, bis eine cremige Mayonnaise-Konsistenz entstanden ist."
+        }
+      ],
+      "notes": [
+        "https://www.instagram.com/reel/DbQR4Y5C3U5/?rpxt=d3BpMmxyNTk0Z2x1",
+        "Eine kalorienärmere, proteinreiche Mayonnaise-Alternative auf Basis von gekochten Eiern und körnigem Frischkäse – perfekt zu Pommes oder als Brotaufstrich.",
+        "Vorbereitung: 5 Min."
+      ],
+      "tags": [
+        "High Protein",
+        "Dip",
+        "Abnehmen",
+        "Snack"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/mayo-ohne-schlechtes-gewissen-64-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "video": {
+        "src": "videos/recipes/mayo-ohne-schlechtes-gewissen-6a5bc60f-9663-41b0-94c4-4f745cc1bc35.mp4",
+        "mimeType": "video/mp4"
+      },
+      "id": 64
     }
   ]
 }

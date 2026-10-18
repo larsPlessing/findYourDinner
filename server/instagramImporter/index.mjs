@@ -1,10 +1,13 @@
 import { getInstagramEmbedUrl, getInstagramVideoUrl, hasPostContent, isInstagramUrl } from './postUtils.mjs';
 import { downloadPublicVideo } from './videoDownloader.mjs';
 import { loadAuthenticatedInstagramPost } from './browserSession.mjs';
+import { downloadInstagramVideoWithYtDlp } from './ytDlpDownloader.mjs';
 
 let browserQueue = Promise.resolve();
 
 export { isInstagramUrl };
+
+const MISSING_VIDEO_WARNING = 'Für diesen Instagram-Beitrag wurde kein abspielbares Video gefunden. Das Rezept wurde nur anhand der verfügbaren Beschreibung importiert.';
 
 function isVideoPostUrl(source) {
     return /^\/(?:reel|tv)\//i.test(new URL(source).pathname);
@@ -16,8 +19,21 @@ function queueAuthenticatedLoad(source, loader) {
     return load;
 }
 
+async function tryYtDlpDownload(source, downloader) {
+    try {
+        return await downloader(source);
+    } catch (error) {
+        console.warn(`Instagram-Video konnte nicht mit yt-dlp geladen werden: ${error.message}`);
+        return null;
+    }
+}
+
 /** Liest ein öffentliches Instagram-Posting und nutzt bei Bedarf eine lokale Browser-Sitzung. */
-export async function fetchInstagramPost(source, { fetchImpl = fetch, authenticatedLoader = loadAuthenticatedInstagramPost } = {}) {
+export async function fetchInstagramPost(source, {
+    fetchImpl = fetch,
+    authenticatedLoader = loadAuthenticatedInstagramPost,
+    ytDlpDownloader = downloadInstagramVideoWithYtDlp
+} = {}) {
     if (!isInstagramUrl(source)) throw new Error('Der Instagram-Importer benötigt einen instagram.com-Link.');
     const expectedVideo = isVideoPostUrl(source);
     const headers = {
@@ -64,11 +80,22 @@ export async function fetchInstagramPost(source, { fetchImpl = fetch, authentica
         const authenticatedPost = await queueAuthenticatedLoad(source, authenticatedLoader);
         if (authenticatedPost?.video) return authenticatedPost;
         if (expectedVideo || publicVideoFound) {
-            throw new Error('Instagram hat kein abspielbares Video geliefert. Prüfe, ob der Beitrag abspielbar und dein Konto angemeldet ist.');
+            const post = authenticatedPost || publicPost;
+            const video = await tryYtDlpDownload(source, ytDlpDownloader);
+            if (post && video) return { ...post, video };
+            if (post) {
+                console.warn(MISSING_VIDEO_WARNING);
+                return { ...post, warnings: [MISSING_VIDEO_WARNING] };
+            }
         }
         return publicPost || authenticatedPost;
     } catch (error) {
-        if (error.message.includes('kein abspielbares Video geliefert')) throw error;
+        if (publicPost && (expectedVideo || publicVideoFound)) {
+            const video = await tryYtDlpDownload(source, ytDlpDownloader);
+            if (video) return { ...publicPost, video };
+            console.warn(MISSING_VIDEO_WARNING);
+            return { ...publicPost, warnings: [MISSING_VIDEO_WARNING] };
+        }
         if (publicPost && !expectedVideo && !publicVideoFound) return publicPost;
         const publicDetails = lastPublicError ? ` Anonymer Abruf: ${lastPublicError.message}` : '';
         throw new Error(`${error.message}${publicDetails}`, { cause: error });

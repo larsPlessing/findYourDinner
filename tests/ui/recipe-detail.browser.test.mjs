@@ -33,6 +33,7 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
     const browser = await chromium.launch({ headless: true });
     t.after(() => browser.close());
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    page.setDefaultTimeout(5000);
     await page.addInitScript(() => {
         localStorage.setItem('currentRecipe', 'Dock-Test');
         localStorage.setItem('recipes_user_edits', JSON.stringify([{
@@ -51,7 +52,9 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         }]));
     });
     await page.goto(`${baseUrl}/pages/recipe-detail.html`);
-    await page.waitForSelector('#ingredientDock[hidden]');
+    await page.waitForSelector('#ingredientDock[hidden]', { state: 'attached' });
+    await page.locator('#ingredientsSection').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(100);
     await page.evaluate(() => {
         const instructions = document.getElementById('instructionsList');
         window.scrollTo(0, instructions.offsetTop + 120);
@@ -78,5 +81,5 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
     }
 
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForSelector('#ingredientDock[hidden]');
+    await page.waitForSelector('#ingredientDock[hidden]', { state: 'attached' });
 });

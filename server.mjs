@@ -194,7 +194,9 @@ function createServer(options = {}) {
                 if (response.writableEnded) return;
                 if (requestUrl.pathname === '/api/import-recipe') {
                     const recipe = await recipeImporter({ ...(payload || {}), categories: getRecipeCategories(root) });
-                    sendJson(response, 200, { recipe: persistImportedVideo(root, recipe) });
+                    const warnings = Array.isArray(recipe.importWarnings) ? recipe.importWarnings : [];
+                    delete recipe.importWarnings;
+                    sendJson(response, 200, { recipe: persistImportedVideo(root, recipe), warnings });
                     return;
                 }
                 if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
