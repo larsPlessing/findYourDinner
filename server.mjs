@@ -1,6 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { importRecipe } from './server/recipeImporter.mjs';
 
@@ -21,6 +22,9 @@ const contentTypes = {
     '.png': 'image/png',
     '.svg': 'image/svg+xml',
     '.webp': 'image/webp',
+    '.mov': 'video/quicktime',
+    '.mp4': 'video/mp4',
+    '.webm': 'video/webm',
     '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 };
 
@@ -62,6 +66,51 @@ function removeUnusedRecipeImages(imageDirectory, recipes) {
         deletedImages++;
     }
     return deletedImages;
+}
+
+function removeUnusedRecipeVideos(videoDirectory, recipes) {
+    const referencedFiles = new Set();
+    for (const recipe of recipes) {
+        const src = recipe?.video?.src;
+        if (typeof src !== 'string') continue;
+        const match = src.match(/^videos\/recipes\/([^/\\]+)$/);
+        if (match) referencedFiles.add(match[1]);
+    }
+
+    let deletedVideos = 0;
+    if (!fs.existsSync(videoDirectory)) return deletedVideos;
+    for (const entry of fs.readdirSync(videoDirectory, { withFileTypes: true })) {
+        if (!entry.isFile() || referencedFiles.has(entry.name)) continue;
+        fs.unlinkSync(path.join(videoDirectory, entry.name));
+        deletedVideos++;
+    }
+    return deletedVideos;
+}
+
+function persistImportedVideo(root, recipe) {
+    if (!recipe?.video) return recipe;
+    const supportedTypes = {
+        'video/mp4': 'mp4',
+        'video/webm': 'webm',
+        'video/quicktime': 'mov'
+    };
+    const mimeType = recipe.video.mimeType;
+    const extension = supportedTypes[mimeType];
+    const base64 = recipe.video.data;
+    if (!extension || typeof base64 !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
+        throw new Error('Das importierte Video hat ein ungültiges Format.');
+    }
+    const bytes = Buffer.from(base64, 'base64');
+    if (!bytes.length || bytes.length > 20 * 1024 * 1024) {
+        throw new Error('Das importierte Video ist leer oder größer als 20 MB.');
+    }
+
+    const videoDirectory = path.join(root, 'videos', 'recipes');
+    fs.mkdirSync(videoDirectory, { recursive: true });
+    const filename = `${safeSlug(recipe.name)}-${randomUUID()}.${extension}`;
+    fs.writeFileSync(path.join(videoDirectory, filename), bytes);
+    recipe.video = { src: `videos/recipes/${filename}`, mimeType };
+    return recipe;
 }
 
 function isSameLocalOrigin(origin, hostHeader) {
@@ -144,7 +193,8 @@ function createServer(options = {}) {
                 const payload = await readJsonRequest(request, response);
                 if (response.writableEnded) return;
                 if (requestUrl.pathname === '/api/import-recipe') {
-                    sendJson(response, 200, { recipe: await recipeImporter({ ...(payload || {}), categories: getRecipeCategories(root) }) });
+                    const recipe = await recipeImporter({ ...(payload || {}), categories: getRecipeCategories(root) });
+                    sendJson(response, 200, { recipe: persistImportedVideo(root, recipe) });
                     return;
                 }
                 if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
@@ -176,7 +226,8 @@ function createServer(options = {}) {
                 fs.writeFileSync(temporaryFile, `${JSON.stringify({ version: 1, recipes: payload.recipes }, null, 2)}\n`, 'utf8');
                 fs.renameSync(temporaryFile, recipeFile);
                 const deletedImages = removeUnusedRecipeImages(imageDirectory, payload.recipes);
-                sendJson(response, 200, { recipes: payload.recipes, savedImages, deletedImages });
+                const deletedVideos = removeUnusedRecipeVideos(path.join(root, 'videos', 'recipes'), payload.recipes);
+                sendJson(response, 200, { recipes: payload.recipes, savedImages, deletedImages, deletedVideos });
             } catch (error) {
                 if (!response.writableEnded) sendJson(response, 400, { error: error.message });
             }
@@ -218,9 +269,38 @@ function createServer(options = {}) {
                 response.end('Not found');
                 return;
             }
+            const contentType = contentTypes[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
+            const range = request.headers.range;
+            const rangeMatch = range && /^bytes=(\d*)-(\d*)$/.exec(range);
+            if (rangeMatch && contentType.startsWith('video/')) {
+                const suffixLength = rangeMatch[1] ? null : Number(rangeMatch[2]);
+                const start = suffixLength === null
+                    ? Number(rangeMatch[1])
+                    : Math.max(0, stats.size - suffixLength);
+                const end = suffixLength === null && rangeMatch[2]
+                    ? Math.min(Number(rangeMatch[2]), stats.size - 1)
+                    : stats.size - 1;
+                if ((!rangeMatch[1] && (!suffixLength || suffixLength < 0))
+                    || start >= stats.size || end < start) {
+                    response.writeHead(416, { 'Content-Range': `bytes */${stats.size}` });
+                    response.end();
+                    return;
+                }
+                response.writeHead(206, {
+                    'Accept-Ranges': 'bytes',
+                    'Content-Length': end - start + 1,
+                    'Content-Range': `bytes ${start}-${end}/${stats.size}`,
+                    'Content-Type': contentType,
+                    'X-Content-Type-Options': 'nosniff'
+                });
+                if (request.method === 'HEAD') { response.end(); return; }
+                fs.createReadStream(filePath, { start, end }).pipe(response);
+                return;
+            }
             response.writeHead(200, {
+                'Accept-Ranges': contentType.startsWith('video/') ? 'bytes' : 'none',
                 'Content-Length': stats.size,
-                'Content-Type': contentTypes[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+                'Content-Type': contentType,
                 'X-Content-Type-Options': 'nosniff'
             });
             if (request.method === 'HEAD') { response.end(); return; }

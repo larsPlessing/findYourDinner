@@ -1,6 +1,27 @@
 /* Lokaler Rezepteditor für die GitHub-Pages-Version. */
 let editingRecipeIndex = -1;
 
+function instagramPostKey(value) {
+    try {
+        const url = new URL(value);
+        if (!['instagram.com', 'www.instagram.com'].includes(url.hostname.toLowerCase())) return null;
+        const match = url.pathname.match(/^\/(reel|p|tv)\/([^/]+)\/?$/i);
+        return match ? `${match[1].toLowerCase()}/${match[2]}` : null;
+    } catch {
+        return null;
+    }
+}
+
+function findMatchingInstagramRecipeIndex(recipes, sourceUrl) {
+    const sourceKey = instagramPostKey(sourceUrl);
+    if (!sourceKey) return -1;
+    return recipes.findIndex(recipe => (Array.isArray(recipe.notes) ? recipe.notes : []).some(note => {
+        const text = typeof note === 'string' ? note : '';
+        const links = text.match(/https?:\/\/(?:www\.)?instagram\.com\/(?:reel|p|tv)\/[^\s<>"']+/gi) || [];
+        return links.some(link => instagramPostKey(link.replace(/[),.;]+$/, '')) === sourceKey);
+    }));
+}
+
 function openRecipeEditor(recipeName = null) {
     document.getElementById('recipeEditor').hidden = false;
     document.getElementById('editorSearch').value = '';
@@ -60,12 +81,22 @@ async function importRecipe(payload) {
                 : `Der Importserver antwortet mit HTTP ${response.status}.`);
         }
         if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
-        const id = Math.max(-1, ...generator.recipes.map(recipe => Number(recipe.id) || 0)) + 1;
-        generator.recipes.push({ ...result.recipe, id });
-        editingRecipeIndex = generator.recipes.length - 1;
+        const existingIndex = result.recipe.video?.src && isInstagramUrl
+            ? findMatchingInstagramRecipeIndex(generator.recipes, payload.url)
+            : -1;
+        if (existingIndex >= 0) {
+            generator.recipes[existingIndex] = { ...generator.recipes[existingIndex], video: result.recipe.video };
+            editingRecipeIndex = existingIndex;
+        } else {
+            const id = Math.max(-1, ...generator.recipes.map(recipe => Number(recipe.id) || 0)) + 1;
+            generator.recipes.push({ ...result.recipe, id });
+            editingRecipeIndex = generator.recipes.length - 1;
+        }
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
-        setImportStatus('success', 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.');
+        setImportStatus('success', existingIndex >= 0
+            ? 'Video wurde dem vorhandenen Rezept zugeordnet. Bitte speichere die Änderung.'
+            : 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.');
     } catch (error) {
         setImportStatus('error', formatImportError(error));
     } finally {
@@ -513,7 +544,7 @@ async function saveRecipeProjectToFolder() {
         generator.recipes = result.recipes;
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
-        status.textContent = `Gespeichert: recipes.json, ${result.savedImages} Bild(er) hinzugefügt und ${result.deletedImages || 0} nicht mehr verwendete Bild(er) aus images/recipes entfernt.`;
+        status.textContent = `Gespeichert: recipes.json, ${result.savedImages} Bild(er) hinzugefügt, ${result.deletedImages || 0} nicht mehr verwendete Bild(er) und ${result.deletedVideos || 0} Video(s) entfernt.`;
     } catch (error) {
         status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den Projektserver mit „node server.mjs“ und öffne die App über http://127.0.0.1:4004.`;
     }
@@ -534,4 +565,4 @@ globalThis.closeRecipeEditor = closeRecipeEditor;
 globalThis.importRecipeFromUrl = importRecipeFromUrl;
 globalThis.newRecipe = newRecipe;
 
-export { commitRecipeChanges, deleteCurrentRecipe, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder };
+export { commitRecipeChanges, deleteCurrentRecipe, findMatchingInstagramRecipeIndex, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder };

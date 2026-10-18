@@ -1,6 +1,6 @@
 /** Lädt Rezeptdaten aus der JSON-Datei im Repository. */
 export default class RecipeGenerator {
-    constructor({ windowObject = globalThis.window, storage = globalThis.localStorage, fetchImpl = globalThis.fetch } = {}) {
+    constructor({ windowObject = globalThis.window, storage = globalThis.localStorage, fetchImpl = (...args) => globalThis.fetch(...args) } = {}) {
         this.recipes = [];
         this.imageStore = typeof imageStore !== 'undefined' ? imageStore : null;
         this.hasImages = false;

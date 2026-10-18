@@ -7,14 +7,18 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const html = fs.readFileSync(path.resolve(__dirname, '../../pages/recipe-detail.html'), 'utf8');
+const detailCss = fs.readFileSync(path.resolve(__dirname, '../../css/detail.css'), 'utf8');
 
 describe('recipe detail page', () => {
     describe('layout and controls', () => {
         it('provides the DOM elements used to render a recipe', () => {
             for (const id of [
                 'recipeTitle', 'recipeCategory', 'recipeMeta', 'recipeImageMain', 'imageThumbnails',
-                'ingredientsList', 'instructionsList', 'notesSection', 'notesList', 'portionScaler',
-                'currentPortions', 'wakeLockBtn', 'wakeLockIcon', 'wakeLockText'
+                'ingredientsSection', 'ingredientsList', 'instructionsList', 'notesSection', 'notesList', 'portionScaler',
+                'recipeVideoSection', 'recipeVideo', 'recipeVideoError',
+                'currentPortions', 'wakeLockBtn', 'wakeLockIcon', 'wakeLockText',
+                'ingredientDock', 'ingredientDockToggle', 'ingredientDockPreview',
+                'ingredientDockFullList', 'ingredientDockIngredients'
             ]) {
                 assert.match(html, new RegExp(`id=["']${id}["']`), `missing #${id}`);
             }
@@ -33,6 +37,7 @@ describe('recipe detail page', () => {
                 'adjustPortions(-1)',
                 'adjustPortions(1)',
                 'resetPortions()',
+                'toggleIngredientDock()',
                 'selectRandomRecipe()'
             ]) assert.ok(actions.includes(action), `missing action ${action}`);
 
@@ -71,6 +76,29 @@ describe('recipe detail page', () => {
             assert.match(html, /currentRecipe\.instructions/);
             assert.match(html, /getAllRecipeImageURLs\(currentRecipe\.name\)/);
             assert.match(html, /displayThumbnails\(\)/);
+            assert.match(html, /function createIngredientItem\(ingredient\)/);
+            assert.match(html, /function renderIngredientLists\(ingredients\)[\s\S]*?visibleIngredients\.map\(createIngredientItem\)/);
+            assert.match(html, /function scaleIngredients\(\)[\s\S]*?renderIngredientLists\(scaledIngredients\)/);
+        });
+
+        it('shows a responsive video player below the preparation steps only when a recipe has a video', () => {
+            assert.match(html, /id="instructionsList"[\s\S]*?id="recipeVideoSection"[^>]*hidden[\s\S]*?id="recipeVideo"[^>]*controls[^>]*playsinline/);
+            assert.match(html, /displayInstructions\(\);\s*displayRecipeVideo\(\);/);
+            assert.match(html, /function displayRecipeVideo\(\)[\s\S]*?if \(!src\)[\s\S]*?section\.hidden = true/);
+            assert.match(html, /video\.src =/);
+            assert.match(detailCss, /\.recipe-video-section video[\s\S]*?width: 100%[\s\S]*?aspect-ratio: 16 \/ 9/);
+        });
+
+        it('keeps a compact ingredient preview visible on mobile and expands the full list', () => {
+            assert.match(html, /aria-controls="ingredientDockFullList" onclick="toggleIngredientDock\(\)"/);
+            assert.match(html, /id="ingredientDockHint"[^>]*>← Für weitere Zutaten seitlich wischen →/);
+            assert.match(detailCss, /@media \(max-width: 768px\)[\s\S]*?\.ingredient-dock:not\(\[hidden\]\)[\s\S]*?position: fixed/);
+            assert.match(detailCss, /\.ingredient-dock-preview[\s\S]*?overflow-x: auto/);
+            assert.match(detailCss, /\.ingredient-dock\.is-expanded \.ingredient-dock-preview[\s\S]*?display: none/);
+            assert.match(detailCss, /\.ingredient-dock-full\[hidden\][\s\S]*?display: none/);
+            assert.match(detailCss, /padding-bottom: calc\(var\(--ingredient-dock-space, 120px\)/);
+            assert.match(html, /function updateIngredientDockSpace\(\)[\s\S]*?dock\.offsetHeight \+ 20/);
+            assert.match(html, /ingredientSectionObserver = new IntersectionObserver/);
         });
 
         it('renders untrusted recipe fields as text and creates note links safely', () => {

@@ -68,35 +68,35 @@
       "instructions": [
         {
           "step": 1,
-          "text": "Wash and peel the apples. Cut them in half and remove the cores. Cut them into thin slices."
+          "text": "Äpfel waschen, schälen, halbieren und entkernen. Anschließend in dünne Scheiben schneiden."
         },
         {
           "step": 2,
-          "text": "Heat a large skillet over medium heat. Add 1 tbsp of butter and then add the apples."
+          "text": "Eine große Pfanne bei mittlerer Hitze erwärmen. 1 EL Butter hineingeben und anschließend die Äpfel hinzufügen."
         },
         {
           "step": 3,
-          "text": "Sprinkle the cinnamon and brown sugar over the top. Cook until the sugar has reduced and the apples have become soft."
+          "text": "Zimt und braunen Zucker über die Äpfel streuen. Dünsten, bis der Zucker geschmolzen und die Äpfel weich sind."
         },
         {
           "step": 4,
-          "text": "Preheat your oven to 190 Grad"
+          "text": "Den Backofen auf 190 °C vorheizen."
         },
         {
           "step": 5,
-          "text": "In a large bowl, mix together the oats, protein powder, and baking powder."
+          "text": "Haferflocken, Proteinpulver und Backpulver in einer großen Schüssel vermischen."
         },
         {
           "step": 6,
-          "text": "In a separate bowl, whisk together the eggs, milk, and 1 tbsp of melted butter. Pour over the top of the apples and oats and mix."
+          "text": "In einer zweiten Schüssel Eier, Milch und 1 EL geschmolzene Butter verquirlen. Über die Haferflocken und Äpfel gießen und vermischen."
         },
         {
           "step": 7,
-          "text": "Spray a 13\"x9\" pan with oil and add the oat mixture and apples."
+          "text": "Eine Auflaufform (ca. 33 × 23 cm) einfetten und die Haferflockenmischung sowie die Äpfel hineingeben."
         },
         {
           "step": 8,
-          "text": "Bake for 30-35 minutes."
+          "text": "30–35 Minuten backen."
         }
       ],
       "notes": [
@@ -234,7 +234,7 @@
     },
     {
       "id": 3,
-      "name": "BBQ & Pulled Prok Burger",
+      "name": "BBQ & Pulled Pork Burger",
       "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
@@ -268,7 +268,7 @@
         {
           "amount": 1,
           "unit": "EL",
-          "product": "Liquid Smoke",
+          "product": "Flüssiges Raucharoma",
           "note": ""
         },
         {
@@ -334,7 +334,7 @@
         {
           "amount": 200,
           "unit": "ml",
-          "product": "BBQ Flüssigkeit",
+          "product": "Barbecue-Sud",
           "note": ""
         },
         {
@@ -381,7 +381,7 @@
         },
         {
           "step": 2,
-          "text": "Salz mit Liquid Smoke mischen und Fleisch damit einsalzen"
+          "text": "Salz mit dem flüssigen Raucharoma vermischen und das Fleisch damit einreiben."
         },
         {
           "step": 3,
@@ -664,7 +664,7 @@
     },
     {
       "id": 5,
-      "name": "Cheesburger OnePot",
+      "name": "Cheeseburger One-Pot",
       "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
@@ -838,7 +838,7 @@
     },
     {
       "id": 6,
-      "name": "Chicken Teriyaki",
+      "name": "Teriyaki-Hähnchen",
       "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
@@ -1006,7 +1006,7 @@
     },
     {
       "id": 8,
-      "name": "Frenchtoast",
+      "name": "French Toast",
       "category": "Süß",
       "hasImage": false,
       "imageCount": 0,
@@ -2289,7 +2289,7 @@
         {
           "amount": 100,
           "unit": "ml",
-          "product": "Sojasouce",
+          "product": "Sojasauce",
           "note": ""
         },
         {
@@ -2313,7 +2313,7 @@
         {
           "amount": "",
           "unit": "",
-          "product": "Champions",
+          "product": "Champignons",
           "note": ""
         },
         {
@@ -2332,35 +2332,35 @@
       "instructions": [
         {
           "step": 1,
-          "text": "Fleisch platt machen und mit Ei und Paniermehl/ Knäckebrot panieren und für 10 min jede Seite in Airfryer"
+          "text": "Das Fleisch flach klopfen, in Ei und Paniermehl oder zerbröseltem Knäckebrot wenden und in der Heißluftfritteuse je Seite 10 Minuten garen."
         },
         {
           "step": 2,
-          "text": "Wasser im Wasserkocher kochen und Mie Nudel 5 min rein tun"
+          "text": "Wasser im Wasserkocher aufkochen und die Mie-Nudeln 5 Minuten darin ziehen lassen."
         },
         {
           "step": 3,
-          "text": "Butter schmelzen"
+          "text": "Die Butter schmelzen."
         },
         {
           "step": 4,
-          "text": "Sojasouce dazu"
+          "text": "Die Sojasauce hinzufügen."
         },
         {
           "step": 5,
-          "text": "Knoblauch dazu"
+          "text": "Den Knoblauch hinzufügen."
         },
         {
           "step": 6,
-          "text": "aufkochen lassen"
+          "text": "Alles aufkochen lassen."
         },
         {
           "step": 7,
-          "text": "Nudeln & Gemüße dazu"
+          "text": "Nudeln und Gemüse hinzufügen."
         },
         {
           "step": 8,
-          "text": "2 Eier dazu"
+          "text": "Die 2 Eier hinzufügen und alles vermengen."
         }
       ],
       "notes": [
@@ -3259,7 +3259,7 @@
     },
     {
       "id": 39,
-      "name": "Protein Pancakes",
+      "name": "Protein-Pfannkuchen",
       "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
@@ -3333,7 +3333,7 @@
     },
     {
       "id": 40,
-      "name": "Protein Poridge",
+      "name": "Protein Porridge",
       "category": "Süß",
       "hasImage": true,
       "imageCount": 1,
@@ -3816,7 +3816,7 @@
     },
     {
       "id": 47,
-      "name": "Smothie Bole",
+      "name": "Smoothie Bowl",
       "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
@@ -3826,7 +3826,7 @@
         {
           "amount": 250,
           "unit": "g",
-          "product": "geforene Früche",
+          "product": "gefrorene Früchte",
           "note": ""
         },
         {
@@ -3844,13 +3844,13 @@
         {
           "amount": "",
           "unit": "",
-          "product": "Topings:",
+          "product": "Belag:",
           "note": ""
         },
         {
           "amount": "",
           "unit": "",
-          "product": "Bannenen",
+          "product": "Bananen",
           "note": ""
         },
         {
@@ -3869,7 +3869,7 @@
       "instructions": [
         {
           "step": 1,
-          "text": "Früchte, Milche und Pulver in mixer und für 5 min mixen"
+          "text": "Früchte, Milch und Proteinpulver in einen Mixer geben und 5 Minuten pürieren."
         }
       ],
       "notes": [
@@ -4314,7 +4314,7 @@
     },
     {
       "id": 53,
-      "name": "Subway Sandwhiches Teryiaki",
+      "name": "Subway Sandwiches Teriyaki",
       "category": "Salzig",
       "hasImage": true,
       "imageCount": 1,
@@ -4324,7 +4324,7 @@
         {
           "amount": "",
           "unit": "",
-          "product": "Sandwiches",
+          "product": "Sandwichbrötchen",
           "note": ""
         },
         {
@@ -4366,7 +4366,7 @@
         {
           "amount": "",
           "unit": "",
-          "product": "Chicken Teriyaki",
+          "product": "Teriyaki-Hähnchen",
           "note": ""
         },
         {
@@ -4419,7 +4419,7 @@
         },
         {
           "step": 5,
-          "text": "Mit Ei-Milch-Mix bestreichen, einschneiden, toppen & bei 190°C für 19-21 Minuten mit viel Dampf backen. Nach dem Backen direkt mit einem Küchentuch abdecken und auskühlen lassen. So werden sie besonders weich."
+          "text": "Mit der Ei-Milch-Mischung bestreichen, einschneiden, nach Wunsch belegen und bei 190 °C 19–21 Minuten mit viel Dampf backen. Nach dem Backen sofort mit einem Küchentuch abdecken und auskühlen lassen. So werden die Brötchen besonders weich."
         },
         {
           "step": 7,
@@ -5180,7 +5180,7 @@
       ],
       "notes": [
         "https://www.instagram.com/reel/DaC-aG0sbbE/?obrf=MTF0NHZieHpkbWJ2eA%3D%3D",
-        "Wenn Udon-Nudeln auf crunchy Gemüse, süße Mango und ein schnelles Chiliöl-Dressing treffen, bin ich sofort dabei. Geht super schnell, ist richtig frisch und genau die Art von Salat, die man im Sommer ständig essen kann."
+        "Wenn Udon-Nudeln auf knackiges Gemüse, süße Mango und ein schnelles Chiliöl-Dressing treffen, bin ich sofort dabei. Der Salat ist schnell gemacht, richtig frisch und genau die Art von Gericht, die ich im Sommer ständig essen könnte."
       ],
       "tags": [
         "Udon",
@@ -5195,6 +5195,182 @@
       ],
       "isPlaceholder": false,
       "id": 62
+    },
+    {
+      "name": "Brown Butter Brookies",
+      "category": "Süß",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 115,
+          "unit": "g",
+          "product": "ungesalzene Butter, geschmolzen und abgekühlt",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "hellbrauner Zucker",
+          "note": ""
+        },
+        {
+          "amount": 65,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Ei (Größe L, zimmerwarm)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Vanilleextrakt",
+          "note": ""
+        },
+        {
+          "amount": 160,
+          "unit": "g",
+          "product": "Weizenmehl Type 405",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "TL",
+          "product": "Natron",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "TL",
+          "product": "Meersalzflocken",
+          "note": ""
+        },
+        {
+          "amount": 170,
+          "unit": "g",
+          "product": "Zartbitterschokoladen-Drops",
+          "note": ""
+        },
+        {
+          "amount": 225,
+          "unit": "g",
+          "product": "ungesalzene Butter",
+          "note": ""
+        },
+        {
+          "amount": 45,
+          "unit": "g",
+          "product": "Kakaopulver",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Vanilleextrakt",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "hellbrauner Zucker",
+          "note": ""
+        },
+        {
+          "amount": 210,
+          "unit": "g",
+          "product": "Puderzucker",
+          "note": ""
+        },
+        {
+          "amount": 130,
+          "unit": "g",
+          "product": "Zartbitterschokoladen-Drops",
+          "note": ""
+        },
+        {
+          "amount": 60,
+          "unit": "g",
+          "product": "gehackte Zartbitterschokolade",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "",
+          "product": "Eier (zimmerwarm)",
+          "note": ""
+        },
+        {
+          "amount": 65,
+          "unit": "g",
+          "product": "Weizenmehl Type 405",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Prise",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "EL",
+          "product": "Olivenöl",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Den Backofen auf 175 °C Ober-/Unterhitze vorheizen. Eine quadratische Backform (ca. 20 × 20 cm) mit Backpapier auslegen."
+        },
+        {
+          "step": 2,
+          "text": "Für die Cookie-Schicht Mehl, Natron und Salz vermischen und beiseitestellen. Geschmolzene Butter, hellbraunen Zucker, Zucker, Ei und Vanille verrühren, bis die Masse glatt und luftig ist (etwa 2–3 Minuten). Die trockenen Zutaten und die Schokodrops hinzufügen und kurz vermengen."
+        },
+        {
+          "step": 3,
+          "text": "Für die Brownie-Schicht die Butter in einem Topf bei niedriger bis mittlerer Hitze schmelzen. Alle 10 Sekunden umrühren, bis sie schäumt (etwa 6–8 Minuten). Weiter erhitzen, bis die Milchbestandteile goldbraun werden und nussig duften. Die braune Butter in eine hitzebeständige Schüssel geben. Kakaopulver, Öl, Vanille und gehackte Schokolade einrühren, bis die Masse glatt ist."
+        },
+        {
+          "step": 4,
+          "text": "In einer separaten Schüssel 3 Eier und hellbraunen Zucker 5–6 Minuten aufschlagen. Puderzucker hinzufügen und 1–2 Minuten weiterrühren. Die abgekühlte Nussbutter einrühren, bis die Masse glatt ist. Mehl und Schokoladen-Drops hinzufügen und gründlich vermengen."
+        },
+        {
+          "step": 5,
+          "text": "Cookie- und Brownie-Teig abwechselnd in die vorbereitete Form geben. Du kannst die Schichten nach Wunsch anordnen und zum Beispiel den Cookie-Teig auf den Brownie-Teig geben oder umgekehrt."
+        },
+        {
+          "step": 6,
+          "text": "40–45 Minuten backen, bis die Ränder goldbraun sind und die Mitte nur noch leicht wackelt. Beim Abkühlen wird sie fest."
+        },
+        {
+          "step": 7,
+          "text": "Vollständig abkühlen lassen und anschließend in Brookies schneiden."
+        }
+      ],
+      "notes": [
+        "https://www.instagram.com/reel/C_gp9oXPMNq/?rpxt=cnJyd2VraHBpdXg0",
+        "Kochzeit: 40-45 Min."
+      ],
+      "tags": [
+        "Brookies",
+        "Brownies",
+        "Kekse",
+        "Backen",
+        "Schokolade"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/brown-butter-brookies-recipe-63-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 63
     }
   ]
 }

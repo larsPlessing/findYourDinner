@@ -54,6 +54,27 @@ test('loads recipe JSON and reports completion', async t => {
     assert.equal(generator.fetch.mock.calls[0].arguments[0], 'recipes.json');
 });
 
+test('calls the default fetch implementation with the global object as its receiver', async t => {
+    const fetch = t.mock.method(globalThis, 'fetch', async function (url) {
+        assert.equal(this, globalThis);
+        return {
+            ok: true,
+            json: async () => ({ version: 1, recipes: sampleRecipes })
+        };
+    });
+    const generator = new RecipeGenerator({
+        windowObject: { location: { protocol: 'https:' } },
+        storage: {
+            getItem() { return null; },
+            setItem() {},
+            removeItem() {}
+        }
+    });
+
+    await generator.loadFromURL('recipes.json');
+    assert.equal(fetch.mock.callCount(), 1);
+});
+
 test('does not fetch JSON from file URLs', async t => {
     const generator = createGenerator(t, { protocol: 'file:' });
     await assert.rejects(generator.loadFromURL('recipes.json'), /file:\/\//);

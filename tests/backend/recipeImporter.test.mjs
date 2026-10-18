@@ -21,7 +21,7 @@ function dependencies(t, fetchImplementation, extras = {}) {
 
 test('URL recipe import uses the provided category enum and imports a webpage image', async t => {
     const recipe = {
-        title: 'Importierter Kuchen',
+        title: 'Classic Apple Cake',
         category: categories[0],
         healthy: true,
         ingredients: [{ name: 'Mehl' }],
@@ -31,6 +31,12 @@ test('URL recipe import uses the provided category enum and imports a webpage im
         const url = String(input);
         if (url.includes('generativelanguage.googleapis.com')) {
             const request = JSON.parse(options.body);
+            assert.match(request.contents[0].parts[0].text, /Übertrage Beschreibung, Zutaten, Zubereitung, Zeiten, Portionen und Tags natürlich ins Deutsche/);
+            assert.match(request.contents[0].parts[0].text, /Lasse einen vorhandenen Rezepttitel in seiner Originalsprache und übersetze ihn nicht/);
+            assert.match(request.contents[0].parts[0].text, /Denglisch ist erlaubt/);
+            assert.match(request.contents[0].parts[0].text, /jede Einheit in eine in Deutschland gebräuchliche Einheitenangabe/);
+            assert.match(request.contents[0].parts[0].text, /keine fremdsprachigen Einheiten oder Abkürzungen wie "oz", "lb", "cups", "tsp" oder "tbsp"/);
+            assert.match(request.contents[0].parts[0].text, /Rechne fremde Maßeinheiten in passende metrische oder deutsche Rezeptmaße um und passe die Menge korrekt an/);
             assert.deepEqual(request.generationConfig.responseSchema.properties.category.enum, categories);
             assert.equal(request.generationConfig.responseSchema.properties.healthy.type, 'BOOLEAN');
             assert.match(request.generationConfig.responseSchema.properties.healthy.description, /kalorienärmer und zum Abnehmen geeignet.*ohne Portionsangaben oder Kalorienberechnung/i);
@@ -50,19 +56,23 @@ test('URL recipe import uses the provided category enum and imports a webpage im
     });
 
     const imported = await importRecipe({ url: 'https://example.com/recipe', categories }, deps);
+    assert.equal(imported.name, 'Classic Apple Cake');
     assert.equal(imported.category, categories[0]);
     assert.equal(imported.healthy, true);
     assert.equal(imported.images[0].src, `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`);
     assert.equal(deps.fetchImpl.mock.callCount(), 3);
 });
 
-test('Instagram reel imports its public caption, frames and preview image', async t => {
-    const caption = 'Zutaten: 200 g Mehl, 2 Eier und 100 ml Milch. Alles verrühren und bei 180 Grad 25 Minuten backen. Den Kuchen vor dem Servieren vollständig abkühlen lassen.';
+test('Instagram reel imports its public caption, frames and preview image in German', async t => {
+    const caption = 'Ingredients: 200 g flour, 2 eggs and 100 ml milk. Mix everything and bake at 180 degrees for 25 minutes. Let the cake cool completely before serving.';
     const deps = dependencies(t, async (input, options) => {
         const requestUrl = String(input);
         if (requestUrl.includes('generativelanguage.googleapis.com')) {
             const request = JSON.parse(options.body);
             assert.match(request.contents[0].parts[0].text, new RegExp(caption.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+            assert.match(request.contents[0].parts[0].text, /Übertrage den Rezeptinhalt ins Deutsche, auch wenn Caption, Text oder Sprache des Videos in einer anderen Sprache sind/);
+            assert.match(request.contents[0].parts[0].text, /Lasse einen vorhandenen Rezepttitel in der Originalsprache und übersetze ihn nicht/);
+            assert.match(request.contents[0].parts[0].text, /Denglisch ist erlaubt/);
             assert.match(request.contents[0].parts[0].text, /Lies alle eingeblendeten Zutaten, Mengen und Zubereitungsschritte genau ab/);
             assert.deepEqual(request.contents[0].parts.filter(part => part.inline_data).map(part => part.inline_data), [
                 { mime_type: 'image/jpeg', data: Buffer.from('frame 1').toString('base64') },
@@ -107,10 +117,10 @@ test('Instagram reel imports its public caption, frames and preview image', asyn
     assert.equal(imported.images[0].src, `data:image/jpeg;base64,${Buffer.from('instagram preview').toString('base64')}`);
 });
 
-test('Instagram recipe in video can be imported when the caption is short', async t => {
-    const caption = 'Frischer Udon-Salat mit Mango und Chiliöl-Joghurt.';
+test('Instagram recipe in video can be imported in German when the caption is short and English', async t => {
+    const caption = 'Fresh udon salad with mango and chili oil yogurt.';
     const recipe = {
-        title: 'Asia-Udon-Salat mit Mango, Edamame & Chiliöl-Joghurt',
+        title: 'Asia Udon Salad with Mango, Edamame & Chili Oil Yogurt',
         category: 'Salzig',
         healthy: true,
         ingredients: [
@@ -140,6 +150,7 @@ test('Instagram recipe in video can be imported when the caption is short', asyn
         const requestUrl = String(input);
         if (requestUrl.includes('generativelanguage.googleapis.com')) {
             const request = JSON.parse(options.body);
+            assert.match(request.contents[0].parts[0].text, /Übertrage den Rezeptinhalt ins Deutsche, auch wenn Caption, Text oder Sprache des Videos in einer anderen Sprache sind/);
             assert.match(request.contents[0].parts[0].text, /Die Caption kann unvollständig sein; ergänze sie mit den Videobildern/);
             assert.equal(request.contents[0].parts.filter(part => part.inline_data).length, 1);
             return recipeResponse(recipe);
@@ -158,10 +169,71 @@ test('Instagram recipe in video can be imported when the caption is short', asyn
         url: 'https://www.instagram.com/reel/DaC-aG0sbbE/?obrf=MTF0NHZieHpkbWJ2eA%3D%3D',
         categories
     }, deps);
-    assert.equal(imported.name, 'Asia-Udon-Salat mit Mango, Edamame & Chiliöl-Joghurt');
+    assert.equal(imported.name, 'Asia Udon Salad with Mango, Edamame & Chili Oil Yogurt');
     assert.equal(imported.ingredients.length, 13);
     assert.equal(imported.instructions.length, 5);
     assert.equal(imported.ingredients[11].product, 'Ahornsirup');
+    assert.deepEqual(imported.video, {
+        mimeType: 'video/mp4',
+        data: Buffer.from('instagram video').toString('base64')
+    });
+});
+
+test('Instagram reel retries video download with the authenticated session when public media is blocked', async t => {
+    const videoData = Buffer.from('authenticated reel video').toString('base64');
+    const authLoader = t.mock.fn(async url => ({
+        html: '<html><meta property="og:description" content="A complete recipe caption with ingredients and cooking instructions that is long enough to be processed."></html>',
+        url,
+        video: { mimeType: 'video/mp4', data: videoData }
+    }));
+    const deps = dependencies(t, async (input, options) => {
+        const requestUrl = String(input);
+        if (requestUrl.includes('generativelanguage.googleapis.com')) {
+            return recipeResponse({
+                title: 'Brown Butter Brookies',
+                category: 'Süß',
+                healthy: false,
+                ingredients: [{ name: 'Mehl' }],
+                steps: ['Backen.']
+            });
+        }
+        if (requestUrl === 'https://scontent.cdninstagram.com/reel.mp4') {
+            return new Response('Media blocked', { status: 403 });
+        }
+        return new Response('<html><meta property="og:description" content="A complete recipe caption with ingredients and cooking instructions that is long enough to be processed."><meta property="og:video" content="https://scontent.cdninstagram.com/reel.mp4"></html>');
+    }, {
+        authenticatedInstagramLoader: authLoader,
+        instagramVideoFrameExtractor: t.mock.fn(async () => [
+            { mimeType: 'image/jpeg', data: Buffer.from('authenticated frame').toString('base64'), timestampSeconds: 1 }
+        ])
+    });
+
+    const imported = await importRecipe({
+        url: 'https://www.instagram.com/reel/C_gp9oXPMNq/?rpxt=cnJyd2VraHBpdXg0',
+        categories
+    }, deps);
+
+    assert.equal(authLoader.mock.callCount(), 1);
+    assert.deepEqual(imported.video, { mimeType: 'video/mp4', data: videoData });
+});
+
+test('Instagram reel import reports an error instead of succeeding without a playable video', async t => {
+    const authLoader = t.mock.fn(async url => ({
+        html: '<html><meta property="og:description" content="A complete recipe caption with ingredients and cooking instructions that is long enough to be processed."></html>',
+        url,
+        video: null
+    }));
+    const deps = dependencies(t, async () => new Response('<html><meta property="og:description" content="A complete recipe caption with ingredients and cooking instructions that is long enough to be processed."></html>'), {
+        authenticatedInstagramLoader: authLoader
+    });
+
+    await assert.rejects(
+        importRecipe({
+            url: 'https://www.instagram.com/reel/C_gp9oXPMNq/?rpxt=cnJyd2VraHBpdXg0',
+            categories
+        }, deps),
+        /kein abspielbares Video geliefert/
+    );
 });
 
 test('Instagram imports use the authenticated loader if anonymous access is unavailable', async t => {
@@ -251,9 +323,11 @@ test('Instagram import returns actionable guidance when local session cannot ope
 test('image recipe import falls back to an existing category if Gemini returns an unknown one', async t => {
     const deps = dependencies(t, async (input, options) => {
         const request = JSON.parse(options.body);
+        assert.match(request.contents[0].parts[0].text, /Übertrage den Rezeptinhalt ins Deutsche/);
+        assert.match(request.contents[0].parts[0].text, /Verwende für Temperaturen Grad Celsius/);
         assert.deepEqual(request.generationConfig.responseSchema.properties.category.enum, categories);
         assert.match(request.contents[0].parts[0].text, /healthy ist true, wenn Zutaten und Zubereitung insgesamt eine kalorienärmere, zum Abnehmen geeignete Variante ergeben/i);
-        assert.match(request.contents[0].parts[0].text, /erstelle einen passenden Namen anhand des Gerichts, der Zutaten und der Zubereitung/i);
+        assert.match(request.contents[0].parts[0].text, /erstelle einen kurzen passenden deutschen Namen anhand des Gerichts, der Zutaten und der Zubereitung/i);
         return recipeResponse({
             title: ' ',
             category: 'Ungültig',

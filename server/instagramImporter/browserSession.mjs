@@ -57,11 +57,7 @@ export async function loadAuthenticatedInstagramPost(source) {
 
         let video = null;
         if (videoUrl) {
-            try {
-                video = await downloadAuthenticatedVideo(context, videoUrl);
-            } catch (error) {
-                console.warn(`Instagram-Video konnte nicht aus der Sitzung geladen werden: ${error.message}`);
-            }
+            video = await downloadAuthenticatedVideo(context, videoUrl);
         }
         return { html, url: finalUrl, video };
     } finally {

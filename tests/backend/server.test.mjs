@@ -138,3 +138,63 @@ test('localhost import API passes current recipe categories to the importer', as
     assert.equal(response.status, 200);
     assert.deepEqual((await response.json()).recipe.categories, ['Salzig', 'Süß']);
 });
+
+test('localhost import API stores recipe videos, streams byte ranges and removes unreferenced files', async t => {
+    const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+    fs.writeFileSync(path.join(projectDirectory, 'recipes.json'), JSON.stringify({
+        recipes: [{ category: 'Salzig' }]
+    }));
+    const videoBytes = Buffer.from('test-video-content');
+    const server = createServer({
+        rootDirectory: projectDirectory,
+        importRecipe: async () => ({
+            name: 'Asia-Udon-Salat',
+            video: { mimeType: 'video/mp4', data: videoBytes.toString('base64') }
+        })
+    });
+    t.after(async () => {
+        await new Promise(resolve => server.close(resolve));
+        fs.rmSync(projectDirectory, { recursive: true, force: true });
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const origin = { Origin: baseUrl, 'Content-Type': 'application/json' };
+    const importResponse = await fetch(`${baseUrl}/api/import-recipe`, {
+        method: 'POST',
+        headers: origin,
+        body: JSON.stringify({ url: 'https://www.instagram.com/reel/example/' })
+    });
+    assert.equal(importResponse.status, 200);
+    const recipe = (await importResponse.json()).recipe;
+    assert.match(recipe.video.src, /^videos\/recipes\/asia-udon-salat-[\w-]+\.mp4$/);
+    assert.deepEqual(fs.readFileSync(path.join(projectDirectory, recipe.video.src)), videoBytes);
+
+    const videoResponse = await fetch(`${baseUrl}/${recipe.video.src}`, { headers: { Range: 'bytes=2-6' } });
+    assert.equal(videoResponse.status, 206);
+    assert.equal(videoResponse.headers.get('content-type'), 'video/mp4');
+    assert.equal(videoResponse.headers.get('content-range'), `bytes 2-6/${videoBytes.length}`);
+    assert.deepEqual(Buffer.from(await videoResponse.arrayBuffer()), videoBytes.subarray(2, 7));
+    const suffixResponse = await fetch(`${baseUrl}/${recipe.video.src}`, { headers: { Range: 'bytes=-4' } });
+    assert.equal(suffixResponse.status, 206);
+    assert.equal(suffixResponse.headers.get('content-range'), `bytes ${videoBytes.length - 4}-${videoBytes.length - 1}/${videoBytes.length}`);
+    assert.deepEqual(Buffer.from(await suffixResponse.arrayBuffer()), videoBytes.subarray(-4));
+
+    const saveResponse = await fetch(`${baseUrl}/api/save-recipes`, {
+        method: 'POST',
+        headers: origin,
+        body: JSON.stringify({ version: 1, recipes: [recipe] })
+    });
+    assert.equal(saveResponse.status, 200);
+    assert.equal((await saveResponse.json()).deletedVideos, 0);
+    assert.equal(fs.existsSync(path.join(projectDirectory, recipe.video.src)), true);
+
+    const deleteResponse = await fetch(`${baseUrl}/api/save-recipes`, {
+        method: 'POST',
+        headers: origin,
+        body: JSON.stringify({ version: 1, recipes: [] })
+    });
+    assert.equal(deleteResponse.status, 200);
+    assert.equal((await deleteResponse.json()).deletedVideos, 1);
+    assert.equal(fs.existsSync(path.join(projectDirectory, recipe.video.src)), false);
+});

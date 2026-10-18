@@ -69,7 +69,7 @@
 
         <div class="detail-content">
             <!-- Zutaten -->
-            <div class="detail-section">
+            <div class="detail-section" id="ingredientsSection">
                 <div class="ingredients-header">
                     <h2>📝 Zutaten</h2>
                     <div class="portion-scaler" id="portionScaler" style="display: none;">
@@ -92,6 +92,11 @@
                 <ol class="instructions-list" id="instructionsList">
                     <li class="no-data">Lade Anleitung...</li>
                 </ol>
+                <section class="recipe-video-section" id="recipeVideoSection" hidden aria-labelledby="recipeVideoTitle">
+                    <h3 id="recipeVideoTitle">🎥 Video zum Rezept</h3>
+                    <video id="recipeVideo" controls playsinline preload="metadata"></video>
+                    <p class="recipe-video-error" id="recipeVideoError" hidden>Das Video konnte nicht geladen werden.</p>
+                </section>
             </div>
 
             <!-- Bemerkungen/Notizen/Links -->
@@ -124,6 +129,20 @@
         </section>
     </div>
 
+    <aside class="ingredient-dock" id="ingredientDock" aria-label="Zutaten" hidden>
+        <button class="ingredient-dock-toggle" id="ingredientDockToggle" type="button"
+                aria-expanded="false" aria-controls="ingredientDockFullList" onclick="toggleIngredientDock()">
+            <span id="ingredientDockToggleLabel">Zutaten anzeigen</span>
+            <span id="ingredientDockCount"></span>
+            <span class="ingredient-dock-chevron" aria-hidden="true">⌃</span>
+        </button>
+        <ul class="ingredients-list ingredient-dock-preview" id="ingredientDockPreview" aria-hidden="true"></ul>
+        <p class="ingredient-dock-hint" id="ingredientDockHint" aria-hidden="true">← Für weitere Zutaten seitlich wischen →</p>
+        <div class="ingredient-dock-full" id="ingredientDockFullList" aria-hidden="true" hidden>
+            <ul class="ingredients-list" id="ingredientDockIngredients"></ul>
+        </div>
+    </aside>
+
     <!-- Random FAB -->
     <button class="random-fab" onclick="selectRandomRecipe()" title="Zufälliges Rezept">
         🎲
@@ -144,6 +163,10 @@
         let originalServings = null;
         let currentServings = null;
         let originalIngredients = [];
+        let ingredientDockObserver = null;
+        let ingredientSectionObserver = null;
+        let ingredientDockHasIngredients = false;
+        let ingredientSectionVisible = true;
         
         // Wake Lock State
         let wakeLock = null;
@@ -340,6 +363,7 @@
 
             // Anleitung
             displayInstructions();
+            displayRecipeVideo();
 
             // Notizen/Links
             displayNotes();
@@ -447,39 +471,115 @@
             });
         }
 
-        function displayIngredients() {
-            const listEl = document.getElementById('ingredientsList');
-            
-            if (!currentRecipe.ingredients || currentRecipe.ingredients.length === 0) {
-                listEl.innerHTML = '<li class="no-data">Keine Zutaten verfügbar</li>';
-                return;
+        function createIngredientItem(ingredient) {
+            const li = document.createElement('li');
+            li.className = 'ingredient-item';
+            for (const [className, value] of [
+                ['ingredient-amount', ingredient.amount || ''],
+                ['ingredient-unit', ingredient.unit || ''],
+                ['ingredient-product', ingredient.product || '']
+            ]) {
+                const span = document.createElement('span');
+                span.className = className;
+                span.textContent = value;
+                li.appendChild(span);
             }
+            if (ingredient.note) {
+                const note = document.createElement('span');
+                note.className = 'ingredient-note';
+                note.textContent = ingredient.note;
+                li.appendChild(note);
+            }
+            return li;
+        }
 
-            listEl.replaceChildren();
-            currentRecipe.ingredients.forEach(ingredient => {
-                const li = document.createElement('li');
-                li.className = 'ingredient-item';
+        function displayIngredients() {
+            renderIngredientLists(currentRecipe.ingredients || []);
+        }
 
-                for (const [className, value] of [
-                    ['ingredient-amount', ingredient.amount || ''],
-                    ['ingredient-unit', ingredient.unit || ''],
-                    ['ingredient-product', ingredient.product || '']
-                ]) {
-                    const span = document.createElement('span');
-                    span.className = className;
-                    span.textContent = value;
-                    li.appendChild(span);
-                }
+        function renderIngredientLists(ingredients) {
+            const listEl = document.getElementById('ingredientsList');
+            const dock = document.getElementById('ingredientDock');
+            const preview = document.getElementById('ingredientDockPreview');
+            const fullList = document.getElementById('ingredientDockIngredients');
+            const visibleIngredients = Array.isArray(ingredients) ? ingredients : [];
 
-                if (ingredient.note) {
-                    const note = document.createElement('span');
-                    note.className = 'ingredient-note';
-                    note.textContent = ingredient.note;
-                    li.appendChild(note);
-                }
+            if (visibleIngredients.length === 0) {
+                listEl.replaceChildren();
+                const empty = document.createElement('li');
+                empty.className = 'no-data';
+                empty.textContent = 'Keine Zutaten verfügbar';
+                listEl.appendChild(empty);
+            } else {
+                listEl.replaceChildren(...visibleIngredients.map(createIngredientItem));
+            }
+            preview.replaceChildren(...visibleIngredients.map(createIngredientItem));
+            fullList.replaceChildren(...visibleIngredients.map(createIngredientItem));
 
-                listEl.appendChild(li);
+            ingredientDockHasIngredients = visibleIngredients.length > 0;
+            document.getElementById('ingredientDockCount').textContent = `${visibleIngredients.length} Zutaten`;
+
+            if (visibleIngredients.length === 0) {
+                collapseIngredientDock();
+            }
+            updateIngredientDockVisibility();
+            requestAnimationFrame(updateIngredientDockSpace);
+        }
+
+        function collapseIngredientDock() {
+            const dock = document.getElementById('ingredientDock');
+            document.getElementById('ingredientDockToggle').setAttribute('aria-expanded', 'false');
+            document.getElementById('ingredientDockToggleLabel').textContent = 'Zutaten anzeigen';
+            const panel = document.getElementById('ingredientDockFullList');
+            panel.hidden = true;
+            panel.setAttribute('aria-hidden', 'true');
+            document.getElementById('ingredientDockHint').hidden = false;
+            dock.classList.remove('is-expanded');
+        }
+
+        function updateIngredientDockVisibility() {
+            const dock = document.getElementById('ingredientDock');
+            const shouldShowDock = ingredientDockHasIngredients && !ingredientSectionVisible;
+            if (!shouldShowDock) collapseIngredientDock();
+            dock.hidden = !shouldShowDock;
+            requestAnimationFrame(updateIngredientDockSpace);
+        }
+
+        function updateIngredientDockSpace() {
+            const dock = document.getElementById('ingredientDock');
+            const dockSpace = !dock.hidden ? dock.offsetHeight + 20 : 0;
+            document.documentElement.style.setProperty('--ingredient-dock-space', `${dockSpace}px`);
+        }
+
+        function initializeIngredientDock() {
+            const dock = document.getElementById('ingredientDock');
+            ingredientDockObserver?.disconnect();
+            ingredientDockObserver = new ResizeObserver(updateIngredientDockSpace);
+            ingredientDockObserver.observe(dock);
+            ingredientSectionObserver?.disconnect();
+            ingredientSectionObserver = new IntersectionObserver(([entry]) => {
+                ingredientSectionVisible = entry.isIntersecting;
+                updateIngredientDockVisibility();
             });
+            ingredientSectionObserver.observe(document.getElementById('ingredientsSection'));
+            window.addEventListener('resize', updateIngredientDockSpace);
+            updateIngredientDockSpace();
+        }
+
+        function toggleIngredientDock() {
+            const toggle = document.getElementById('ingredientDockToggle');
+            const panel = document.getElementById('ingredientDockFullList');
+            const isExpanded = toggle.getAttribute('aria-expanded') !== 'true';
+
+            toggle.setAttribute('aria-expanded', String(isExpanded));
+            document.getElementById('ingredientDockToggleLabel').textContent =
+                isExpanded ? 'Zutaten einklappen' : 'Zutaten anzeigen';
+            panel.hidden = !isExpanded;
+            panel.setAttribute('aria-hidden', String(!isExpanded));
+            const dock = document.getElementById('ingredientDock');
+            dock.classList.toggle('is-expanded', isExpanded);
+            document.getElementById('ingredientDockHint').hidden = isExpanded;
+            requestAnimationFrame(updateIngredientDockSpace);
         }
 
         function displayInstructions() {
@@ -502,6 +602,34 @@
                     li.appendChild(text);
                     listEl.appendChild(li);
                 });
+        }
+
+        function displayRecipeVideo() {
+            const section = document.getElementById('recipeVideoSection');
+            const video = document.getElementById('recipeVideo');
+            const error = document.getElementById('recipeVideoError');
+            const recipeVideo = currentRecipe.video;
+            const src = typeof recipeVideo?.src === 'string' ? recipeVideo.src.trim() : '';
+            if (!src) {
+                video.removeAttribute('src');
+                video.load();
+                error.hidden = true;
+                section.hidden = true;
+                return;
+            }
+
+            if (!/^videos\/recipes\/[^/\\]+\.(?:mp4|webm|mov)$/i.test(src)) {
+                console.warn('Ungültige Videoquelle im Rezept.');
+                video.removeAttribute('src');
+                error.hidden = true;
+                section.hidden = true;
+                return;
+            }
+            const pageBase = window.location.pathname.includes('/pages/') ? '../' : './';
+            error.hidden = true;
+            video.src = new URL(`${pageBase}${src}`, window.location.href).href;
+            video.onerror = () => { error.hidden = false; };
+            section.hidden = false;
         }
 
         function displayNotes() {
@@ -795,16 +923,7 @@
             if (originalServings === null || currentServings === null) return;
             
             const scaleFactor = currentServings / originalServings;
-            const listEl = document.getElementById('ingredientsList');
-            
-            if (!listEl) return;
-            
-            listEl.innerHTML = '';
-            
-            originalIngredients.forEach(ingredient => {
-                const li = document.createElement('li');
-                li.className = 'ingredient-item';
-                
+            const scaledIngredients = originalIngredients.map(ingredient => {
                 // Skaliere Menge wenn numerisch
                 let scaledAmount = ingredient.amount;
                 if (ingredient.amount) {
@@ -818,26 +937,9 @@
                     }
                 }
                 
-                for (const [className, value] of [
-                    ['ingredient-amount', scaledAmount || ''],
-                    ['ingredient-unit', ingredient.unit || ''],
-                    ['ingredient-product', ingredient.product || '']
-                ]) {
-                    const span = document.createElement('span');
-                    span.className = className;
-                    span.textContent = value;
-                    li.appendChild(span);
-                }
-
-                if (ingredient.note) {
-                    const note = document.createElement('span');
-                    note.className = 'ingredient-note';
-                    note.textContent = ingredient.note;
-                    li.appendChild(note);
-                }
-
-                listEl.appendChild(li);
+                return { ...ingredient, amount: scaledAmount };
             });
+            renderIngredientLists(scaledIngredients);
         }
 
         /**
@@ -866,9 +968,10 @@
             updatePortionsDisplay();
         }
         Object.assign(globalThis, {
-            adjustPortions, editCurrentRecipe, goBack, printRecipe, resetPortions,
+            adjustPortions, editCurrentRecipe, goBack, printRecipe, resetPortions, toggleIngredientDock,
             onRecipeEditorSaved, selectRandomRecipe, toggleWakeLock
         });
+        initializeIngredientDock();
     </script>
     <script type="module" src="../js/recipeEditor.mjs"></script>
 

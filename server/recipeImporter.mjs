@@ -6,7 +6,10 @@ const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 
 const RULES = `Extrahiere das Rezept als JSON nach dem vorgegebenen Schema.
 Regeln:
-- Behalte die Originalsprache des Rezepts bei.
+- Übertrage Beschreibung, Zutaten, Zubereitung, Zeiten, Portionen und Tags natürlich ins Deutsche, unabhängig von der Sprache der Quelle. Lasse einen vorhandenen Rezepttitel in seiner Originalsprache und übersetze ihn nicht.
+- Denglisch ist erlaubt: Geläufige englische Begriffe aus Küche und Rezepten (z. B. Brownies, Cookies, BBQ, Topping, One-Pot oder Smoothie Bowl) dürfen stehen bleiben. Vermeide künstliche Eindeutschungen; formuliere den übrigen Text idiomatisch auf Deutsch.
+- Übersetze jede Einheit in eine in Deutschland gebräuchliche Einheitenangabe. Verwende z. B. g, kg, ml, l, °C, TL, EL, Prise und Tasse; übernimm keine fremdsprachigen Einheiten oder Abkürzungen wie "oz", "lb", "cups", "tsp" oder "tbsp". Rechne fremde Maßeinheiten in passende metrische oder deutsche Rezeptmaße um und passe die Menge korrekt an. Verwende für Temperaturen Grad Celsius.
+- Erhalte Zahlen und Mengen, außer wenn für die Umrechnung einer Einheit eine angepasste Menge erforderlich ist.
 - Erfinde nichts. Fehlende Angaben bleiben leer (null bzw. leeres Array).
 - Zutaten einzeln aufführen: amount (als Text, z. B. "1/2" oder "200"), unit und name getrennt.
 - Zubereitungsschritte in der richtigen Reihenfolge, ein Schritt pro Eintrag.
@@ -216,6 +219,7 @@ function normalizeRecipe(recipe, source, categories, imageDataUrl) {
         notes: [source, recipe.description, recipe.prepTime && `Vorbereitung: ${recipe.prepTime}`, recipe.cookTime && `Kochzeit: ${recipe.cookTime}`].filter(Boolean),
         tags: Array.isArray(recipe.tags) ? recipe.tags.filter(Boolean) : [],
         images: imageDataUrl ? [{ src: imageDataUrl }] : [],
+        ...(recipe.video ? { video: recipe.video } : {}),
         isPlaceholder: false
     };
 }
@@ -230,7 +234,7 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
     if (image) {
         const imageInput = validateImageDataUrl(image);
         const recipe = await callGemini([
-            { text: `Du bekommst ein Foto oder einen Screenshot eines Rezepts. Falls kein Rezeptname darauf steht oder er nicht lesbar ist, erstelle einen passenden Namen anhand des Gerichts, der Zutaten und der Zubereitung.\n${RULES}` },
+            { text: `Du bekommst ein Foto oder einen Screenshot eines Rezepts. Lies den Text unabhängig von seiner Ausgangssprache. Übertrage den Rezeptinhalt ins Deutsche, aber lasse einen erkennbaren Rezepttitel in der Originalsprache. Falls kein Titel lesbar ist, erstelle einen kurzen passenden deutschen Namen anhand des Gerichts, der Zutaten und der Zubereitung.\n${RULES}` },
             { inline_data: { mime_type: imageInput.mimeType, data: imageInput.data } }
         ], validCategories, fetchImpl, apiKey);
         return normalizeRecipe(recipe, 'Importiert aus Bild', validCategories, imageInput.dataUrl);
@@ -271,7 +275,7 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
         throw new Error('Kein Rezeptinhalt auf der Seite gefunden.');
     }
     const parts = [{
-        text: `Du bekommst ${isInstagram ? 'die Caption und bis zu 24 chronologisch angeordnete Standbilder eines Instagram-Videos' : 'die Daten einer Rezeptseite'}. Lies alle eingeblendeten Zutaten, Mengen und Zubereitungsschritte genau ab. Erfasse auch Gewürze, Öle, Saucen und Toppings. Fasse über mehrere Bilder verteilte Zutatenlisten zusammen, übernimm keine Dopplungen und ordne Zubereitungsschritte anhand der Zeitstempel. Wenn eine Angabe nicht lesbar ist, lass sie offen statt sie zu erraten. Die Caption kann unvollständig sein; ergänze sie mit den Videobildern. Ignoriere Werbung, Kommentare und Navigation.\n${RULES}\n\n${content}`
+        text: `Du bekommst ${isInstagram ? 'die Caption und bis zu 24 chronologisch angeordnete Standbilder eines Instagram-Videos' : 'die Daten einer Rezeptseite'}. Lies alle eingeblendeten Zutaten, Mengen und Zubereitungsschritte genau ab. Erfasse auch Gewürze, Öle, Saucen und Toppings. Fasse über mehrere Bilder verteilte Zutatenlisten zusammen, übernimm keine Dopplungen und ordne Zubereitungsschritte anhand der Zeitstempel. Wenn eine Angabe nicht lesbar ist, lass sie offen statt sie zu erraten. Die Caption kann unvollständig sein; ergänze sie mit den Videobildern. Ignoriere Werbung, Kommentare und Navigation. Übertrage den Rezeptinhalt ins Deutsche, auch wenn Caption, Text oder Sprache des Videos in einer anderen Sprache sind. Lasse einen vorhandenen Rezepttitel in der Originalsprache und übersetze ihn nicht.\n${RULES}\n\n${content}`
     }];
     if (instagramPost?.video) {
         const frameExtractor = dependencies.instagramVideoFrameExtractor || extractVideoFrames;
@@ -294,5 +298,12 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
             console.warn(`Webseitenbild konnte nicht importiert werden (${imageUrl}): ${error.message}`);
         }
     }
-    return normalizeRecipe(recipe, source, validCategories, imageDataUrl);
+    const importedRecipe = normalizeRecipe(recipe, source, validCategories, imageDataUrl);
+    if (isInstagram && instagramPost?.video) {
+        importedRecipe.video = {
+            mimeType: instagramPost.video.mimeType,
+            data: instagramPost.video.data
+        };
+    }
+    return importedRecipe;
 }

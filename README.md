@@ -6,14 +6,14 @@ Ein mobiler Rezeptfinder mit Suche, Kategorien, Rezeptdetailseiten und einem Edi
 
 - Rezeptübersicht mit Suche und kombinierbaren Filtern: genau eine Hauptkategorie („Salzig“ oder „Süß“, Standard: „Salzig“) sowie optional „healthy“
 - URL- und Bildimport klassifizieren Rezepte zusätzlich optional als „healthy“; die Kennzeichnung lässt sich im Editor anpassen
-- Rezeptdetailseite mit Zutaten, Zubereitung, Bildern und Portionsanpassung
+- Rezeptdetailseite mit Zutaten, Zubereitung, Bildern, abspielbaren importierten Instagram-Videos und Portionsanpassung
 - Editor auf der Startseite und direkt auf der Detailseite
 - Kategorienauswahl mit vorhandenen Kategorien und Möglichkeit, neue Kategorien hinzuzufügen
 - Strukturierte Zutatenzeilen mit Menge, Einheit, Produkt und Notiz
 - Strukturierte Zubereitungsschritte mit Hinzufügen, Entfernen und Umsortieren
 - Bilder per Dateiauswahl oder Drag-and-drop hinzufügen und im Editor entfernen
 - Lokale Speicherung von Änderungen im Browser
-- Direkter Schreibzugriff auf `recipes.json` und `images/recipes/` über den lokalen Node-Server
+- Direkter Schreibzugriff auf `recipes.json`, `images/recipes/` und `videos/recipes/` über den lokalen Node-Server
 - Offlinefreundliche Rezeptdaten und zwischengespeicherte Bilder
 - JavaScript-ES-Module (`.mjs`), die auch unter GitHub Pages mit relativen URLs geladen werden
 
@@ -43,9 +43,11 @@ npm run serve
 Öffne anschließend <http://localhost:4004>. Der Server bindet nur an die lokale Loopback-Adresse.
 
 Die Schaltflächen zum Importieren per URL oder Bild erscheinen nur bei lokalem Aufruf über `localhost`.
-Bei Instagram versucht der Import zuerst den öffentlichen Abruf. Falls Instagram die Daten nicht öffentlich bereitstellt, öffnet sich ein lokales Browserfenster. Melde dich dort beim ersten Import einmalig an und bestätige bei Bedarf den Cookie-Hinweis. Die Sitzung bleibt im lokalen Benutzerprofil auf diesem Gerät; Cookies werden weder ausgelesen noch an Gemini gesendet. Videos bis 20 MB werden lokal mit FFmpeg in bis zu 24 zeitlich verteilte Standbilder umgewandelt. Caption und Standbilder werden an Gemini gesendet, damit Gemini eingeblendete Zutaten und Zubereitungsschritte analysiert; eine lokale Bilderkennung findet nicht statt. Private oder gelöschte Beiträge bleiben unzugänglich. Die lokale Browser-Sitzung wird unter `%LOCALAPPDATA%\find-your-dinner\instagram-session` gespeichert.
+Bei Instagram versucht der Import zuerst den öffentlichen Abruf. Wenn Instagram das Reel-Video dabei nicht freigibt, wird zusätzlich die lokale Browser-Sitzung verwendet; ohne erfolgreich geladenes Video meldet der Import einen Fehler statt ein nicht abspielbares Rezept anzulegen. Melde dich im geöffneten Browser beim ersten Import einmalig an und bestätige bei Bedarf den Cookie-Hinweis. Die Sitzung bleibt im lokalen Benutzerprofil auf diesem Gerät; Cookies werden weder ausgelesen noch an Gemini gesendet. Videos bis 20 MB werden lokal abgelegt und mit FFmpeg in bis zu 24 zeitlich verteilte Standbilder umgewandelt. Caption und Standbilder werden an Gemini gesendet, damit Gemini eingeblendete Zutaten und Zubereitungsschritte analysiert; eine lokale Bilderkennung findet nicht statt. Private oder gelöschte Beiträge bleiben unzugänglich. Die lokale Browser-Sitzung wird unter `%LOCALAPPDATA%\find-your-dinner\instagram-session` gespeichert.
 
-Beim Speichern im Editor schreibt der lokale Server die Rezeptdaten direkt nach `recipes.json` und neue Bilder nach `images/recipes/`. In der JSON-Datei werden die Bilder mit relativen Pfaden wie `images/recipes/rezept-12-1.jpg` referenziert. Der Browser-Editor sendet die Änderungen an die lokale Speicher-API in [server.mjs](./server.mjs).
+Gemini überträgt importierte Rezeptinhalte aus URLs, Bildern und Instagram-Beiträgen natürlich ins Deutsche. Ein vorhandener Rezepttitel bleibt in der Originalsprache; geläufige englische Küchenbegriffe wie „Brownies“, „BBQ“, „Topping“ oder „Smoothie Bowl“ dürfen auch im übrigen Rezepttext stehen bleiben. Zutaten und Zubereitung werden nicht künstlich eingedeutscht. Fremdsprachige Maßeinheiten werden in gebräuchliche deutsche oder metrische Angaben umgerechnet.
+
+Beim Instagram-Import wird das Originalvideo lokal unter `videos/recipes/` abgelegt und im Rezept über einen relativen Pfad referenziert. Die Detailseite zeigt es unter der Zubereitung mit einem nativen Videoplayer. Beim Speichern im Editor schreibt der lokale Server die Rezeptdaten direkt nach `recipes.json`, neue Bilder nach `images/recipes/` und entfernt nicht mehr referenzierte Medien. Für die Veröffentlichung müssen die referenzierten Videodateien ebenfalls mit `recipes.json` veröffentlicht werden. Der Browser-Editor sendet die Änderungen an die lokale Speicher-API in [server.mjs](./server.mjs).
 
 Wenn der Servercode geändert wurde und Port 4004 noch von einer alten Serverinstanz belegt ist, beende diese Instanz im Terminal mit `Ctrl+C` und starte `npm run serve` erneut.
 

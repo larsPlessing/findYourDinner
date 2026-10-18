@@ -223,6 +223,30 @@
     font-size: 1.05em;
 }
 
+.recipe-video-section {
+    margin-top: 28px;
+}
+
+.recipe-video-section[hidden] {
+    display: none;
+}
+
+.recipe-video-section h3 {
+    margin: 0 0 12px;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.recipe-video-section video {
+    display: block;
+    width: 100%;
+    max-height: 70vh;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
 .no-data {
     color: #999;
     font-style: italic;
@@ -284,6 +308,10 @@
 }
 
 /* Responsive */
+.ingredient-dock {
+    display: none;
+}
+
 @media (max-width: 992px) {
     .detail-hero {
         grid-template-columns: 1fr;
@@ -416,5 +444,147 @@
     .note-link {
         word-break: break-word;
         display: inline-block;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: calc(var(--ingredient-dock-space, 120px) + env(safe-area-inset-bottom));
+    }
+
+    .ingredient-dock:not([hidden]) {
+        position: fixed;
+        z-index: 30;
+        right: 10px;
+        bottom: max(10px, env(safe-area-inset-bottom));
+        left: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: min(70vh, 600px);
+        padding: 10px;
+        overflow: hidden;
+        background: white;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .ingredient-dock-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        min-height: 44px;
+        padding: 8px 10px;
+        color: #333;
+        background: #f5f6ff;
+        font-size: 0.95em;
+        text-align: left;
+    }
+
+    .ingredient-dock-toggle:focus-visible {
+        outline: 3px solid rgba(102, 126, 234, 0.45);
+        outline-offset: 2px;
+    }
+
+    .ingredient-dock-toggle #ingredientDockCount {
+        margin-left: auto;
+        color: #667eea;
+        font-size: 0.85em;
+        white-space: nowrap;
+    }
+
+    .ingredient-dock-chevron {
+        color: #667eea;
+        transition: transform 0.2s ease;
+    }
+
+    .ingredient-dock.is-expanded .ingredient-dock-chevron {
+        transform: rotate(180deg);
+    }
+
+    .ingredient-dock-preview {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: thin;
+    }
+
+    .ingredient-dock-hint {
+        margin: -2px 2px 0;
+        color: #667eea;
+        font-size: 0.8em;
+        text-align: center;
+    }
+
+    .ingredient-dock-hint[hidden] {
+        display: none;
+    }
+
+    .ingredient-dock.is-expanded .ingredient-dock-preview {
+        display: none;
+    }
+
+    .ingredient-dock-preview .ingredient-item {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 5px;
+        max-width: 75vw;
+        margin: 0;
+        padding: 8px 10px;
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+
+    .ingredient-dock-preview .ingredient-amount {
+        text-align: left;
+    }
+
+    .ingredient-dock-preview .ingredient-product {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ingredient-dock-preview .ingredient-note {
+        display: none;
+    }
+
+    .ingredient-dock-full {
+        min-height: 0;
+        min-width: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .ingredient-dock-full[hidden] {
+        display: none;
+    }
+
+    .ingredient-dock-full .ingredient-item {
+        grid-template-columns: 50px 45px minmax(0, 1fr);
+        gap: 8px;
+        min-width: 0;
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .ingredient-dock-full .ingredient-product {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .ingredient-dock.is-expanded ~ .random-fab {
+        display: none;
+    }
+
+    .random-fab {
+        bottom: calc(145px + env(safe-area-inset-bottom));
     }
 }
