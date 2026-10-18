@@ -84,10 +84,6 @@
             </div>
         </div>
 
-        <!-- Random FAB -->
-        <button class="random-fab" onclick="selectRandomRecipe()" title="Zufälliges Rezept">
-            🎲
-        </button>
     </div>
 
     <div id="recipeEditor" class="editor-overlay" hidden>
@@ -591,13 +587,6 @@
             });
         }
 
-        function selectRandomRecipe() {
-            const random = generator.getRandomRecipe(filteredRecipes);
-            if (random) {
-                openRecipe(random.name);
-            }
-        }
-
         function shuffleRecipes() {
             // Fisher-Yates shuffle algorithm
             filteredRecipes = [...filteredRecipes];
@@ -614,15 +603,6 @@
             window.location.href = 'pages/recipe-detail.html';
         }
 
-
-        // Keyboard Shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'r' || e.key === 'R') {
-                if (document.activeElement !== searchInput) {
-                    selectRandomRecipe();
-                }
-            }
-        });
         globalThis.refreshRecipesAfterEdit = () => {
             allRecipes = generator.recipes;
             initializeCategoryFilter();
@@ -630,7 +610,7 @@
         };
         Object.assign(globalThis, {
             closeUploadOverlay, filterByCategory, loadDefaultRecipes,
-            selectRandomRecipe, showUploadDialog, shuffleRecipes
+            showUploadDialog, shuffleRecipes
         });
     </script>
     <script type="module" src="js/recipeEditor.mjs"></script>

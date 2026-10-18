@@ -22,6 +22,15 @@ function findMatchingInstagramRecipeIndex(recipes, sourceUrl) {
     }));
 }
 
+/** Verschiebt das Bild an `index` an die erste Position, damit es als Titelbild dient. */
+function setCoverImage(images, index) {
+    if (!Array.isArray(images) || index <= 0 || index >= images.length) return images;
+    const reordered = [...images];
+    const [chosen] = reordered.splice(index, 1);
+    reordered.unshift(chosen);
+    return reordered;
+}
+
 function openRecipeEditor(recipeName = null) {
     document.getElementById('recipeEditor').hidden = false;
     document.getElementById('editorSearch').value = '';
@@ -210,7 +219,10 @@ function addRecipeImageControls(form, recipe) {
     section.className = 'editor-image-section';
     const title = document.createElement('h3');
     title.textContent = 'Rezeptbilder';
-    section.appendChild(title);
+    const hint = document.createElement('p');
+    hint.className = 'editor-image-hint';
+    hint.textContent = 'Das Titelbild wird auf der Startseite und in der Detailansicht verwendet.';
+    section.append(title, hint);
     const dropzone = document.createElement('div');
     dropzone.className = 'editor-image-dropzone';
     dropzone.tabIndex = 0;
@@ -228,20 +240,53 @@ function addRecipeImageControls(form, recipe) {
     section.append(dropzone, picker);
     const gallery = document.createElement('div');
     gallery.className = 'editor-image-gallery';
-    (recipe.images || []).forEach((image, index) => {
+    const images = Array.isArray(recipe.images) ? recipe.images : [];
+    const coverIndex = images.findIndex(image => image && image.src);
+    images.forEach((image, index) => {
         if (!image || !image.src) return;
-        const card = document.createElement('div'); card.className = 'editor-image-card';
+        const isCover = index === coverIndex;
+        const card = document.createElement('div');
+        card.className = `editor-image-card${isCover ? ' editor-image-card--cover' : ''}`;
+        if (isCover) {
+            const badge = document.createElement('span');
+            badge.className = 'editor-image-card__badge';
+            badge.textContent = 'Titelbild';
+            card.appendChild(badge);
+        }
         const preview = document.createElement('img');
         preview.src = resolveEditorImageURL(image.src); preview.alt = `Rezeptbild ${index + 1}`;
         preview.onerror = () => { preview.alt = 'Bildvorschau nicht verfügbar'; };
-        const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Entfernen';
+        card.appendChild(preview);
+        const actions = document.createElement('div');
+        actions.className = 'editor-image-card__actions';
+        if (!isCover) {
+            const coverButton = document.createElement('button');
+            coverButton.type = 'button';
+            coverButton.className = 'editor-image-cover-btn';
+            coverButton.textContent = 'Als Titelbild';
+            coverButton.addEventListener('click', async () => {
+                const current = generator.recipes[editingRecipeIndex];
+                if (!current) return;
+                current.images = setCoverImage(current.images, index);
+                await commitRecipeChanges(current, editingRecipeIndex);
+                selectRecipeForEdit(editingRecipeIndex);
+            });
+            actions.appendChild(coverButton);
+        }
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'editor-image-remove-btn';
+        remove.textContent = 'Entfernen';
         remove.addEventListener('click', async () => {
             const current = generator.recipes[editingRecipeIndex];
+            if (!current || !Array.isArray(current.images)) return;
             current.images.splice(index, 1);
             await commitRecipeChanges(current, editingRecipeIndex);
             selectRecipeForEdit(editingRecipeIndex);
         });
-        card.append(preview, remove); gallery.appendChild(card);
+        actions.appendChild(remove);
+        card.appendChild(actions);
+        gallery.appendChild(card);
     });
     section.appendChild(gallery);
     form.appendChild(section);
@@ -569,4 +614,4 @@ globalThis.closeRecipeEditor = closeRecipeEditor;
 globalThis.importRecipeFromUrl = importRecipeFromUrl;
 globalThis.newRecipe = newRecipe;
 
-export { commitRecipeChanges, deleteCurrentRecipe, findMatchingInstagramRecipeIndex, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder };
+export { commitRecipeChanges, deleteCurrentRecipe, findMatchingInstagramRecipeIndex, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder, setCoverImage };

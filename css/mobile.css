@@ -49,11 +49,6 @@ button {
         padding-left: max(20px, env(safe-area-inset-left));
         padding-right: max(20px, env(safe-area-inset-right));
     }
-    
-    .random-fab {
-        right: max(20px, env(safe-area-inset-right));
-        bottom: max(20px, env(safe-area-inset-bottom));
-    }
 }
 
 /* Optimize for iPhone notch and home indicator */

@@ -4191,128 +4191,6 @@
       "healthy": false
     },
     {
-      "id": 52,
-      "name": "Spinat Nudeln",
-      "category": "Salzig",
-      "hasImage": false,
-      "imageCount": 0,
-      "isPlaceholder": false,
-      "servings": 4,
-      "ingredients": [
-        {
-          "amount": 500,
-          "unit": "g",
-          "product": "Spaghetti",
-          "note": ""
-        },
-        {
-          "amount": 1000,
-          "unit": "ml",
-          "product": "Wasser",
-          "note": ""
-        },
-        {
-          "amount": 1,
-          "unit": "",
-          "product": "Zwiebel",
-          "note": ""
-        },
-        {
-          "amount": 2,
-          "unit": "",
-          "product": "Knoblauchzehen",
-          "note": ""
-        },
-        {
-          "amount": 300,
-          "unit": "g",
-          "product": "Blattspinat",
-          "note": "gefroren"
-        },
-        {
-          "amount": 200,
-          "unit": "g",
-          "product": "Tomaten",
-          "note": ""
-        },
-        {
-          "amount": 200,
-          "unit": "g",
-          "product": "Ricotta",
-          "note": "Hüttenkäse/ Sahne"
-        },
-        {
-          "amount": 300,
-          "unit": "g",
-          "product": "Lachs",
-          "note": ""
-        },
-        {
-          "amount": "",
-          "unit": "",
-          "product": "Salz, Pfeffer",
-          "note": ""
-        }
-      ],
-      "instructions": [
-        {
-          "step": 1,
-          "text": "Zwiebeln und Knoblauch andünsten"
-        },
-        {
-          "step": 2,
-          "text": "Nudeln und Spinat dazugeben"
-        },
-        {
-          "step": 3,
-          "text": "1 Teelöffel Salz"
-        },
-        {
-          "step": 4,
-          "text": "Mit Wasser aufgießen"
-        },
-        {
-          "step": 5,
-          "text": "Nudeln verteilen"
-        },
-        {
-          "step": 6,
-          "text": "Kochen - 10-12 min köcheln"
-        },
-        {
-          "step": 7,
-          "text": "Ricotta, Tomaten dazugeben"
-        },
-        {
-          "step": 8,
-          "text": "Pfeffern"
-        },
-        {
-          "step": 10,
-          "text": "Lachs mit Meersalz auf beiden Seiten gut einsalzen und 20 min einziehen lassen"
-        },
-        {
-          "step": 11,
-          "text": "Danach abwaschen und abtrocknen"
-        },
-        {
-          "step": 12,
-          "text": "Herd auf Stufe 5 langsam auf Hautseite anbraten - 15-20 min"
-        },
-        {
-          "step": 13,
-          "text": "Wenn Haut wie gewünscht auf andere Seite so braten wie gewollt"
-        }
-      ],
-      "notes": [
-        "https://youtu.be/tj_FnWPhdjk?t=16"
-      ],
-      "createdDate": 44430,
-      "modifiedDate": 46086,
-      "images": [],
-      "healthy": true
-    },
-    {
       "id": 53,
       "name": "Subway Sandwiches Teriyaki",
       "category": "Salzig",
@@ -4991,7 +4869,7 @@
         },
         {
           "step": 4,
-          "text": "Entweder Mehlschwitze zubereiten oder in einem Becher 3 EL Mehl mit kaltem Wasser glattrühren, zu den Linsen geben und nochmals kochen (nebenher rühren!)."
+          "text": "Entweder Mehlschwitze (3 EL Fett 3 EL Mehl) zubereiten oder in einem Becher 3 EL Mehl mit kaltem Wasser glattrühren, zu den Linsen geben und nochmals kochen (nebenher rühren!)."
         },
         {
           "step": 5,
@@ -5453,6 +5331,1494 @@
         "mimeType": "video/mp4"
       },
       "id": 64
+    },
+    {
+      "name": "Hefeteig für Blechpizza",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": "350-375",
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "Würfel",
+          "product": "Hefe",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Tasse",
+          "product": "lauwarmes Wasser (ca. 40 °C)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Käse",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Mehl, Hefe, lauwarmes Wasser (40 °C) und Salz vermengen und den Teig zweimal gründlich durchkneten."
+        },
+        {
+          "step": 2,
+          "text": "Den Teig für mindestens 20 Minuten bis maximal 1 Stunde gehen lassen."
+        },
+        {
+          "step": 3,
+          "text": "Den Blechboden einfetten und den Teig darauf auslegen."
+        },
+        {
+          "step": 4,
+          "text": "Bei 200 °C für ca. 20 Minuten backen."
+        },
+        {
+          "step": 5,
+          "text": "Den Käse in den letzten 10 Minuten der Backzeit darübergeben und schmelzen lassen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Vorbereitung: 30 Min.",
+        "Kochzeit: 20 Min."
+      ],
+      "tags": [
+        "Pizza",
+        "Hefeteig",
+        "Backen",
+        "Blechkuchen"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/hefeteig-fur-blechpizza-65-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 65
+    },
+    {
+      "name": "Kartoffelpizza - Andrea",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 2,
+      "ingredients": [
+        {
+          "amount": 750,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Würfel",
+          "product": "Hefe",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "TL",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "2-3",
+          "unit": "Tassen",
+          "product": "warmes Wasser",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Sauerrahm",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Joghurt",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Frischkäse",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Oregano",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Chilipulver oder scharfes Paprikapulver",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Mehl, Hefe, 2 TL Salz und warmes Wasser mit den Knethaken verrühren, bis sich der Teig von der Schüssel löst."
+        },
+        {
+          "step": 2,
+          "text": "Den Hefeteig 20 Minuten gehen lassen."
+        },
+        {
+          "step": 3,
+          "text": "Den Teig etwa 1 cm dick auf den Backblechen ausrollen."
+        },
+        {
+          "step": 4,
+          "text": "Sauerrahm, Joghurt, Frischkäse, Oregano, Salz, Pfeffer und Chilipulver bzw. scharfes Paprikapulver zu einer Masse verrühren."
+        },
+        {
+          "step": 5,
+          "text": "Die Masse gleichmäßig auf dem Hefeteig verteilen."
+        },
+        {
+          "step": 6,
+          "text": "2 kg Kartoffeln abkochen, in Wasser, mit Deckel, 25-30 min, schälen und in (Rädchen) Scheiben auf Hefeteig"
+        },
+        {
+          "step": 7,
+          "text": "pro Blech 200g geriebener Emmentaler"
+        },
+        {
+          "step": 8,
+          "text": "35 min backen bei 200 Grad"
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild"
+      ],
+      "tags": [
+        "Pizza",
+        "Hefeteig",
+        "Blechpizza",
+        "Backen"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/kartoffelpizza-66-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 66
+    },
+    {
+      "name": "Nudelgratin",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 6,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Hackfleisch",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "kg",
+          "product": "rohe Nudeln",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Öl",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Tomaten oder Sahne",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Paprikapulver",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Essig",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Nelke",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Lorbeer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Zitrone",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Schmelzkäse",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Käse zum Bestreuen",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Das Hackfleisch in heißem Öl anbraten."
+        },
+        {
+          "step": 2,
+          "text": "Mehl darübergießen und untermengen, Zwiebel hinzufügen."
+        },
+        {
+          "step": 3,
+          "text": "Entweder mit Tomate-Wasser (mit Paprika, Tomatenmark, Salz, Essig und Zucker) oder mit Sahne-Wasser (mit Nelke, Lorbeer, Salz, Pfeffer, Zucker, Zitrone und Schmelzkäse) ablöschen."
+        },
+        {
+          "step": 4,
+          "text": "Die rohen Nudeln in eine Auflaufform füllen und mit der Soße übergießen, sodass sie vollständig bedeckt sind."
+        },
+        {
+          "step": 5,
+          "text": "Den Auflauf mit Käse bestreuen."
+        },
+        {
+          "step": 6,
+          "text": "Im vorgeheizten Backofen bei 200 °C etwa 25 Minuten backen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Kochzeit: 25 Min."
+      ],
+      "tags": [
+        "Auflauf",
+        "Nudelgericht",
+        "Hackfleisch",
+        "Hauptgericht"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/nudelgratin-67-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 67
+    },
+    {
+      "name": "Maultaschen - Lasagne",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 12,
+          "unit": "Stück",
+          "product": "Maultaschen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Packung",
+          "product": "passierte Tomaten mit Basilikum",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Erbsen",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "g",
+          "product": "Emmentaler",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Maultaschen kurz aufkochen."
+        },
+        {
+          "step": 2,
+          "text": "Die Maultaschen in eine Auflaufform geben und die passierten Tomaten darüber gießen."
+        },
+        {
+          "step": 3,
+          "text": "Die Erbsen dazugeben."
+        },
+        {
+          "step": 4,
+          "text": "Den Emmentaler darüberstreuen."
+        },
+        {
+          "step": 5,
+          "text": "Im vorgeheizten Ofen bei 200 °C für 20 Minuten backen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Kochzeit: 20 Min."
+      ],
+      "tags": [
+        "Auflauf",
+        "Maultaschen",
+        "Lasagne",
+        "Hauptgericht",
+        "Überbacken"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/maultaschen-lasagne-70-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 70
+    },
+    {
+      "id": 71,
+      "name": "Spinatnudeln",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 1,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Nudeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Pkg",
+          "product": "Spinat",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Kräuterfrischkäse/ Schmelzkäse",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Brühwürfel",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "ger. Käse",
+          "note": ""
+        },
+        {
+          "amount": "Prise",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        }
+      ],
+      "instructions": [],
+      "notes": [],
+      "images": [
+        {
+          "src": "images/recipes/spinatnudeln-71-1.jpg"
+        }
+      ],
+      "isPlaceholder": false
+    },
+    {
+      "name": "Nudelsalat",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": "",
+          "unit": "",
+          "product": "kleine Nudeln",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Erbsen und Möhren (Dose)",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Mayonnaise",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Joghurt",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Paprika",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Kleine Nudeln abkochen und mit kaltem Wasser abschrecken."
+        },
+        {
+          "step": 2,
+          "text": "Erbsen und Möhren aus der Dose abgießen, dabei die Flüssigkeit auffangen und aufheben."
+        },
+        {
+          "step": 3,
+          "text": "Mayonnaise, Joghurt, Salz, Pfeffer und die aufgefangene Erbsen-Möhren-Flüssigkeit in eine Schüssel geben und verrühren."
+        },
+        {
+          "step": 4,
+          "text": "Die Paprika in feine Würfel schneiden."
+        },
+        {
+          "step": 5,
+          "text": "Nudeln, Erbsen, Möhren und Paprikawürfel mit dem Dressing vermengen."
+        },
+        {
+          "step": 6,
+          "text": "Den Nudelsalat 40 Minuten bis 1 Stunde durchziehen lassen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild"
+      ],
+      "tags": [
+        "Nudelsalat",
+        "Salat",
+        "Beilage",
+        "Party"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/nudelsalat-72-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 72
+    },
+    {
+      "id": 73,
+      "name": "Hefeteig (1 Blech)",
+      "category": "Süß",
+      "healthy": false,
+      "servings": 1,
+      "ingredients": [
+        {
+          "amount": 375,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Hefe",
+          "note": ""
+        },
+        {
+          "amount": "50-70",
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pr.",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pkg",
+          "product": "Vanillezucker",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Margarine",
+          "note": ""
+        },
+        {
+          "amount": 180,
+          "unit": "ml",
+          "product": "lauwarme Milch",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Mehl, Fett, Zucker, Hefe auf Zucker bröckeln, warme Milch draufgießen, dann kneten"
+        },
+        {
+          "step": 2,
+          "text": "20 min gehen lassen"
+        }
+      ],
+      "notes": [],
+      "images": [],
+      "isPlaceholder": false
+    },
+    {
+      "name": "Lauch mit Penne",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": "1-2",
+          "unit": "Stangen",
+          "product": "Lauch",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Fett",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 750,
+          "unit": "ml",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Stück",
+          "product": "Brühwürfel",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Schmelzkäse oder Frischkäse",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Penne (Nudeln)",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "1-2 Stangen Lauch in Ringe schneiden, gründlich waschen und in einem Sieb abtropfen lassen."
+        },
+        {
+          "step": 2,
+          "text": "Nudeln separat nach Packungsanweisung abkochen."
+        },
+        {
+          "step": 3,
+          "text": "Fett in einen Topf geben, 1 EL Mehl dazugeben und zu einer Mehlschwitze anschwitzen."
+        },
+        {
+          "step": 4,
+          "text": "Mit 750 ml Wasser ablöschen und mit dem Schneebesen aufschlagen."
+        },
+        {
+          "step": 5,
+          "text": "Den vorbereiteten Lauch hinzugeben und für 2-3 Minuten kochen lassen."
+        },
+        {
+          "step": 6,
+          "text": "1 Brühwürfel sowie Schmelzkäse oder Frischkäse einrühren, mit Salz abschmecken und mit den Nudeln servieren."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Schnelle Nudel-Lauch-Pfanne mit cremiger Mehlschwitzen-Käse-Sauce.",
+        "Vorbereitung: 10 Min.",
+        "Kochzeit: 15 Min."
+      ],
+      "tags": [
+        "Pasta",
+        "Hauptgericht",
+        "Lauch",
+        "Schnelle Küche"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/lauch-mit-penne-74-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 74
+    },
+    {
+      "name": "Rhodos-Kartoffeln",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Kartoffeln",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Öl",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Paprikagewürz",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Kartoffeln schälen und in Scheiben schneiden."
+        },
+        {
+          "step": 2,
+          "text": "Mit Öl, Salz, Pfeffer und Paprikagewürz gründlich vermengen."
+        },
+        {
+          "step": 3,
+          "text": "Auf einem Backblech mit Backpapier verteilen."
+        },
+        {
+          "step": 4,
+          "text": "Im vorgeheizten Ofen bei 180–200 °C für 20 Minuten backen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Kochzeit: 20 Min."
+      ],
+      "tags": [
+        "Kartoffeln",
+        "Ofengericht",
+        "Beilage"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/rhodos-kartoffeln-75-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 75
+    },
+    {
+      "name": "Milchreis",
+      "category": "Süß",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "ml",
+          "product": "Milch",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "g",
+          "product": "Milchreis",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Zucker",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Milch und Milchreis zusammen im Topf erhitzen."
+        },
+        {
+          "step": 2,
+          "text": "Bevor es überkocht, die Herdplatte ausschalten, den Deckel auf den Topf setzen und ziehen lassen."
+        },
+        {
+          "step": 3,
+          "text": "Am Schluss 2 EL Zucker unterrühren."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild"
+      ],
+      "tags": [
+        "Milchreis",
+        "Dessert",
+        "Süßspeise",
+        "Klassiker"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/milchreis-76-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 76
+    },
+    {
+      "name": "Zitronen Kuchen",
+      "category": "Süß",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Fett",
+          "note": ""
+        },
+        {
+          "amount": 230,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pck.",
+          "product": "Zitronenschale",
+          "note": ""
+        },
+        {
+          "amount": 7,
+          "unit": "Tropfen",
+          "product": "Zitronenaroma",
+          "note": ""
+        },
+        {
+          "amount": 300,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Speisestärke",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pck.",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Milch",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Das Fett schaumig rühren und den Zucker unterrühren."
+        },
+        {
+          "step": 2,
+          "text": "Jedes Ei einzeln gut unterrühren, danach Zitronenschale und Zitronenaroma zugeben."
+        },
+        {
+          "step": 3,
+          "text": "Mehl, Stärke und Backpulver dazugeben."
+        },
+        {
+          "step": 4,
+          "text": "Milch je nach Konsistenz unterrühren, bis der Teig schwer reißend vom Löffel fällt."
+        },
+        {
+          "step": 5,
+          "text": "Den Teig in eine Kastenform füllen."
+        },
+        {
+          "step": 6,
+          "text": "Bei 180 °C etwa 55 Min. backen."
+        },
+        {
+          "step": 7,
+          "text": "Den Kuchen in der Kastenform abkühlen lassen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Kochzeit: 55 Min."
+      ],
+      "tags": [
+        "Kuchen",
+        "Zitronenkuchen",
+        "Rührkuchen",
+        "Backen"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/zitronen-kuchen-77-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 77
+    },
+    {
+      "name": "Apfelbrot",
+      "category": "Süß",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 750,
+          "unit": "g",
+          "product": "Äpfel",
+          "note": ""
+        },
+        {
+          "amount": "150-200",
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Sultaninen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Kakao",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pck.",
+          "product": "Vanillezucker",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "Pck.",
+          "product": "Lebkuchengewürz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "etwas",
+          "product": "Zimt",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "etwas",
+          "product": "Rumaroma",
+          "note": ""
+        },
+        {
+          "amount": 130,
+          "unit": "g",
+          "product": "Ganze Haselnüsse (oder abgezogene Mandeln)",
+          "note": ""
+        },
+        {
+          "amount": "1 1/2",
+          "unit": "Pck.",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Äpfel raspeln, mit dem Zucker bestreuen und durchziehen lassen. Vorsicht mit dem entstehenden Apfelsaft, damit der Teig nicht zu weich wird."
+        },
+        {
+          "step": 2,
+          "text": "Sultaninen, Kakao, Vanillezucker, Lebkuchengewürz sowie etwas Zimt und Rumaroma unterrühren."
+        },
+        {
+          "step": 3,
+          "text": "Ganze Haselnüsse (oder abgezogene Mandeln) hinzugeben."
+        },
+        {
+          "step": 4,
+          "text": "Mehl und Backpulver vermischen und unter die Masse heben, bis ein Teig entsteht."
+        },
+        {
+          "step": 5,
+          "text": "Im vorgeheizten Backofen bei 180 °C etwa 1 Stunde backen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Kochzeit: 1 Std."
+      ],
+      "tags": [
+        "Apfelbrot",
+        "Kuchen",
+        "Backen",
+        "Weihnachtsbäckerei"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/apfelbrot-78-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 78
+    },
+    {
+      "name": "Quarkstollen",
+      "category": "Süß",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pck.",
+          "product": "Backpulver",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Quark",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Eiweiß",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "",
+          "product": "Zitrone (Saft)",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "abgezogene Mandeln (grob gehackt)",
+          "note": ""
+        },
+        {
+          "amount": 125,
+          "unit": "g",
+          "product": "Margarine",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "Prise",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Vanillezucker",
+          "note": ""
+        },
+        {
+          "amount": "einige",
+          "unit": "Tropfen",
+          "product": "Bittermandelaroma",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Rosinen (kleingeschnitten)",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Alle Zutaten gründlich zusammenkneten und zu einem Stollen formen."
+        },
+        {
+          "step": 2,
+          "text": "Den Stollen bei guter Mittelhitze ca. 1 Stunde backen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Kochzeit: 1 Std."
+      ],
+      "tags": [
+        "Stollen",
+        "Weihnachtsbäckerei",
+        "Backen",
+        "Quark"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/quarkstollen-79-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 79
+    },
+    {
+      "id": 80,
+      "name": "Spätzle - Lars",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Gries",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Eier",
+          "note": ""
+        },
+        {
+          "amount": "Gefühl",
+          "unit": "",
+          "product": "Wasser",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Immer abschrecken"
+        }
+      ],
+      "notes": [],
+      "images": [],
+      "isPlaceholder": false
+    },
+    {
+      "name": "Erdbeer-Torte",
+      "category": "Süß",
+      "healthy": false,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Biskuit- oder Mürbeteigboden",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Fruchtsaft (zum Tränken bei Biskuit)",
+          "note": ""
+        },
+        {
+          "amount": 6,
+          "unit": "Blatt",
+          "product": "Gelatine",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Erdbeeren (püriert)",
+          "note": ""
+        },
+        {
+          "amount": "500-750",
+          "unit": "g",
+          "product": "Magerquark",
+          "note": ""
+        },
+        {
+          "amount": 70,
+          "unit": "g",
+          "product": "Zucker (oder Süßstoff)",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "g",
+          "product": "frische Erdbeeren (in Stücke geschnitten)",
+          "note": ""
+        },
+        {
+          "amount": "2-3",
+          "unit": "Tropfen",
+          "product": "Butter-Vanille-Aroma",
+          "note": ""
+        },
+        {
+          "amount": 12,
+          "unit": "Stück",
+          "product": "Erdbeeren zum Garnieren",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Sahne zum Garnieren",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Einen Biskuit- oder Mürbeteigboden vorbereiten. Bei Verwendung eines Biskuitbodens diesen mit Fruchtsaft tränken."
+        },
+        {
+          "step": 2,
+          "text": "Den Boden mit einem Tortenring umschließen."
+        },
+        {
+          "step": 3,
+          "text": "Die Gelatine in kaltem Wasser einweichen."
+        },
+        {
+          "step": 4,
+          "text": "250 g Erdbeeren pürieren und zusammen mit dem Magerquark, dem Zucker (oder Süßstoff) und dem Butter-Vanille-Aroma mit dem Handrührgerät verrühren."
+        },
+        {
+          "step": 5,
+          "text": "Die abgetropfte Gelatine in einem Topf unter Rühren leicht erwärmen, bis sie flüssig ist."
+        },
+        {
+          "step": 6,
+          "text": "3-4 große Löffel der Quark-Erdbeer-Masse langsam zur flüssigen Gelatine in den Topf geben und glattrühren."
+        },
+        {
+          "step": 7,
+          "text": "Die Gelatinemischung aus dem Topf zur restlichen Quarkmasse geben und gründlich unterrühren."
+        },
+        {
+          "step": 8,
+          "text": "Die vorbereiteten 150 g Erdbeerstücke gleichmäßig auf dem Boden verteilen."
+        },
+        {
+          "step": 9,
+          "text": "Die Quarkmasse über die Erdbeerstücke auf den Boden geben und glattstreichen."
+        },
+        {
+          "step": 10,
+          "text": "Die Torte mit geschlagener Sahne und den 12 ganzen Erdbeeren garnieren."
+        },
+        {
+          "step": 11,
+          "text": "Die fertige Torte für mindestens 3 Stunden kaltstellen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Erfrischende sommerliche Erdbeertorte mit leichter Quarkcreme auf Biskuit- oder Mürbeteigboden.",
+        "Vorbereitung: 30 Min."
+      ],
+      "tags": [
+        "Torte",
+        "Erdbeeren",
+        "Quark",
+        "Kuchen",
+        "Sommer"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/erdbeer-torte-81-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 81
+    },
+    {
+      "name": "Schnelles Paprikahuhn",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 3,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "rote Paprika",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Hühnerbrust",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Öl oder Butterschmalz zum Anbraten",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "edelsüßes Paprikapulver",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "Hühnerfond",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "EL",
+          "product": "Tomatenmark",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "ml",
+          "product": "Schlagobers",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Sauerrahm zum Garnieren",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zwiebel schälen, Paprika halbieren, putzen und waschen. Gemüse und Hühnerbrust in Streifen, oder wie ihr sie auch immer wollt, schneiden. Die Hühnerbrust könnt ihr vorab salzen und das Salz 15 Minuten einziehen lassen."
+        },
+        {
+          "step": 2,
+          "text": "Hühnerbrust, Zwiebel und Paprika in etwas Öl oder Butterschmalz anbraten. Kurz das Paprikapulver und das Tomatenmark mit anrösten, aber Vorsicht! Es darf nicht anbrennen, sonst wird es bitter."
+        },
+        {
+          "step": 3,
+          "text": "Mit dem Fond ablöschen und alles etwas köcheln lassen."
+        },
+        {
+          "step": 4,
+          "text": "Der Schlagobers kommt am Schluss dazu, bevor ihr mit Salz und Pfeffer abschmeckt. Final mit Sauerrahm garnieren."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Mit dem vorbereiteten Fond und einer übrig gebliebenen, zerteilten Hühnerbrust (siehe Video) lässt sich das klassische geschmorte Paprikahuhn in Windeseile als 15-Minuten-Partie fabrizieren.",
+        "Kochzeit: 35 Min."
+      ],
+      "tags": [
+        "Geflügel",
+        "Hauptgericht",
+        "Klassiker",
+        "Paprika"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/schnelles-paprikahuhn-82-1.jpg"
+        },
+        {
+          "src": "images/recipes/schnelles-paprikahuhn-82-2.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 82
     }
   ]
 }

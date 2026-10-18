@@ -53,13 +53,19 @@
 .editor-checkbox input { width: 18px; height: 18px; }
 .editor-image-section { margin: 18px 0; }
 .editor-image-section h3 { margin-bottom: 10px; color: #343a50; }
+.editor-image-hint { margin: 0 0 10px; color: #778; font-size: .82rem; }
 .editor-image-dropzone { display: flex; min-height: 100px; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px; border: 2px dashed #9ba5d8; border-radius: 10px; background: #f7f8ff; color: #4d5fc3; cursor: pointer; text-align: center; }
 .editor-image-dropzone small { color: #778; }
 .editor-image-dropzone.drag-over { border-color: #4d5fc3; background: #e9ecff; }
 .editor-image-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
-.editor-image-card { overflow: hidden; border: 1px solid #e1e3eb; border-radius: 8px; background: #fff; }
+.editor-image-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e1e3eb; border-radius: 8px; background: #fff; }
+.editor-image-card--cover { border-color: #4d5fc3; box-shadow: 0 0 0 1px #4d5fc3; }
 .editor-image-card img { display: block; width: 100%; height: 90px; object-fit: cover; }
-.editor-image-card button { width: 100%; min-height: 36px; padding: 6px; color: #a33; background: #fff2f2; font-size: .85rem; }
+.editor-image-card__badge { padding: 4px 6px; color: #fff; background: #4d5fc3; font-size: .72rem; font-weight: 600; text-align: center; }
+.editor-image-card__actions { display: flex; flex-direction: column; margin-top: auto; }
+.editor-image-card button { width: 100%; min-height: 36px; padding: 6px; font-size: .85rem; }
+.editor-image-card .editor-image-cover-btn { color: #2e7d32; background: #eefaf0; }
+.editor-image-card .editor-image-remove-btn { color: #a33; background: #fff2f2; }
 .editor-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .editor-delete { color: white; background: #d9534f; }
 .editor-empty { padding: 30px; color: #778; text-align: center; }

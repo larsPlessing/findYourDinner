@@ -31,8 +31,7 @@
     
     /* Optimize animations for Chrome */
     .recipe-pin,
-    .category-chip,
-    .random-fab {
+    .category-chip {
         will-change: transform;
     }
     
@@ -54,12 +53,6 @@
     
     html {
         height: -webkit-fill-available;
-    }
-    
-    /* Ensure fixed elements stay visible */
-    .random-fab {
-        position: fixed;
-        bottom: max(20px, env(safe-area-inset-bottom));
     }
     
     .pinterest-header {
@@ -190,7 +183,6 @@ button {
 
 /* Optimize Chrome iOS emoji rendering */
 .recipe-pin-image,
-.random-fab,
 .search-container h2 {
     /* Better emoji rendering */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
@@ -218,8 +210,7 @@ button {
 @media (prefers-reduced-motion: no-preference) {
     .recipe-pin,
     .category-chip,
-    button,
-    .random-fab {
+    button {
         /* Enable GPU acceleration for smoother animations */
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
@@ -232,10 +223,6 @@ button {
     @media (max-width: 576px) {
         body {
             padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
-        }
-        
-        .random-fab {
-            bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 10px));
         }
     }
 }

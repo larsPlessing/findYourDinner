@@ -292,8 +292,7 @@
 /* Print Styles */
 @media print {
     .detail-back-btn,
-    .detail-actions,
-    .random-fab {
+    .detail-actions {
         display: none !important;
     }
     
@@ -578,13 +577,5 @@
     .ingredient-dock-full .ingredient-product {
         min-width: 0;
         overflow-wrap: anywhere;
-    }
-
-    .ingredient-dock.is-expanded ~ .random-fab {
-        display: none;
-    }
-
-    .random-fab {
-        bottom: calc(145px + env(safe-area-inset-bottom));
     }
 }
