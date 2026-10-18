@@ -1,14 +1,25 @@
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const assert = require('node:assert/strict');
-const { test } = require('node:test');
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { importRecipe } from '../../server/recipeImporter.mjs';
 
-test('URL recipe import uses the provided category enum and imports a webpage image', async () => {
-    const { importRecipe } = await import('../../server/recipeImporter.mjs');
-    const originalFetch = globalThis.fetch;
-    const originalApiKey = process.env.GEMINI_API_KEY;
-    process.env.GEMINI_API_KEY = 'test-key';
-    const categories = ['Salzig', 'Süß'];
+const categories = ['Salzig', 'Süß'];
+const testApiKey = 'test-key';
+
+function recipeResponse(recipe) {
+    return new Response(JSON.stringify({
+        candidates: [{ content: { parts: [{ text: JSON.stringify(recipe) }] } }]
+    }));
+}
+
+function dependencies(t, fetchImplementation, extras = {}) {
+    return {
+        fetchImpl: t.mock.fn(fetchImplementation),
+        apiKey: testApiKey,
+        ...extras
+    };
+}
+
+test('URL recipe import uses the provided category enum and imports a webpage image', async t => {
     const recipe = {
         title: 'Importierter Kuchen',
         category: categories[0],
@@ -16,8 +27,7 @@ test('URL recipe import uses the provided category enum and imports a webpage im
         ingredients: [{ name: 'Mehl' }],
         steps: ['Mehl verrühren.']
     };
-
-    globalThis.fetch = async (input, options) => {
+    const deps = dependencies(t, async (input, options) => {
         const url = String(input);
         if (url.includes('generativelanguage.googleapis.com')) {
             const request = JSON.parse(options.body);
@@ -28,7 +38,7 @@ test('URL recipe import uses the provided category enum and imports a webpage im
             assert.match(request.contents[0].parts[0].text, /ohne Portionsangaben oder Kalorienberechnung/i);
             assert.doesNotMatch(request.contents[0].parts[0].text, /Linsen mit Wasser|Nudeln oder Spätzle/);
             assert.ok(request.generationConfig.responseSchema.required.includes('healthy'));
-            return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(recipe) }] } }] }));
+            return recipeResponse(recipe);
         }
         if (url === 'https://example.com/recipe') {
             return new Response('<html><meta property="og:image" content="/recipe.jpg"><body>Ein einfaches Kuchenrezept mit Mehl und Zucker. Zutaten gut vermengen, in eine Form geben und im vorgeheizten Ofen backen, bis der Kuchen goldbraun ist.</body></html>', { url });
@@ -37,53 +47,226 @@ test('URL recipe import uses the provided category enum and imports a webpage im
             return new Response(Buffer.from('recipe image'), { headers: { 'Content-Type': 'image/jpeg' } });
         }
         throw new Error(`Unexpected fetch URL: ${url}`);
-    };
+    });
 
-    try {
-        const imported = await importRecipe({ url: 'https://example.com/recipe', categories });
-        assert.equal(imported.category, categories[0]);
-        assert.equal(imported.healthy, true);
-        assert.equal(imported.images[0].src, `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`);
-    } finally {
-        globalThis.fetch = originalFetch;
-        if (originalApiKey === undefined) delete process.env.GEMINI_API_KEY;
-        else process.env.GEMINI_API_KEY = originalApiKey;
-    }
+    const imported = await importRecipe({ url: 'https://example.com/recipe', categories }, deps);
+    assert.equal(imported.category, categories[0]);
+    assert.equal(imported.healthy, true);
+    assert.equal(imported.images[0].src, `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`);
+    assert.equal(deps.fetchImpl.mock.callCount(), 3);
 });
 
-test('image recipe import falls back to an existing category if Gemini returns an unknown one', async () => {
-    const { importRecipe } = await import('../../server/recipeImporter.mjs');
-    const originalFetch = globalThis.fetch;
-    const originalApiKey = process.env.GEMINI_API_KEY;
-    process.env.GEMINI_API_KEY = 'test-key';
-    const categories = ['Salzig', 'Süß'];
+test('Instagram reel imports its public caption, frames and preview image', async t => {
+    const caption = 'Zutaten: 200 g Mehl, 2 Eier und 100 ml Milch. Alles verrühren und bei 180 Grad 25 Minuten backen. Den Kuchen vor dem Servieren vollständig abkühlen lassen.';
+    const deps = dependencies(t, async (input, options) => {
+        const requestUrl = String(input);
+        if (requestUrl.includes('generativelanguage.googleapis.com')) {
+            const request = JSON.parse(options.body);
+            assert.match(request.contents[0].parts[0].text, new RegExp(caption.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+            assert.match(request.contents[0].parts[0].text, /Lies alle eingeblendeten Zutaten, Mengen und Zubereitungsschritte genau ab/);
+            assert.deepEqual(request.contents[0].parts.filter(part => part.inline_data).map(part => part.inline_data), [
+                { mime_type: 'image/jpeg', data: Buffer.from('frame 1').toString('base64') },
+                { mime_type: 'image/jpeg', data: Buffer.from('frame 2').toString('base64') }
+            ]);
+            assert.match(request.contents[0].parts[1].text, /bei etwa 0 Sekunden/);
+            assert.match(request.contents[0].parts[3].text, /bei etwa 5 Sekunden/);
+            return recipeResponse({
+                title: 'Kuchen',
+                category: 'Süß',
+                healthy: false,
+                ingredients: [{ amount: '200', unit: 'g', name: 'Mehl' }, { amount: '2', unit: '', name: 'Eier' }],
+                steps: ['Alles verrühren und backen.']
+            });
+        }
+        if (requestUrl === 'https://www.instagram.com/reel/DaC-aG0sbbE/embed/captioned/') {
+            assert.match(options.headers['User-Agent'], /Mozilla\/5\.0/);
+            return new Response(`<html><meta property="og:description" content="${caption}"><meta property="og:image" content="https://example.com/instagram.jpg"><meta property="og:video" content="https://scontent.cdninstagram.com/reel.mp4"></html>`);
+        }
+        if (requestUrl === 'https://example.com/instagram.jpg') {
+            return new Response(Buffer.from('instagram preview'), { headers: { 'Content-Type': 'image/jpeg' } });
+        }
+        if (requestUrl === 'https://scontent.cdninstagram.com/reel.mp4') {
+            return new Response(Buffer.from('instagram video'), { headers: { 'Content-Type': 'video/mp4' } });
+        }
+        throw new Error(`Unexpected fetch URL: ${requestUrl}`);
+    }, {
+        instagramVideoFrameExtractor: t.mock.fn(async video => {
+            assert.deepEqual(video, { mimeType: 'video/mp4', data: Buffer.from('instagram video').toString('base64') });
+            return [
+                { mimeType: 'image/jpeg', data: Buffer.from('frame 1').toString('base64'), timestampSeconds: 0 },
+                { mimeType: 'image/jpeg', data: Buffer.from('frame 2').toString('base64'), timestampSeconds: 5 }
+            ];
+        })
+    });
 
-    globalThis.fetch = async (input, options) => {
+    const source = 'https://www.instagram.com/reel/DaC-aG0sbbE/?obrf=MTF0NHZieHpkbWJ2eA%3D%3D';
+    const imported = await importRecipe({ url: source, categories }, deps);
+    assert.equal(imported.name, 'Kuchen');
+    assert.equal(imported.category, 'Süß');
+    assert.equal(imported.notes[0], source);
+    assert.equal(imported.images[0].src, `data:image/jpeg;base64,${Buffer.from('instagram preview').toString('base64')}`);
+});
+
+test('Instagram recipe in video can be imported when the caption is short', async t => {
+    const caption = 'Frischer Udon-Salat mit Mango und Chiliöl-Joghurt.';
+    const recipe = {
+        title: 'Asia-Udon-Salat mit Mango, Edamame & Chiliöl-Joghurt',
+        category: 'Salzig',
+        healthy: true,
+        ingredients: [
+            { amount: '1', unit: 'Packung', name: 'Udon-Nudeln' },
+            { amount: '1', unit: 'gute Hand', name: 'Chinakohl, fein geschnitten' },
+            { amount: '1/2', unit: '', name: 'Gurke, in feine Streifen geschnitten' },
+            { amount: '1', unit: '', name: 'Karotte, in feine Streifen geschnitten' },
+            { amount: '1/2', unit: '', name: 'Mango, in Streifen geschnitten' },
+            { amount: '1', unit: 'gute Hand', name: 'Edamame' },
+            { amount: '2', unit: '', name: 'Lauchzwiebeln, in feine Ringe geschnitten' },
+            { amount: '1', unit: 'TL', name: 'Sesam' },
+            { amount: '200', unit: 'g', name: 'Joghurt' },
+            { amount: '', unit: '', name: 'Chiliöl' },
+            { amount: '1', unit: 'Schuss', name: 'Sojasauce' },
+            { amount: '1', unit: 'Schuss', name: 'Ahornsirup' },
+            { amount: '', unit: '', name: 'Salz' }
+        ],
+        steps: [
+            'Udon-Nudeln nach Packungsanweisung kochen, abgießen und abkühlen lassen.',
+            'Die abgekühlten Nudeln mit Chinakohl, Gurke, Karotte, Mango, Edamame und Lauchzwiebeln in eine große Schüssel geben.',
+            'Sesam darüberstreuen.',
+            'Für das Dressing Joghurt mit Chiliöl, Sojasauce, Ahornsirup und Salz verrühren.',
+            'Das Dressing über den Salat geben, alles gut vermengen und direkt servieren.'
+        ]
+    };
+    const deps = dependencies(t, async (input, options) => {
+        const requestUrl = String(input);
+        if (requestUrl.includes('generativelanguage.googleapis.com')) {
+            const request = JSON.parse(options.body);
+            assert.match(request.contents[0].parts[0].text, /Die Caption kann unvollständig sein; ergänze sie mit den Videobildern/);
+            assert.equal(request.contents[0].parts.filter(part => part.inline_data).length, 1);
+            return recipeResponse(recipe);
+        }
+        if (requestUrl === 'https://scontent.cdninstagram.com/reel.mp4') {
+            return new Response(Buffer.from('instagram video'), { headers: { 'Content-Type': 'video/mp4' } });
+        }
+        return new Response(`<html><meta property="og:description" content="${caption}"><meta property="og:video" content="https://scontent.cdninstagram.com/reel.mp4"></html>`);
+    }, {
+        instagramVideoFrameExtractor: t.mock.fn(async () => [
+            { mimeType: 'image/jpeg', data: Buffer.from('recipe overlay frame').toString('base64'), timestampSeconds: 1 }
+        ])
+    });
+
+    const imported = await importRecipe({
+        url: 'https://www.instagram.com/reel/DaC-aG0sbbE/?obrf=MTF0NHZieHpkbWJ2eA%3D%3D',
+        categories
+    }, deps);
+    assert.equal(imported.name, 'Asia-Udon-Salat mit Mango, Edamame & Chiliöl-Joghurt');
+    assert.equal(imported.ingredients.length, 13);
+    assert.equal(imported.instructions.length, 5);
+    assert.equal(imported.ingredients[11].product, 'Ahornsirup');
+});
+
+test('Instagram imports use the authenticated loader if anonymous access is unavailable', async t => {
+    let authenticatedUrl;
+    let geminiCalled = false;
+    const deps = dependencies(t, async (input, options) => {
+        const requestUrl = String(input);
+        if (requestUrl.includes('instagram.com')) {
+            return new Response('<html><body>Log in to Instagram. Create an account or log in to see photos and videos. This is a long sign-in page without information about the post.</body></html>');
+        }
+        if (requestUrl.includes('generativelanguage.googleapis.com')) {
+            geminiCalled = true;
+            const request = JSON.parse(options.body);
+            assert.deepEqual(request.contents[0].parts[2].inline_data, {
+                mime_type: 'image/jpeg',
+                data: Buffer.from('authenticated frame').toString('base64')
+            });
+            return recipeResponse({
+                title: 'Instagram-Rezept',
+                category: 'Salzig',
+                healthy: false,
+                ingredients: [{ name: 'Mehl' }],
+                steps: ['Im Ofen backen.']
+            });
+        }
+        throw new Error(`Unexpected fetch URL: ${requestUrl}`);
+    }, {
+        authenticatedInstagramLoader: t.mock.fn(async url => {
+            authenticatedUrl = url;
+            return {
+                html: '<html><meta property="og:description" content="Ein Rezept mit Mehl und Eiern, das im Ofen goldbraun gebacken wird. Eine klare Caption mit ausreichender Länge, damit das Rezept beschrieben ist."></html>',
+                url,
+                video: { mimeType: 'video/mp4', data: Buffer.from('authenticated video').toString('base64') }
+            };
+        }),
+        instagramVideoFrameExtractor: t.mock.fn(async video => {
+            assert.deepEqual(video, { mimeType: 'video/mp4', data: Buffer.from('authenticated video').toString('base64') });
+            return [{ mimeType: 'image/jpeg', data: Buffer.from('authenticated frame').toString('base64'), timestampSeconds: 3 }];
+        })
+    });
+    const imported = await importRecipe({
+        url: 'https://www.instagram.com/reel/DaC-aG0sbbE/',
+        categories
+    }, deps);
+    assert.equal(authenticatedUrl, 'https://www.instagram.com/reel/DaC-aG0sbbE/');
+    assert.equal(imported.name, 'Instagram-Rezept');
+    assert.equal(geminiCalled, true);
+});
+
+test('Instagram import reports video frame extraction failures instead of using only the caption', async t => {
+    let geminiCalled = false;
+    const deps = dependencies(t, async input => {
+        if (String(input).includes('generativelanguage.googleapis.com')) {
+            geminiCalled = true;
+            throw new Error('Gemini must not be called without video frames');
+        }
+        if (String(input) === 'https://scontent.cdninstagram.com/reel.mp4') {
+            return new Response(Buffer.from('instagram video'), { headers: { 'Content-Type': 'video/mp4' } });
+        }
+        return new Response('<html><meta property="og:description" content="Ein langes Rezept mit Zutaten und einer klaren Zubereitung, die vollständig in der Videobeschreibung erklärt wird."><meta property="og:video" content="https://scontent.cdninstagram.com/reel.mp4"></html>');
+    }, {
+        instagramVideoFrameExtractor: t.mock.fn(async () => {
+            throw new Error('FFmpeg konnte das Video nicht lesen.');
+        })
+    });
+
+    await assert.rejects(
+        importRecipe({ url: 'https://www.instagram.com/reel/DaC-aG0sbbE/', categories }, deps),
+        /FFmpeg konnte das Video nicht lesen/
+    );
+    assert.equal(geminiCalled, false);
+});
+
+test('Instagram import returns actionable guidance when local session cannot open the reel', async t => {
+    const deps = dependencies(t, async () => new Response('<html><script>window.route={"pageID":"httpErrorPage"}</script></html>'), {
+        authenticatedInstagramLoader: t.mock.fn(async () => {
+            throw new Error('Melde dich im geöffneten Instagram-Fenster an und versuche es erneut.');
+        })
+    });
+
+    await assert.rejects(
+        importRecipe({ url: 'https://www.instagram.com/reel/DaC-aG0sbbE/', categories }, deps),
+        /Melde dich im geöffneten Instagram-Fenster.*Anonymer Abruf/
+    );
+});
+
+test('image recipe import falls back to an existing category if Gemini returns an unknown one', async t => {
+    const deps = dependencies(t, async (input, options) => {
         const request = JSON.parse(options.body);
         assert.deepEqual(request.generationConfig.responseSchema.properties.category.enum, categories);
         assert.match(request.contents[0].parts[0].text, /healthy ist true, wenn Zutaten und Zubereitung insgesamt eine kalorienärmere, zum Abnehmen geeignete Variante ergeben/i);
         assert.match(request.contents[0].parts[0].text, /erstelle einen passenden Namen anhand des Gerichts, der Zutaten und der Zubereitung/i);
-        return new Response(JSON.stringify({
-            candidates: [{ content: { parts: [{ text: JSON.stringify({
-                title: ' ',
-                category: 'Ungültig',
-                healthy: true,
-                ingredients: [{ name: 'Mehl' }, { name: 'Zucker' }],
-                steps: ['Mehl verrühren.']
-            }) }] } }]
-        }));
-    };
+        return recipeResponse({
+            title: ' ',
+            category: 'Ungültig',
+            healthy: true,
+            ingredients: [{ name: 'Mehl' }, { name: 'Zucker' }],
+            steps: ['Mehl verrühren.']
+        });
+    });
+    const image = `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`;
 
-    try {
-        const image = `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`;
-        const imported = await importRecipe({ image, categories });
-        assert.equal(imported.name, 'Rezept mit Mehl und Zucker');
-        assert.equal(imported.category, 'Salzig');
-        assert.equal(imported.healthy, true);
-        assert.equal(imported.images[0].src, image);
-    } finally {
-        globalThis.fetch = originalFetch;
-        if (originalApiKey === undefined) delete process.env.GEMINI_API_KEY;
-        else process.env.GEMINI_API_KEY = originalApiKey;
-    }
+    const imported = await importRecipe({ image, categories }, deps);
+    assert.equal(imported.name, 'Rezept mit Mehl und Zucker');
+    assert.equal(imported.category, 'Salzig');
+    assert.equal(imported.healthy, true);
+    assert.equal(imported.images[0].src, image);
 });

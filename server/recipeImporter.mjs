@@ -1,3 +1,6 @@
+import { fetchInstagramPost, isInstagramUrl } from './instagramImporter/index.mjs';
+import { extractVideoFrames } from './instagramImporter/videoFrameExtractor.mjs';
+
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 
@@ -79,6 +82,16 @@ function extractMetaImage(html) {
     return null;
 }
 
+function extractMetaContent(html, keys) {
+    const metaTags = html.match(/<meta\b[^>]*>/gi) || [];
+    for (const tag of metaTags) {
+        const attributes = parseHtmlAttributes(tag);
+        const key = (attributes.property || attributes.name || '').toLowerCase();
+        if (keys.includes(key) && attributes.content) return attributes.content;
+    }
+    return null;
+}
+
 function extractRecipeImage(recipe) {
     const images = Array.isArray(recipe?.image) ? recipe.image : [recipe?.image];
     for (const image of images) {
@@ -98,8 +111,8 @@ function resolveImageUrl(value, baseUrl) {
     }
 }
 
-async function downloadRecipeImage(imageUrl) {
-    const response = await fetch(imageUrl, { redirect: 'follow' });
+async function downloadRecipeImage(imageUrl, fetchImpl = fetch) {
+    const response = await fetchImpl(imageUrl, { redirect: 'follow' });
     if (!response.ok) throw new Error(`Bild nicht abrufbar (HTTP ${response.status}).`);
 
     const mimeType = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
@@ -160,8 +173,7 @@ function validateImageDataUrl(value) {
     return { mimeType: `image/${match[1]}`, data: match[2], dataUrl: value };
 }
 
-async function callGemini(parts, categories, fetchImpl = fetch) {
-    const apiKey = process.env.GEMINI_API_KEY;
+async function callGemini(parts, categories, fetchImpl = fetch, apiKey = process.env.GEMINI_API_KEY) {
     if (!apiKey) throw new Error('GEMINI_API_KEY fehlt. Lege ihn in der Datei .env im Projektordner ab oder setze ihn als Umgebungsvariable.');
     const response = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
         method: 'POST',
@@ -209,7 +221,9 @@ function normalizeRecipe(recipe, source, categories, imageDataUrl) {
 }
 
 /** Extrahiert einen kompatiblen Rezeptentwurf aus einer Rezept-URL oder einem Bild. */
-export async function importRecipe({ url, image, categories }) {
+export async function importRecipe({ url, image, categories }, dependencies = {}) {
+    const fetchImpl = dependencies.fetchImpl || fetch;
+    const apiKey = dependencies.apiKey ?? process.env.GEMINI_API_KEY;
     const validCategories = Array.isArray(categories) ? [...new Set(categories.filter(category => typeof category === 'string' && category.trim()).map(category => category.trim()))] : [];
     if (!validCategories.length) throw new Error('Für den Import wurden keine gültigen Rezeptkategorien gefunden.');
     if (url && image) throw new Error('Bitte importiere entweder eine URL oder ein Bild.');
@@ -218,23 +232,64 @@ export async function importRecipe({ url, image, categories }) {
         const recipe = await callGemini([
             { text: `Du bekommst ein Foto oder einen Screenshot eines Rezepts. Falls kein Rezeptname darauf steht oder er nicht lesbar ist, erstelle einen passenden Namen anhand des Gerichts, der Zutaten und der Zubereitung.\n${RULES}` },
             { inline_data: { mime_type: imageInput.mimeType, data: imageInput.data } }
-        ], validCategories);
+        ], validCategories, fetchImpl, apiKey);
         return normalizeRecipe(recipe, 'Importiert aus Bild', validCategories, imageInput.dataUrl);
     }
     if (!url) throw new Error('Bitte gib eine Rezept-URL an oder wähle ein Bild aus.');
     const source = validateUrl(url);
-    const response = await fetch(source, { redirect: 'follow', headers: { 'User-Agent': 'findYourDinner Recipe Importer', 'Accept-Language': 'de,en;q=0.8' } });
-    if (!response.ok) throw new Error(`Seite nicht abrufbar (HTTP ${response.status}).`);
-    const html = await response.text();
+    const isInstagram = isInstagramUrl(source);
+    let html;
+    let pageUrl = source;
+    let instagramPost = null;
+    if (isInstagram) {
+        instagramPost = await fetchInstagramPost(source, {
+            fetchImpl,
+            authenticatedLoader: dependencies.authenticatedInstagramLoader
+        });
+        html = instagramPost.html;
+        pageUrl = instagramPost.url || source;
+    } else {
+        const response = await fetchImpl(source, {
+            redirect: 'follow',
+            headers: { 'User-Agent': 'findYourDinner Recipe Importer', 'Accept-Language': 'de,en;q=0.8' }
+        });
+        if (!response.ok) throw new Error(`Seite nicht abrufbar (HTTP ${response.status}).`);
+        html = await response.text();
+        pageUrl = response.url || source;
+    }
     const jsonLdRecipe = extractJsonLdRecipe(html);
-    const content = jsonLdRecipe ? JSON.stringify(jsonLdRecipe) : htmlToText(html);
-    if (content.length < 100) throw new Error('Kein Rezeptinhalt auf der Seite gefunden.');
-    const recipe = await callGemini([{ text: `Du bekommst die Daten einer Rezeptseite. Ignoriere Werbung, Kommentare und Navigation.\n${RULES}\n\n${content}` }], validCategories);
+    const instagramContent = isInstagram
+        ? [
+            extractMetaContent(html, ['og:title', 'twitter:title']),
+            extractMetaContent(html, ['og:description', 'description', 'twitter:description']),
+            htmlToText(html)
+        ].filter(Boolean).join('\n')
+        : null;
+    const content = jsonLdRecipe ? JSON.stringify(jsonLdRecipe) : instagramContent || htmlToText(html);
+    if (content.length < 100 && !(isInstagram && instagramPost?.video)) {
+        if (isInstagram) throw new Error('Instagram stellt keine öffentlich lesbare Caption für diesen Beitrag bereit. Prüfe, ob der Beitrag öffentlich und noch verfügbar ist.');
+        throw new Error('Kein Rezeptinhalt auf der Seite gefunden.');
+    }
+    const parts = [{
+        text: `Du bekommst ${isInstagram ? 'die Caption und bis zu 24 chronologisch angeordnete Standbilder eines Instagram-Videos' : 'die Daten einer Rezeptseite'}. Lies alle eingeblendeten Zutaten, Mengen und Zubereitungsschritte genau ab. Erfasse auch Gewürze, Öle, Saucen und Toppings. Fasse über mehrere Bilder verteilte Zutatenlisten zusammen, übernimm keine Dopplungen und ordne Zubereitungsschritte anhand der Zeitstempel. Wenn eine Angabe nicht lesbar ist, lass sie offen statt sie zu erraten. Die Caption kann unvollständig sein; ergänze sie mit den Videobildern. Ignoriere Werbung, Kommentare und Navigation.\n${RULES}\n\n${content}`
+    }];
+    if (instagramPost?.video) {
+        const frameExtractor = dependencies.instagramVideoFrameExtractor || extractVideoFrames;
+        const frames = await frameExtractor(instagramPost.video);
+        if (!Array.isArray(frames) || !frames.length || frames.some(frame => frame.mimeType !== 'image/jpeg' || !frame.data)) {
+            throw new Error('Aus dem Instagram-Video konnten keine gültigen Bilder für die Rezeptanalyse erstellt werden.');
+        }
+        for (const frame of frames) {
+            parts.push({ text: `Videobild bei etwa ${frame.timestampSeconds} Sekunden:` });
+            parts.push({ inline_data: { mime_type: frame.mimeType, data: frame.data } });
+        }
+    }
+    const recipe = await callGemini(parts, validCategories, fetchImpl, apiKey);
     let imageDataUrl = null;
-    const imageUrl = resolveImageUrl(extractRecipeImage(jsonLdRecipe) || extractMetaImage(html), response.url || source);
+    const imageUrl = resolveImageUrl(extractRecipeImage(jsonLdRecipe) || extractMetaImage(html), pageUrl);
     if (imageUrl) {
         try {
-            imageDataUrl = await downloadRecipeImage(imageUrl);
+            imageDataUrl = await downloadRecipeImage(imageUrl, fetchImpl);
         } catch (error) {
             console.warn(`Webseitenbild konnte nicht importiert werden (${imageUrl}): ${error.message}`);
         }

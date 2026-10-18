@@ -3,7 +3,15 @@
 .editor-dialog { display: flex; flex-direction: column; width: min(1100px, 100%); height: min(850px, 94vh); overflow: hidden; background: #fff; border-radius: 18px; box-shadow: 0 20px 70px rgba(0,0,0,.3); }
 .editor-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 24px; border-bottom: 1px solid #e7e8ee; }
 .editor-header h2 { margin: 0 0 4px; color: #333; font-size: 1.4rem; }
-.editor-header p { color: #667; font-size: .9rem; }
+.editor-header p { margin: 0; color: #667; font-size: .9rem; }
+.editor-status { display: flex; align-items: flex-start; gap: 8px; max-width: 70ch; line-height: 1.45; overflow-wrap: anywhere; }
+.editor-status--loading { color: #4355b5 !important; }
+.editor-status--loading::before { width: 14px; height: 14px; flex: 0 0 14px; margin-top: 2px; border: 2px solid #d9defb; border-top-color: #4355b5; border-radius: 50%; content: ""; animation: editor-status-spin .75s linear infinite; }
+.editor-status--success { color: #246b3c !important; }
+.editor-status--error { padding: 6px 9px; border: 1px solid #efc5c5; border-radius: 7px; color: #922f2f !important; background: #fff3f3; }
+.editor-toolbar button:disabled, .editor-toolbar input:disabled { opacity: .6; cursor: wait; }
+@keyframes editor-status-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .editor-status--loading::before { animation-duration: 2s; } }
 .editor-close { min-width: 44px; padding: 8px; background: #f0f1f5; color: #333; }
 .editor-toolbar { display: flex; gap: 10px; padding: 14px 20px; border-bottom: 1px solid #e7e8ee; }
 .editor-toolbar input { flex: 1; min-width: 120px; padding: 10px 12px; border: 1px solid #ccd0dc; border-radius: 8px; font-size: 1rem; }

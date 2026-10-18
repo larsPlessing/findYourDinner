@@ -91,6 +91,75 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
     assert.match(status.textContent, /auf diesem Gerät gespeichert/i);
 });
 
+test('recipe import shows an accessible loading state and a clear server error', async () => {
+    const status = {
+        textContent: '',
+        attributes: {},
+        classes: new Set(),
+        classList: {
+            add(name) { status.classes.add(name); },
+            remove(...names) { names.forEach(name => status.classes.delete(name)); }
+        },
+        setAttribute(name, value) { status.attributes[name] = value; }
+    };
+    const importButtons = [{ disabled: false }, { disabled: false }];
+    const imageInput = { disabled: false, addEventListener() {} };
+    let rejectFetch;
+    const sandbox = {
+        window: { location: { hostname: 'localhost' } },
+        document: {
+            getElementById(id) {
+                if (id === 'editorSearch') return { addEventListener() {} };
+                if (id === 'editorSaveStatus') return status;
+                if (id === 'recipeImportImageInput') return imageInput;
+                throw new Error(`Unerwartetes Element: ${id}`);
+            },
+            querySelectorAll() { return importButtons; }
+        },
+        fetch() {
+            return new Promise((resolve, reject) => { rejectFetch = reject; });
+        }
+    };
+    vm.runInNewContext(editorSource, sandbox);
+
+    const importPromise = sandbox.importRecipe({ url: 'https://example.com/recipe' });
+    assert.match(status.textContent, /Rezeptseite wird geladen und analysiert/);
+    assert.equal(status.attributes['aria-busy'], 'true');
+    assert.equal(status.attributes.role, 'status');
+    assert.ok(status.classes.has('editor-status--loading'));
+    assert.deepEqual(importButtons.map(button => button.disabled), [true, true]);
+    assert.equal(imageInput.disabled, true);
+
+    rejectFetch(new TypeError('fetch failed'));
+    await importPromise;
+
+    assert.match(status.textContent, /lokale Importserver ist nicht erreichbar/i);
+    assert.equal(status.attributes['aria-busy'], 'false');
+    assert.equal(status.attributes.role, 'alert');
+    assert.ok(status.classes.has('editor-status--error'));
+    assert.deepEqual(importButtons.map(button => button.disabled), [false, false]);
+    assert.equal(imageInput.disabled, false);
+});
+
+test('Gemini API errors are translated into actionable German messages', () => {
+    const sandbox = {
+        document: {
+            getElementById(id) {
+                if (id === 'editorSearch') return { addEventListener() {} };
+                if (id === 'recipeImportImageInput') return null;
+                throw new Error(`Unerwartetes Element: ${id}`);
+            },
+            querySelectorAll() { return []; }
+        },
+        window: { location: { hostname: 'localhost' } }
+    };
+    vm.runInNewContext(editorSource, sandbox);
+
+    assert.match(sandbox.formatImportError(new Error('GEMINI_API_KEY fehlt.')), /API-Schlüssel fehlt/i);
+    assert.match(sandbox.formatImportError(new Error('Gemini API 429: {"error":{"message":"quota"}}')), /Kontingent ist vorübergehend ausgeschöpft/i);
+    assert.match(sandbox.formatImportError(new Error('Gemini API 400: {"error":{"message":"Ungültige Anfrage"}}')), /Ungültige Anfrage/);
+});
+
 test('deleting the last recipe saves the empty recipe list to the local server', async () => {
     const storage = {};
     let savedPayload;

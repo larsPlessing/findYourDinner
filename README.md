@@ -19,9 +19,16 @@ Ein mobiler Rezeptfinder mit Suche, Kategorien, Rezeptdetailseiten und einem Edi
 
 ## Lokal starten
 
-Voraussetzung ist Node.js 22.9 oder neuer. Zusätzliche npm-Pakete müssen nicht installiert werden.
+Voraussetzung ist Node.js 22.9 oder neuer.
 
-Der URL- und Bildimport ist nur lokal verfügbar. Lege den Gemini-Schlüssel in einer `.env`-Datei im Projekt-Hauptordner ab:
+Der URL- und Bildimport ist nur lokal verfügbar. Installiere zuerst die Abhängigkeiten und den Chromium-Browser für den Instagram-Import:
+
+```bash
+npm install
+npm run install:instagram-browser
+```
+
+Lege anschließend den Gemini-Schlüssel in einer `.env`-Datei im Projekt-Hauptordner ab:
 
 ```text
 GEMINI_API_KEY=dein_api_key
@@ -36,6 +43,7 @@ npm run serve
 Öffne anschließend <http://localhost:4004>. Der Server bindet nur an die lokale Loopback-Adresse.
 
 Die Schaltflächen zum Importieren per URL oder Bild erscheinen nur bei lokalem Aufruf über `localhost`.
+Bei Instagram versucht der Import zuerst den öffentlichen Abruf. Falls Instagram die Daten nicht öffentlich bereitstellt, öffnet sich ein lokales Browserfenster. Melde dich dort beim ersten Import einmalig an und bestätige bei Bedarf den Cookie-Hinweis. Die Sitzung bleibt im lokalen Benutzerprofil auf diesem Gerät; Cookies werden weder ausgelesen noch an Gemini gesendet. Videos bis 20 MB werden lokal mit FFmpeg in bis zu 24 zeitlich verteilte Standbilder umgewandelt. Caption und Standbilder werden an Gemini gesendet, damit Gemini eingeblendete Zutaten und Zubereitungsschritte analysiert; eine lokale Bilderkennung findet nicht statt. Private oder gelöschte Beiträge bleiben unzugänglich. Die lokale Browser-Sitzung wird unter `%LOCALAPPDATA%\find-your-dinner\instagram-session` gespeichert.
 
 Beim Speichern im Editor schreibt der lokale Server die Rezeptdaten direkt nach `recipes.json` und neue Bilder nach `images/recipes/`. In der JSON-Datei werden die Bilder mit relativen Pfaden wie `images/recipes/rezept-12-1.jpg` referenziert. Der Browser-Editor sendet die Änderungen an die lokale Speicher-API in [server.mjs](./server.mjs).
 
@@ -84,6 +92,14 @@ findYourDinner/
 ├── index.html                    # Rezeptübersicht und Editor
 ├── recipes.json                  # Rezeptdaten
 ├── server.mjs                    # Lokaler statischer Server und Schreib-API
+├── server/
+│   ├── instagramImporter/         # Getrennter Instagram-Abruf und Videoverarbeitung
+│   │   ├── index.mjs              # Öffentlicher Abruf und Fallback-Orchestrierung
+│   │   ├── browserSession.mjs     # Persistente lokale Instagram-Sitzung
+│   │   ├── postUtils.mjs          # URL- und HTML-Hilfsfunktionen
+│   │   ├── videoDownloader.mjs    # Validierter Video-Download
+│   │   └── videoFrameExtractor.mjs # Lokale FFmpeg-Frames für Gemini
+│   └── recipeImporter.mjs         # URL-, Bild- und Rezeptimport
 ├── css/
 │   ├── main.css                  # Basisstile
 │   ├── pinterest.css             # Rezeptübersicht

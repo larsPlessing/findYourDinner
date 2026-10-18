@@ -5070,6 +5070,131 @@
       "isPlaceholder": false,
       "id": 61,
       "healthy": false
+    },
+    {
+      "name": "Asia-Udon-Salat mit Mango, Edamame & Chiliöl-Joghurt",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": null,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "Packung",
+          "product": "Udon-Nudeln",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "gute Hand",
+          "product": "Chinakohl, fein geschnitten",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "",
+          "product": "Gurke, in feine Streifen geschnitten",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Karotte, in feine Streifen geschnitten",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "",
+          "product": "Mango, in Streifen geschnitten",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "gute Hand",
+          "product": "Edamame",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Lauchzwiebeln, in feine Ringe geschnitten",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Sesam",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Joghurt",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Chiliöl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Schuss",
+          "product": "Sojasauce",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Schuss",
+          "product": "Ahornsirup",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Udon-Nudeln nach Packungsanweisung kochen, abgießen und abkühlen lassen."
+        },
+        {
+          "step": 2,
+          "text": "Die abgekühlten Nudeln mit Chinakohl, Gurke, Karotte, Mango, Edamame und Lauchzwiebeln in eine große Schüssel geben."
+        },
+        {
+          "step": 3,
+          "text": "Sesam darüberstreuen."
+        },
+        {
+          "step": 4,
+          "text": "Für das Dressing Joghurt mit Chiliöl, Sojasauce, Ahornsirup und Salz verrühren."
+        },
+        {
+          "step": 5,
+          "text": "Das Dressing über den Salat geben, alles gut vermengen und direkt servieren."
+        }
+      ],
+      "notes": [
+        "https://www.instagram.com/reel/DaC-aG0sbbE/?obrf=MTF0NHZieHpkbWJ2eA%3D%3D",
+        "Wenn Udon-Nudeln auf crunchy Gemüse, süße Mango und ein schnelles Chiliöl-Dressing treffen, bin ich sofort dabei. Geht super schnell, ist richtig frisch und genau die Art von Salat, die man im Sommer ständig essen kann."
+      ],
+      "tags": [
+        "Udon",
+        "Salat",
+        "Asiatisch",
+        "Sommergericht"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/asia-udon-salat-mit-mango-edamame-chiliol-jog-62-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 62
     }
   ]
 }

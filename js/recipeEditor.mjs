@@ -25,32 +25,107 @@ async function importRecipeFromUrl() {
 async function importRecipeFromImage(file) {
     if (!file) return;
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        document.getElementById('editorSaveStatus').textContent = 'Bitte wähle ein JPEG-, PNG- oder WebP-Bild aus.';
+        setImportStatus('error', 'Bitte wähle ein JPEG-, PNG- oder WebP-Bild aus.');
         return;
     }
-    await importRecipe({ image: await compressRecipeImage(file) });
+    await importRecipe({ imageFile: file });
 }
 
 async function importRecipe(payload) {
     const status = document.getElementById('editorSaveStatus');
+    const controls = getImportControls();
+    setImportControlsDisabled(controls, true);
     try {
-        status.textContent = 'Rezept wird importiert …';
+        if (payload.imageFile) {
+            setImportStatus('loading', 'Bild wird vorbereitet …');
+            payload = { image: await compressRecipeImage(payload.imageFile) };
+        }
+        const isInstagramUrl = typeof payload.url === 'string' && /^https?:\/\/(?:www\.)?instagram\.com\//i.test(payload.url);
+        setImportStatus('loading', payload.url
+            ? isInstagramUrl
+                ? 'Instagram-Reel wird geprüft … Falls sich ein Browserfenster öffnet, melde dich dort an und bestätige gegebenenfalls den Cookie-Hinweis.'
+                : 'Rezeptseite wird geladen und analysiert …'
+            : 'Rezept wird mit Gemini analysiert …');
         const response = await fetch('/api/import-recipe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        const result = await response.json();
+        let result;
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error(response.ok
+                ? 'Der Importserver hat eine ungültige Antwort gesendet.'
+                : `Der Importserver antwortet mit HTTP ${response.status}.`);
+        }
         if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
         const id = Math.max(-1, ...generator.recipes.map(recipe => Number(recipe.id) || 0)) + 1;
         generator.recipes.push({ ...result.recipe, id });
         editingRecipeIndex = generator.recipes.length - 1;
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
-        status.textContent = 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.';
+        setImportStatus('success', 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.');
     } catch (error) {
-        status.textContent = `Import fehlgeschlagen: ${error.message}`;
+        setImportStatus('error', formatImportError(error));
+    } finally {
+        setImportControlsDisabled(controls, false);
     }
+}
+
+function getImportControls() {
+    const controls = Array.from(document.querySelectorAll('[data-local-recipe-import]'));
+    const imageInput = document.getElementById('recipeImportImageInput');
+    if (imageInput) controls.push(imageInput);
+    return controls;
+}
+
+function setImportControlsDisabled(controls, disabled) {
+    controls.forEach(control => { control.disabled = disabled; });
+}
+
+function setImportStatus(state, message) {
+    const status = document.getElementById('editorSaveStatus');
+    status.textContent = message;
+    status.classList.remove('editor-status--loading', 'editor-status--success', 'editor-status--error');
+    if (state) status.classList.add(`editor-status--${state}`);
+    status.setAttribute('aria-busy', String(state === 'loading'));
+    status.setAttribute('role', state === 'error' ? 'alert' : 'status');
+    status.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
+}
+
+function formatImportError(error) {
+    const message = typeof error?.message === 'string' && error.message.trim()
+        ? error.message.trim()
+        : 'Unbekannter Fehler.';
+    if (/failed to fetch|fetch failed|networkerror|load failed/i.test(message)) {
+        return 'Der lokale Importserver ist nicht erreichbar. Starte ihn mit „npm run serve“ und öffne die App über http://localhost:4004.';
+    }
+    if (/GEMINI_API_KEY fehlt/i.test(message)) {
+        return 'Der Gemini-API-Schlüssel fehlt. Trage GEMINI_API_KEY in die lokale .env-Datei ein und starte den Server neu.';
+    }
+
+    const apiError = message.match(/Gemini API (\d+):\s*([\s\S]*)/i);
+    if (!apiError) return `Import fehlgeschlagen: ${message}`;
+    let details = apiError[2].trim();
+    try {
+        const parsed = JSON.parse(details);
+        details = parsed.error?.message || details;
+    } catch {
+        details = details.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    const statusCode = Number(apiError[1]);
+    if (statusCode === 401 || statusCode === 403) {
+        return 'Gemini hat den API-Schlüssel abgelehnt. Prüfe GEMINI_API_KEY in der .env-Datei und starte den Server neu.';
+    }
+    if (statusCode === 429) {
+        return 'Das Gemini-Kontingent ist vorübergehend ausgeschöpft. Prüfe dein API-Kontingent und versuche es später erneut.';
+    }
+    if (statusCode === 404) {
+        return `Das konfigurierte Gemini-Modell ist nicht verfügbar. Prüfe GEMINI_MODEL in der .env-Datei.${details ? ` ${details}` : ''}`;
+    }
+    return `Gemini-Import fehlgeschlagen (HTTP ${statusCode}).${details ? ` ${details}` : ''}`;
 }
 
 function renderEditorRecipeList() {
