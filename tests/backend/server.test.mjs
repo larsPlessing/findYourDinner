@@ -45,6 +45,47 @@ test('localhost save API writes image files and recipes.json into the project', 
     });
 });
 
+test('localhost save API keeps existing images when a new image is moved to the front', async t => {
+    const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+    const server = createServer({ rootDirectory: projectDirectory });
+    t.after(async () => {
+        await new Promise(resolve => server.close(resolve));
+        fs.rmSync(projectDirectory, { recursive: true, force: true });
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const headers = { 'Content-Type': 'application/json', Origin: baseUrl };
+    const originalBytes = Buffer.from('original-image');
+    const coverBytes = Buffer.from('new-cover-image');
+    const toDataUrl = bytes => `data:image/jpeg;base64,${bytes.toString('base64')}`;
+
+    const first = await fetch(`${baseUrl}/api/save-recipes`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ version: 1, recipes: [{ id: 7, name: 'Apfel Kuchen', images: [{ src: toDataUrl(originalBytes) }] }] })
+    });
+    assert.equal(first.status, 200);
+    const storedImagePath = (await first.json()).recipes[0].images[0].src;
+    assert.equal(storedImagePath, 'images/recipes/apfel-kuchen-7-1.jpg');
+
+    // Neue Aufnahme als Titelbild nach vorne sortieren und das bestehende Bild erhalten.
+    const second = await fetch(`${baseUrl}/api/save-recipes`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+            version: 1,
+            recipes: [{ id: 7, name: 'Apfel Kuchen', images: [{ src: toDataUrl(coverBytes) }, { src: storedImagePath }] }]
+        })
+    });
+    assert.equal(second.status, 200);
+    const images = (await second.json()).recipes[0].images;
+    assert.notEqual(images[0].src, storedImagePath, 'the new cover image must not reuse the existing file name');
+    assert.equal(images[1].src, storedImagePath, 'the existing image keeps its file');
+    assert.deepEqual(fs.readFileSync(path.join(projectDirectory, images[0].src)), coverBytes);
+    assert.deepEqual(fs.readFileSync(path.join(projectDirectory, images[1].src)), originalBytes, 'the existing image file must not be overwritten');
+});
+
 test('localhost save API rejects cross-origin, missing-origin and non-JSON requests', async t => {
     const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
     const server = createServer({ rootDirectory: projectDirectory });

@@ -212,27 +212,6 @@
       "healthy": true
     },
     {
-      "id": 2,
-      "name": "Asiapfanne (Mie Nudeln in Erdnussoße)",
-      "category": "Salzig",
-      "hasImage": false,
-      "imageCount": 0,
-      "isPlaceholder": true,
-      "servings": null,
-      "ingredients": [],
-      "instructions": [
-        {
-          "step": 1,
-          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
-        }
-      ],
-      "notes": [],
-      "createdDate": null,
-      "modifiedDate": null,
-      "images": [],
-      "healthy": false
-    },
-    {
       "id": 3,
       "name": "BBQ & Pulled Pork Burger",
       "category": "Salzig",
@@ -630,19 +609,19 @@
           "text": "geschmolzene Butter drauf streichen"
         },
         {
-          "step": 14,
+          "step": 13,
           "text": "Sauce:"
         },
         {
-          "step": 15,
+          "step": 14,
           "text": "Zwiebeln schälen, in feine Würfel schneiden, in ein Feinsieb geben und mit 0,5l kochendem Wasser übergießen."
         },
         {
-          "step": 16,
+          "step": 15,
           "text": "Gurken in sehr feine Würfel schneiden"
         },
         {
-          "step": 17,
+          "step": 16,
           "text": "Alle Zutaten miteinander verrühren und gut abschmecken."
         }
       ],
@@ -654,10 +633,10 @@
       "modifiedDate": 46086,
       "images": [
         {
-          "src": "images/recipes/recipe-4-1.png"
+          "src": "images/recipes/recipe-4-2.png"
         },
         {
-          "src": "images/recipes/recipe-4-2.png"
+          "src": "images/recipes/recipe-4-1.png"
         }
       ],
       "healthy": false
@@ -3230,15 +3209,15 @@
           "text": "Würzen"
         },
         {
-          "step": 8,
+          "step": 7,
           "text": "Dill, Petersillie, Koreander, Knoblauchzehe, Quark und Salz in Mixer"
         },
         {
-          "step": 9,
-          "text": "eventuell nachsalzen und Zitrone/ Limette dazu "
+          "step": 8,
+          "text": "eventuell nachsalzen und Zitrone/ Limette dazu"
         },
         {
-          "step": 10,
+          "step": 9,
           "text": "nochmal mixen"
         }
       ],
@@ -3249,10 +3228,10 @@
       "modifiedDate": 46086,
       "images": [
         {
-          "src": "images/recipes/recipe-38-1.png"
+          "src": "images/recipes/recipe-38-2.png"
         },
         {
-          "src": "images/recipes/recipe-38-2.png"
+          "src": "images/recipes/recipe-38-1.png"
         }
       ],
       "healthy": true
@@ -6811,14 +6790,473 @@
       ],
       "images": [
         {
-          "src": "images/recipes/schnelles-paprikahuhn-82-1.jpg"
+          "src": "images/recipes/schnelles-paprikahuhn-82-2.jpg"
         },
         {
-          "src": "images/recipes/schnelles-paprikahuhn-82-2.jpg"
+          "src": "images/recipes/schnelles-paprikahuhn-82-1.jpg"
         }
       ],
       "isPlaceholder": false,
       "id": 82
+    },
+    {
+      "name": "Spätzle! ... oder Käsespätzle",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 1,
+      "ingredients": [
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Ei (Größe M)",
+          "note": ""
+        },
+        {
+          "amount": "40-75",
+          "unit": "ml",
+          "product": "Wasser oder Milch",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "geriebene Muskatnuss (optional)",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Käse nach Wahl (z. B. 50:50 Bergkäse und schnittfester Mozzarella bzw. Rässkäse)",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Butter oder Butterschmalz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Röstzwiebeln",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Zutaten für den Teig mischen und kräftig schlagen, bis er Blasen wirft. Mit etwa 40 ml Wasser oder Milch beginnen und bei Bedarf mehr hinzufügen, bis die Konsistenz passt. Den Teig 15 Minuten ruhen lassen und währenddessen Salzwasser zum Kochen bringen."
+        },
+        {
+          "step": 2,
+          "text": "Ein Holzbrett, eine Spätzlepresse, einen Spätzlehobel oder ein anderes Gerät verwenden und die Spätzle in das kochende Wasser schaben bzw. pressen. Sobald sie an der Oberfläche schwimmen, sind sie fertig und können abgeschöpft werden."
+        },
+        {
+          "step": 3,
+          "text": "Für Käsespätzle entweder den Käse und die Spätzle bei moderater Hitze in einer Pfanne mit etwas Butter oder Butterschmalz schwenken, bis der Käse schmilzt und Fäden zieht, oder die heißen Spätzle mit dem Käse abwechselnd in einer Schüssel schichten."
+        },
+        {
+          "step": 4,
+          "text": "Die Käsespätzle mit Röstzwiebeln garnieren und servieren."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Ein interessanter Zugang zum Thema Spätzle: Spätzle lassen sich auch hervorragend als Pasta verwenden oder als herzhafter Klassiker wie Käsespätzle zubereiten.",
+        "Vorbereitung: 30 Min."
+      ],
+      "tags": [
+        "Spätzle",
+        "Käsespätzle",
+        "Schwäbisch",
+        "Vegetarisch",
+        "Hausmannskost"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/spatzle-oder-kasespatzle-83-1.jpg"
+        },
+        {
+          "src": "images/recipes/spatzle-oder-kasespatzle-83-2.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 83
+    },
+    {
+      "name": "Hotdog Buns",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 6,
+      "ingredients": [
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Mehl (Type 550 / W700 glatt)",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "warme Milch",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Stück",
+          "product": "Ei (Größe L)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Pck.",
+          "product": "Trockenhefe (oder 1/2 Würfel frische Hefe / 21 g)",
+          "note": ""
+        },
+        {
+          "amount": "3/4",
+          "unit": "EL",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Zucker",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "zimmerwarme Butter",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Backmalz (optional)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Stück",
+          "product": "Ei (Größe S) zum Bestreichen",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Frankfurter Würstchen",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "dänischer Senf",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "dänischer Gurkensalat",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "dänische Remoulade",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Ketchup",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Röstzwiebeln",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Zutaten für den Teig mit dem Knethaken für ca. 7–10 Minuten in einer Küchenmaschine kneten (alternativ von Hand). Der Teig sollte geschmeidig sein."
+        },
+        {
+          "step": 2,
+          "text": "Den Teig an einem warmen Ort gehen lassen, bis er sich in der Größe fast verdoppelt hat."
+        },
+        {
+          "step": 3,
+          "text": "Den Teig auf eine bemehlte Oberfläche geben, etwas durchkneten, 90–110 g schwere Teigkugeln formen und diese für ca. 15 Minuten abgedeckt ruhen lassen."
+        },
+        {
+          "step": 4,
+          "text": "Die Teigkugeln ausrollen und längliche Brötchen formen."
+        },
+        {
+          "step": 5,
+          "text": "Die Brötchen abgedeckt auf einem mit Backpapier ausgelegten Backblech ruhen lassen, bis sie etwa um ein Viertel größer geworden sind. Den Ofen auf 180 °C (Umluft) vorheizen."
+        },
+        {
+          "step": 6,
+          "text": "Mit einem verquirlten Ei bestreichen und für 15–17 Minuten im heißen Ofen (Mitte) backen."
+        },
+        {
+          "step": 7,
+          "text": "Nach Belieben belegen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Die wirtschaftliche & einfache Variante. Dänische Hotdogs sind eine kulinarische Erleuchtung. Wie ihr eure Hotdogs belegt, ist ganz euch überlassen.",
+        "Vorbereitung: 2 Std.",
+        "Kochzeit: 15-17 Min."
+      ],
+      "tags": [
+        "Hotdogs",
+        "Backen",
+        "Brötchen",
+        "Fast Food"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/hotdog-buns-84-1-1.jpg"
+        },
+        {
+          "src": "images/recipes/hotdog-buns-84-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 84
+    },
+    {
+      "name": "Champignon-Spaghetti mit Grünkohl und Parmesan",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Spaghetti",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Champignons",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Grünkohl",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Butter",
+          "note": ""
+        },
+        {
+          "amount": 75,
+          "unit": "g",
+          "product": "Parmesan, gerieben",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "Prise",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 6,
+          "unit": "Prise",
+          "product": "Just Spices Kohl Allrounder",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "In einem Topf reichlich Salzwasser zum Kochen bringen und die Spaghetti nach Packungsanleitung al dente kochen und abgießen. Dabei 200 ml Kochwasser auffangen."
+        },
+        {
+          "step": 2,
+          "text": "Die Champignons putzen und in ca. 0,2 cm dicke Scheiben schneiden. Den Grünkohl waschen und in feine Streifen schneiden. Den Knoblauch schälen und fein schneiden."
+        },
+        {
+          "step": 3,
+          "text": "Die Butter in einer Pfanne erhitzen und die Pilze bei mittlerer Hitze ca. 5 Minuten anbraten. Den Knoblauch und den Grünkohl hinzugeben, mit dem Kohl Allrounder und dem Salz würzen und weitere 2 Minuten anbraten. Mit dem Kochwasser ablöschen und ca. 3 Minuten köcheln lassen."
+        },
+        {
+          "step": 4,
+          "text": "Die Spaghetti hinzugeben, gut vermengen und für weitere 2 Minuten köcheln lassen. Die Pasta mit dem Parmesan garnieren und servieren."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Überzeuge Dich selbst von der aromatischen Vielfalt des Wintergemüses – mit unserem Kohl Allrounder bringst Du die natürliche Frische so richtig zum Vorschein. Mit dem Zusammenspiel aus Grünkohl, Champignons und kräftigem Parmesan steht Deinem Pastaglück dann nichts mehr im Weg!",
+        "Vorbereitung: 25 Min."
+      ],
+      "tags": [
+        "Pasta",
+        "Spaghetti",
+        "Grünkohl",
+        "Champignons",
+        "Vegetarisch"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/champignon-spaghetti-mit-grunkohl-und-parmesa-85-1-1.jpg"
+        },
+        {
+          "src": "images/recipes/champignon-spaghetti-mit-grunkohl-und-parmesa-85-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 85
+    },
+    {
+      "name": "One-Pot-Hummus-Pasta mit Kichererbsen",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 6,
+      "ingredients": [
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "getrocknete Tomaten, in Öl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Dose",
+          "product": "Kichererbsen (Dose à 400 g)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Bund",
+          "product": "Petersilie",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Olivenöl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "l",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": 350,
+          "unit": "g",
+          "product": "Hummus",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Haselnusskerne",
+          "note": ""
+        },
+        {
+          "amount": 500,
+          "unit": "g",
+          "product": "Trofie, oder kurze, dünne Pasta nach Wahl",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "TL",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Just Spices Knoblauchpfeffer",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die getrockneten Tomaten in ca. 0,5 cm breite Streifen schneiden. Die Kichererbsen durch ein Sieb abgießen, abbrausen und abtropfen lassen. Die Petersilie waschen und grob schneiden. Den Knoblauch und die Zwiebel schälen und fein würfeln."
+        },
+        {
+          "step": 2,
+          "text": "Das Olivenöl in einem großen Topf erhitzen und Knoblauch- und Zwiebelwürfel ca. 3 Minuten glasig anschwitzen. Mit dem Wasser auffüllen, das Salz und den Knoblauchpfeffer hinzugeben und aufkochen lassen. 250 g Hummus, die Haselnüsse, getrocknete Tomaten, Kichererbsen und die Pasta hinzugeben und bei mittlerer Hitze ca. 20 Minuten köcheln lassen."
+        },
+        {
+          "step": 3,
+          "text": "Am Ende der Garzeit ca. ¾ der Petersilie hinzufügen. Die Pasta auf 6 Teller verteilen und mit je 1 EL Hummus und etwas Petersilie garnieren."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Hummus-Lover aufgepasst: Es wird Zeit für einen orientalischen Gaumenschmaus! Unsere cremige Hummus-Pasta kommt nicht nur komplett ohne tierische Produkte aus, sondern wird auch ausschließlich in einem einzigen Topf zubereitet. Das heißt: Weniger Geschirr zum Abspülen und mehr Zeit zum Entspannen und Genießen!",
+        "Vorbereitung: 12 Min.",
+        "Kochzeit: 23 Min."
+      ],
+      "tags": [
+        "One-Pot",
+        "Pasta",
+        "Vegan",
+        "Hummus",
+        "Hauptgericht"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/one-pot-hummus-pasta-mit-kichererbsen-86-1-1.jpg"
+        },
+        {
+          "src": "images/recipes/one-pot-hummus-pasta-mit-kichererbsen-86-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 86
     }
   ]
 }

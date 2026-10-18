@@ -203,6 +203,15 @@ function createServer(options = {}) {
 
                 const imageDirectory = path.join(root, 'images', 'recipes');
                 fs.mkdirSync(imageDirectory, { recursive: true });
+                // Von bereits gespeicherten Bildern belegte Dateinamen dürfen nicht von
+                // neu geschriebenen Bildern überschrieben werden (z. B. nach Umsortieren).
+                const reservedImageFiles = new Set();
+                for (const recipe of payload.recipes) {
+                    for (const image of Array.isArray(recipe?.images) ? recipe.images : []) {
+                        const match = typeof image?.src === 'string' ? image.src.match(/^images\/recipes\/([^/\\]+)$/) : null;
+                        if (match) reservedImageFiles.add(match[1]);
+                    }
+                }
                 let savedImages = 0;
                 payload.recipes.forEach((recipe, recipeIndex) => {
                     if (!recipe || typeof recipe !== 'object' || Array.isArray(recipe)) throw new Error(`Rezept ${recipeIndex + 1} ist ungültig.`);
@@ -216,7 +225,12 @@ function createServer(options = {}) {
                         if (!bytes.length || bytes.length > 15 * 1024 * 1024) throw new Error('Ein Bild ist leer oder größer als 15 MB.');
                         const extension = match[1] === 'jpeg' ? 'jpg' : match[1];
                         const id = String(recipe.id ?? recipeIndex).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30) || String(recipeIndex);
-                        const filename = `${safeSlug(recipe.name)}-${id}-${imageIndex + 1}.${extension}`;
+                        const baseName = `${safeSlug(recipe.name)}-${id}-${imageIndex + 1}`;
+                        let filename = `${baseName}.${extension}`;
+                        for (let suffix = 1; reservedImageFiles.has(filename); suffix++) {
+                            filename = `${baseName}-${suffix}.${extension}`;
+                        }
+                        reservedImageFiles.add(filename);
                         fs.writeFileSync(path.join(imageDirectory, filename), bytes);
                         image.src = `images/recipes/${filename}`;
                         savedImages++;
