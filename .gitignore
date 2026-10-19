@@ -9,6 +9,11 @@ recipes.json
 /server/**
 !/server/**/
 !/server/**/*.enc
+/scripts/**
+!/scripts/**/
+!/scripts/**/*.enc
+!/scripts/encrypt-recipe-data.mjs
+!/scripts/decrypt-recipe-data.mjs
 /images/recipes/**
 !/images/recipes/**/
 !/images/recipes/**/*.enc

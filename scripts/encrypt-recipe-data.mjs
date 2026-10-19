@@ -171,7 +171,12 @@ async function listMediaFiles(directory, relativeDirectory = '') {
     return files;
 }
 
-async function listDocumentFiles(root, directory = 'server', relativeDirectory = '') {
+const plaintextBootstrapScripts = new Set([
+    'scripts/encrypt-recipe-data.mjs',
+    'scripts/decrypt-recipe-data.mjs'
+]);
+
+async function listDocumentFiles(root, directory, relativeDirectory = '') {
     let entries;
     try {
         entries = await fs.readdir(path.join(root, directory, relativeDirectory), { withFileTypes: true });
@@ -184,7 +189,10 @@ async function listDocumentFiles(root, directory = 'server', relativeDirectory =
         if (entry.name.startsWith('.')) continue;
         const relativePath = path.posix.join(relativeDirectory.replaceAll(path.sep, '/'), entry.name);
         if (entry.isDirectory()) files.push(...await listDocumentFiles(root, directory, relativePath));
-        else if (entry.isFile() && !entry.name.endsWith('.enc')) files.push(path.posix.join(directory, relativePath));
+        else if (entry.isFile() && !entry.name.endsWith('.enc')) {
+            const filename = path.posix.join(directory, relativePath);
+            if (!plaintextBootstrapScripts.has(filename)) files.push(filename);
+        }
     }
     return files;
 }
@@ -375,7 +383,8 @@ async function main() {
         } catch (error) {
             if (error.code !== 'ENOENT') throw error;
         }
-        documentFiles.push(...await listDocumentFiles(rootDirectory));
+        documentFiles.push(...await listDocumentFiles(rootDirectory, 'server'));
+        documentFiles.push(...await listDocumentFiles(rootDirectory, 'scripts'));
         result = await migrateRecipeData({
             passphrase: first,
             deletePlaintext,
