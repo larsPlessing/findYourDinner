@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pipeline } from 'node:stream';
 import { fileURLToPath } from 'node:url';
-import { importRecipe } from './server/recipeImporter.mjs';
+import { importRecipe } from './server/contentImporter.mjs';
 
 const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 const host = '127.0.0.1';

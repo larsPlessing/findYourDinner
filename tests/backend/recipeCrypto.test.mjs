@@ -276,7 +276,7 @@ test('local restore decrypts recipe data, media and docs without changing cipher
 test('encrypt and decrypt restore a server file byte-for-byte', async t => {
     const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-roundtrip-'));
     t.after(() => rm(root, { recursive: true, force: true }));
-    const relativeFile = 'server/instagramImporter/browserSession.mjs';
+    const relativeFile = 'server/mediaSource/sessionClient.mjs';
     const sourcePath = path.join(root, ...relativeFile.split('/'));
     const originalContent = 'export const testValue = "verschlüsselt";\n';
     await mkdir(path.dirname(sourcePath), { recursive: true });
@@ -299,8 +299,8 @@ test('encrypt and decrypt handle nested server files and documentation together'
     const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-nested-'));
     t.after(() => rm(root, { recursive: true, force: true }));
     const files = {
-        'server/recipeImporter.mjs': 'export const importer = true;\n',
-        'server/instagramImporter/postUtils.mjs': 'export const postUtils = true;\n',
+        'server/contentImporter.mjs': 'export const importer = true;\n',
+        'server/mediaSource/sourceUtils.mjs': 'export const postUtils = true;\n',
         'AGENTS.md': '# Private instructions\n'
     };
     await writeFile(path.join(root, 'recipes.json'), JSON.stringify({ version: 1, recipes: [] }));

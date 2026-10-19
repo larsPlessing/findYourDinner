@@ -26,7 +26,7 @@ function runFfmpeg(args) {
 }
 
 test('extracts chronologically distributed JPEG frames from video for Gemini', async () => {
-    const { extractVideoFrames } = await import('../../server/instagramImporter/videoFrameExtractor.mjs');
+    const { extractVideoFrames } = await import('../../server/mediaSource/frameExtractor.mjs');
     const temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), 'find-dinner-video-test-'));
     const videoPath = path.join(temporaryDirectory, 'sample.mp4');
 

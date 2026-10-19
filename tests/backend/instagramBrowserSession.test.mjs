@@ -4,10 +4,10 @@ const require = createRequire(import.meta.url);
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
 
-const { downloadBrowserVideo, readInstagramPageSnapshot } = await import('../../server/instagramImporter/browserSession.mjs');
-const { downloadAuthenticatedVideo, downloadPublicVideo } = await import('../../server/instagramImporter/videoDownloader.mjs');
-const { fetchInstagramPost } = await import('../../server/instagramImporter/index.mjs');
-const { getInstagramEmbedUrl, getInstagramVideoUrl } = await import('../../server/instagramImporter/postUtils.mjs');
+const { downloadBrowserVideo, readInstagramPageSnapshot } = await import('../../server/mediaSource/sessionClient.mjs');
+const { downloadAuthenticatedVideo, downloadPublicVideo } = await import('../../server/mediaSource/mediaDownloader.mjs');
+const { fetchInstagramPost } = await import('../../server/mediaSource/sourceClient.mjs');
+const { getInstagramEmbedUrl, getInstagramVideoUrl } = await import('../../server/mediaSource/sourceUtils.mjs');
 
 function createContextStub() {
     return {

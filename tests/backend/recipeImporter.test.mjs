@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createPinnedRequestOptions, importRecipe } from '../../server/recipeImporter.mjs';
+import { createPinnedRequestOptions, importRecipe } from '../../server/contentImporter.mjs';
 
 const categories = ['Salzig', 'Süß'];
 const testApiKey = 'test-key';
