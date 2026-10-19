@@ -8,8 +8,8 @@ const path = require('node:path');
 
 const projectRoot = path.resolve(__dirname, '../../..');
 const pages = [
-    { name: 'homepage', file: 'index.html' },
-    { name: 'recipe detail page', file: 'pages/recipe-detail.html' }
+    { name: 'homepage', file: 'index.html', stylesheet: 'css/index.css' },
+    { name: 'recipe detail page', file: 'pages/recipe-detail.html', stylesheet: '../css/recipe-detail.css' }
 ];
 
 function stripCssComments(css) {
@@ -54,6 +54,25 @@ test.describe('page stylesheet integrity', () => {
 
         for (const [cssPath, css] of stylesheets) {
             assert.equal(countBraces(css), 0, `${path.relative(projectRoot, cssPath)} should close every CSS block`);
+        }
+    });
+});
+
+test.describe('stylesheets live in the css folder', () => {
+    test('pages carry no inline styles or style attributes', () => {
+        for (const page of pages) {
+            const html = fs.readFileSync(path.join(projectRoot, page.file), 'utf8');
+
+            assert.doesNotMatch(html, /<style[\s>]/i, `${page.name} should not contain an inline <style> block`);
+            assert.doesNotMatch(html, /\sstyle=["']/i, `${page.name} should not contain style attributes`);
+        }
+    });
+
+    test('each page links its own page stylesheet', () => {
+        for (const page of pages) {
+            const html = fs.readFileSync(path.join(projectRoot, page.file), 'utf8');
+
+            assert.ok(html.includes(`href="${page.stylesheet}"`), `${page.name} should link ${page.stylesheet}`);
         }
     });
 });

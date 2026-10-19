@@ -194,3 +194,9 @@ button:disabled {
         margin-bottom: 20px;
     }
 }
+
+/* Utility: anfänglich ausgeblendete Elemente (ersetzt style="display: none" aus dem HTML). */
+/* Höhere Spezifität als .klassen-basierte display-Regeln, Inline-Style aus JS gewinnt weiterhin. */
+html .is-hidden {
+    display: none;
+}
