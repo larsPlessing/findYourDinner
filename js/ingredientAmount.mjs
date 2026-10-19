@@ -41,7 +41,9 @@ function formatIngredientAmount(value) {
 function scaleIngredientAmount(value, scaleFactor) {
     const amount = parseIngredientAmount(value);
     if (amount === null) {
-        const range = typeof value === 'string' ? value.trim().match(/^(\d+(?:[.,]\d+)?)\s*-\s*(\d+(?:[.,]\d+)?)$/) : null;
+        const range = typeof value === 'string'
+            ? value.trim().match(/^(.+?)\s*[-–—]\s*(.+)$/u)
+            : null;
         if (!range) return value;
         const lower = parseIngredientAmount(range[1]);
         const upper = parseIngredientAmount(range[2]);

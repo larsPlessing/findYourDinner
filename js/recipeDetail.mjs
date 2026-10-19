@@ -34,6 +34,7 @@ let ingredientSectionWasVisible = false;
 let wakeLock = null;
 let wakeLockSupported = 'wakeLock' in navigator;
 let wakeLockRequested = false;
+let wakeLockRequestToken = 0;
 
 window.addEventListener('load', async () => {
     try {
@@ -611,11 +612,12 @@ function selectRandomRecipe() {
  * Toggle Wake Lock on/off
  */
 async function toggleWakeLock() {
-    if (wakeLock !== null) {
-        wakeLockRequested = false;
+    const shouldEnable = !wakeLockRequested;
+    wakeLockRequested = shouldEnable;
+    wakeLockRequestToken++;
+    if (!shouldEnable) {
         await releaseWakeLock();
     } else {
-        wakeLockRequested = true;
         await requestWakeLock();
     }
 }
@@ -624,6 +626,7 @@ async function toggleWakeLock() {
  * Aktiviert Wake Lock
  */
 async function requestWakeLock() {
+    const requestToken = ++wakeLockRequestToken;
     if (!wakeLockSupported) {
         wakeLockRequested = false;
         // Fallback für Browser ohne Wake Lock API
@@ -633,7 +636,12 @@ async function requestWakeLock() {
 
     try {
         if (document.visibilityState !== 'visible') return;
-        wakeLock = await navigator.wakeLock.request('screen');
+        const requestedWakeLock = await navigator.wakeLock.request('screen');
+        if (!wakeLockRequested || document.visibilityState !== 'visible' || requestToken !== wakeLockRequestToken) {
+            await requestedWakeLock.release();
+            return;
+        }
+        wakeLock = requestedWakeLock;
         console.log('Wake Lock aktiviert');
 
         // Update UI
@@ -644,10 +652,11 @@ async function requestWakeLock() {
             console.log('Wake Lock automatisch freigegeben');
             wakeLock = null;
             updateWakeLockButton(false);
-            if (wakeLockRequested && document.visibilityState === 'visible') requestWakeLock();
+            if (wakeLockRequested && document.visibilityState === 'visible') void requestWakeLock();
         });
 
     } catch (err) {
+        if (requestToken !== wakeLockRequestToken || !wakeLockRequested) return;
         console.error('Wake Lock Fehler:', err);
         wakeLockRequested = false;
         updateWakeLockButton(false);
@@ -660,9 +669,10 @@ async function requestWakeLock() {
  */
 async function releaseWakeLock() {
     if (wakeLock !== null) {
-        await wakeLock.release();
+        const activeWakeLock = wakeLock;
         wakeLock = null;
         updateWakeLockButton(false);
+        await activeWakeLock.release();
         console.log('Wake Lock deaktiviert');
     }
 }

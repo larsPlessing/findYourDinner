@@ -154,10 +154,13 @@ async function importRecipe(payload) {
         const importedMessage = existingIndex >= 0
             ? 'Video wurde dem vorhandenen Rezept zugeordnet. Bitte speichere die Änderung.'
             : 'Importiert. Bitte prüfe das Rezept und speichere es anschließend.';
+        const storageMessage = savedToProject
+            ? 'Im Projekt gespeichert.'
+            : 'Nur im Browser gespeichert. recipes.enc sowie Bilder und Videos werden auf GitHub Pages nicht aktualisiert.';
         const warnings = Array.isArray(result.warnings) ? result.warnings.filter(warning => typeof warning === 'string' && warning.trim()) : [];
-        setImportStatus(warnings.length ? 'warning' : 'success', warnings.length
-            ? `${importedMessage} Hinweis: ${warnings.join(' ')}`
-            : importedMessage);
+        setImportStatus(savedToProject && !warnings.length ? 'success' : 'warning', warnings.length
+            ? `${importedMessage} ${storageMessage} Hinweis: ${warnings.join(' ')}`
+            : `${importedMessage} ${storageMessage}`);
     } catch (error) {
         setImportStatus('error', formatImportError(error));
     } finally {
@@ -179,8 +182,8 @@ function setImportControlsDisabled(controls, disabled) {
 function setImportStatus(state, message) {
     const status = document.getElementById('editorSaveStatus');
     status.textContent = message;
-    status.classList.remove('editor-status--loading', 'editor-status--success', 'editor-status--warning', 'editor-status--error');
-    if (state) status.classList.add(`editor-status--${state}`);
+    status.classList?.remove('editor-status--loading', 'editor-status--success', 'editor-status--warning', 'editor-status--error');
+    if (state) status.classList?.add(`editor-status--${state}`);
     status.setAttribute('aria-busy', String(state === 'loading'));
     status.setAttribute('role', state === 'error' ? 'alert' : 'status');
     status.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
@@ -674,9 +677,7 @@ function persistRecipeEdits() {
         }
         globalThis.refreshRecipesAfterEdit?.();
         const status = document.getElementById('editorSaveStatus');
-        status.textContent = `Lokal gespeichert · ${generator.recipes.length} Rezepte`;
-        status.setAttribute('role', 'status');
-        status.setAttribute('aria-live', 'polite');
+        setImportStatus('warning', `Nur im Browser gespeichert · ${generator.recipes.length} Rezepte. Projektdateien werden nur über den lokalen Server aktualisiert.`);
         renderEditorRecipeList();
         return true;
     } catch (error) {
@@ -695,7 +696,7 @@ async function saveRecipeProjectToFolder(savedInBrowser = true) {
     const status = document.getElementById('editorSaveStatus');
     if (!['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)) {
         if (savedInBrowser) {
-            status.textContent = 'Änderungen sind auf diesem Gerät gespeichert. Direktes Speichern in Projektdateien ist nur lokal möglich.';
+            setImportStatus('warning', 'Nur im Browser gespeichert. recipes.enc sowie Bilder und Videos werden auf GitHub Pages nicht aktualisiert.');
         }
         return savedInBrowser;
     }
@@ -735,10 +736,10 @@ async function saveRecipeProjectToFolder(savedInBrowser = true) {
         if (typeof result.revision === 'string') generator.revision = result.revision;
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
-        status.textContent = `Gespeichert: recipes.enc, ${result.savedMedia} verschlüsselte Mediendatei(en) hinzugefügt, ${result.deletedMedia || 0} nicht mehr verwendete Datei(en) entfernt.`;
+        setImportStatus('success', `Im Projekt gespeichert: recipes.enc, ${result.savedMedia} verschlüsselte Mediendatei(en) hinzugefügt, ${result.deletedMedia || 0} nicht mehr verwendete Datei(en) entfernt.`);
         return true;
     } catch (error) {
-        status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den Projektserver mit „node server.mjs“ und öffne die App über http://127.0.0.1:4004.`;
+        setImportStatus('error', `Projektdateien konnten nicht gespeichert werden: ${error.message}. Die Änderung bleibt lokal im Browser gespeichert. Starte den Projektserver mit „node server.mjs“ und öffne die App über http://127.0.0.1:4004.`);
         return false;
     }
 }

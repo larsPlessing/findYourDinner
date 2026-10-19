@@ -13,6 +13,10 @@ test('parses fractions, German decimal commas and plain numbers', () => {
     assert.equal(parseIngredientAmount('1/2'), 0.5);
     assert.equal(parseIngredientAmount('3/4'), 0.75);
     assert.equal(parseIngredientAmount('1 1/2'), 1.5);
+    assert.equal(parseIngredientAmount('½'), 0.5);
+    assert.equal(parseIngredientAmount('1 ½'), 1.5);
+    assert.equal(parseIngredientAmount('1½'), 1.5);
+    assert.equal(parseIngredientAmount('1.000'), 1000);
     assert.equal(parseIngredientAmount('2,5'), 2.5);
     assert.equal(parseIngredientAmount('1.5'), 1.5);
     assert.equal(parseIngredientAmount('4'), 4);
@@ -39,6 +43,9 @@ test('scales both ends of a range and keeps unknown amounts unchanged', () => {
     assert.equal(scaleIngredientAmount('200-300', 2), '400-600');
     assert.equal(scaleIngredientAmount('200 - 300', 0.5), '100-150');
     assert.equal(scaleIngredientAmount('2,5-3', 2), '5-6');
+    assert.equal(scaleIngredientAmount('1–2', 2), '2-4');
+    assert.equal(scaleIngredientAmount('1—2', 2), '2-4');
+    assert.equal(scaleIngredientAmount('½–1 ½', 2), '1-3');
     assert.equal(scaleIngredientAmount('eine Prise', 2), 'eine Prise');
     assert.equal(scaleIngredientAmount(undefined, 2), undefined);
     assert.equal(scaleIngredientAmount(null, 2), null);

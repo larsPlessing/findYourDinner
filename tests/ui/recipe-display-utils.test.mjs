@@ -17,6 +17,12 @@ test('emoji mapping does not match food words inside unrelated words', () => {
     assert.equal(getRecipeEmoji('Computer-Reparatur'), '🍽️');
 });
 
+test('emoji mapping recognizes inflected and compound food names', () => {
+    assert.equal(getRecipeEmoji('Nudeln mit Gemüse'), '🍝');
+    assert.equal(getRecipeEmoji('Kartoffelauflauf'), '🥔');
+    assert.equal(getRecipeEmoji('Hähnchen-Pasta'), '🍝');
+});
+
 test('shared placeholder safely escapes recipe names and allows detail-sized images', () => {
     const dataUrl = generatePlaceholderImage('<script>& Kuchen', '🍰', { size: 600, nameLimit: 30 });
     const svg = Buffer.from(dataUrl.split(',')[1], 'base64').toString('utf8');

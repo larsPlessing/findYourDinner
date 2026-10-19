@@ -97,7 +97,7 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
     assert.deepEqual(JSON.parse(storage.recipes_user_edits), [editedRecipe]);
     assert.equal(legacyStorageSaves, 1, 'RecipeGenerator localStorage cache should also be updated');
     assert.equal(networkRequests, 0, 'non-localhost saves must not call the filesystem API');
-    assert.match(status.textContent, /auf diesem Gerät gespeichert/i);
+    assert.match(status.textContent, /Nur im Browser gespeichert/i);
 });
 
 test('localStorage quota failures are announced as an accessible save error', () => {
@@ -320,6 +320,6 @@ test('deleting the last recipe saves the empty recipe list to the local server',
     assert.deepEqual(savedPayload.plainRecipes, []);
     assert.deepEqual(JSON.parse(storage.recipes_user_edits), []);
     assert.deepEqual(sandbox.generator.recipes, []);
-    assert.match(status.textContent, /Gespeichert: recipes\.enc/);
+    assert.match(status.textContent, /Im Projekt gespeichert: recipes\.enc/);
     assert.match(recipeForm.innerHTML, /Noch keine Rezepte/);
 });
