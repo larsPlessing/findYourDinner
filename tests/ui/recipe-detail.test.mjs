@@ -17,7 +17,7 @@ describe('recipe detail page', () => {
                 'ingredientsSection', 'ingredientsList', 'instructionsList', 'notesSection', 'notesList', 'portionScaler',
                 'recipeVideoSection', 'recipeVideo', 'recipeVideoError',
                 'currentPortions', 'wakeLockBtn', 'wakeLockIcon', 'wakeLockText',
-                'ingredientDock', 'ingredientDockToggle', 'ingredientDockPreview',
+                'ingredientDock', 'ingredientDockToggle',
                 'ingredientDockFullList', 'ingredientDockIngredients'
             ]) {
                 assert.match(html, new RegExp(`id=["']${id}["']`), `missing #${id}`);
@@ -89,12 +89,12 @@ describe('recipe detail page', () => {
             assert.match(detailCss, /\.recipe-video-section video[\s\S]*?width: 100%[\s\S]*?aspect-ratio: 16 \/ 9/);
         });
 
-        it('keeps a compact ingredient preview visible on mobile and expands the full list', () => {
+        it('shows a collapsible ingredient dock on mobile without a preview list', () => {
             assert.match(html, /aria-controls="ingredientDockFullList" onclick="toggleIngredientDock\(\)"/);
-            assert.match(html, /id="ingredientDockHint"[^>]*>← Für weitere Zutaten seitlich wischen →/);
+            assert.doesNotMatch(html, /id="ingredientDockPreview"/);
+            assert.doesNotMatch(html, /id="ingredientDockHint"/);
             assert.match(detailCss, /@media \(max-width: 768px\)[\s\S]*?\.ingredient-dock:not\(\[hidden\]\)[\s\S]*?position: fixed/);
-            assert.match(detailCss, /\.ingredient-dock-preview[\s\S]*?overflow-x: auto/);
-            assert.match(detailCss, /\.ingredient-dock\.is-expanded \.ingredient-dock-preview[\s\S]*?display: none/);
+            assert.doesNotMatch(detailCss, /\.ingredient-dock-preview/);
             assert.match(detailCss, /\.ingredient-dock-full\[hidden\][\s\S]*?display: none/);
             assert.match(detailCss, /padding-bottom: calc\(var\(--ingredient-dock-space, 120px\)/);
             assert.match(html, /function updateIngredientDockSpace\(\)[\s\S]*?dock\.offsetHeight \+ 20/);

@@ -61,14 +61,12 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
     });
     await page.waitForSelector('#ingredientDock:not([hidden])');
 
-    assert.equal(await page.locator('#ingredientDockHint').isVisible(), true);
     const collapsedSpace = await page.evaluate(() => document.documentElement.style.getPropertyValue('--ingredient-dock-space'));
     assert.match(collapsedSpace, /^\d+px$/);
 
     await page.locator('#ingredientDockToggle').click();
     await page.waitForSelector('#ingredientDock.is-expanded');
     assert.equal(await page.locator('#ingredientDockToggle').getAttribute('aria-expanded'), 'true');
-    assert.equal(await page.locator('#ingredientDockHint').isHidden(), true);
     assert.equal(await page.locator('#ingredientDockIngredients .ingredient-item').count(), 3);
 
     const expandedSpace = await page.evaluate(() => Number.parseInt(document.documentElement.style.getPropertyValue('--ingredient-dock-space'), 10));
@@ -76,7 +74,7 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
 
     await page.locator('.portion-btn').last().click();
     await page.waitForFunction(() => document.querySelector('#ingredientsList .ingredient-amount')?.textContent === '150');
-    for (const selector of ['#ingredientsList', '#ingredientDockPreview', '#ingredientDockIngredients']) {
+    for (const selector of ['#ingredientsList', '#ingredientDockIngredients']) {
         assert.equal(await page.locator(`${selector} .ingredient-amount`).first().textContent(), '150');
     }
 

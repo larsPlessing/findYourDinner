@@ -136,8 +136,6 @@
             <span id="ingredientDockCount"></span>
             <span class="ingredient-dock-chevron" aria-hidden="true">⌃</span>
         </button>
-        <ul class="ingredients-list ingredient-dock-preview" id="ingredientDockPreview" aria-hidden="true"></ul>
-        <p class="ingredient-dock-hint" id="ingredientDockHint" aria-hidden="true">← Für weitere Zutaten seitlich wischen →</p>
         <div class="ingredient-dock-full" id="ingredientDockFullList" aria-hidden="true" hidden>
             <ul class="ingredients-list" id="ingredientDockIngredients"></ul>
         </div>
@@ -496,7 +494,6 @@
         function renderIngredientLists(ingredients) {
             const listEl = document.getElementById('ingredientsList');
             const dock = document.getElementById('ingredientDock');
-            const preview = document.getElementById('ingredientDockPreview');
             const fullList = document.getElementById('ingredientDockIngredients');
             const visibleIngredients = Array.isArray(ingredients) ? ingredients : [];
 
@@ -509,7 +506,6 @@
             } else {
                 listEl.replaceChildren(...visibleIngredients.map(createIngredientItem));
             }
-            preview.replaceChildren(...visibleIngredients.map(createIngredientItem));
             fullList.replaceChildren(...visibleIngredients.map(createIngredientItem));
 
             ingredientDockHasIngredients = visibleIngredients.length > 0;
@@ -529,7 +525,6 @@
             const panel = document.getElementById('ingredientDockFullList');
             panel.hidden = true;
             panel.setAttribute('aria-hidden', 'true');
-            document.getElementById('ingredientDockHint').hidden = false;
             dock.classList.remove('is-expanded');
         }
 
@@ -575,7 +570,6 @@
             panel.setAttribute('aria-hidden', String(!isExpanded));
             const dock = document.getElementById('ingredientDock');
             dock.classList.toggle('is-expanded', isExpanded);
-            document.getElementById('ingredientDockHint').hidden = isExpanded;
             requestAnimationFrame(updateIngredientDockSpace);
         }
 

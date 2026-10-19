@@ -504,56 +504,6 @@
         transform: rotate(180deg);
     }
 
-    .ingredient-dock-preview {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 2px;
-        scrollbar-width: thin;
-    }
-
-    .ingredient-dock-hint {
-        margin: -2px 2px 0;
-        color: #667eea;
-        font-size: 0.8em;
-        text-align: center;
-    }
-
-    .ingredient-dock-hint[hidden] {
-        display: none;
-    }
-
-    .ingredient-dock.is-expanded .ingredient-dock-preview {
-        display: none;
-    }
-
-    .ingredient-dock-preview .ingredient-item {
-        display: flex;
-        flex: 0 0 auto;
-        align-items: center;
-        gap: 5px;
-        max-width: 75vw;
-        margin: 0;
-        padding: 8px 10px;
-        font-size: 0.9em;
-        white-space: nowrap;
-    }
-
-    .ingredient-dock-preview .ingredient-amount {
-        text-align: left;
-    }
-
-    .ingredient-dock-preview .ingredient-product {
-        max-width: 180px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .ingredient-dock-preview .ingredient-note {
-        display: none;
-    }
-
     .ingredient-dock-full {
         min-height: 0;
         min-width: 0;

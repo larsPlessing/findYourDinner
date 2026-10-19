@@ -6,7 +6,8 @@
     "install:instagram-browser": "playwright install chromium",
     "test": "node --test",
     "test:backend": "node --test \"tests/backend/*.test.mjs\"",
-    "test:ui": "node --test \"tests/ui/*.test.mjs\" \"tests/ui/css/*.test.mjs\""
+    "test:ui": "node --test \"tests/ui/*.test.mjs\" \"tests/ui/css/*.test.mjs\"",
+    "runrepomix": "repomix --ignore \"**/*.log,tmp,env,gitignore/,recipes.json\" --compress"
   },
   "dependencies": {
     "ffmpeg-static": "^5.3.0",
