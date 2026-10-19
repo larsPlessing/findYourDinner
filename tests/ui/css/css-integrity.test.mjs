@@ -96,6 +96,12 @@ test.describe('recipe card readability', () => {
             'recipe titles should have strong contrast on white cards');
         assert.match(pinterestCss, /\.recipe-pin-image\s+img\s*\{[^}]*object-fit:\s*cover/i,
             'recipe photos should fill their card area without distortion');
+        assert.match(pinterestCss, /\.recipe-pin-image\s*\{[^}]*aspect-ratio:\s*1\s*\/\s*1/i,
+            'recipe cards should reserve image space before lazy-loaded photos arrive');
+        assert.match(pinterestCss, /\.recipe-pin-image\.tall\s*\{[^}]*aspect-ratio:\s*4\s*\/\s*5/i,
+            'tall recipe cards should reserve their final image height');
+        assert.match(pinterestCss, /\.recipe-pin-image\.short\s*\{[^}]*aspect-ratio:\s*5\s*\/\s*4/i,
+            'short recipe cards should reserve their final image height');
         assert.match(pinterestCss, /\.recipe-pin-image\.tall\s*\{[^}]*max-height:\s*(?!150px)[^;}]+/i,
             'tall recipe photos should be taller than short recipe photos');
         assert.match(pinterestCss, /@media\s*\(max-width:\s*576px\)[\s\S]*?\.recipe-pin-title\s*\{/i,

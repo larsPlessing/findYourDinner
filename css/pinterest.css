@@ -39,6 +39,7 @@
 .recipe-pin-image {
     width: 100%;
     height: auto;
+    aspect-ratio: 1 / 1;
     max-height: 400px;
     display: flex;
     align-items: center;
@@ -66,10 +67,12 @@
 }
 
 .recipe-pin-image.tall {
+    aspect-ratio: 4 / 5;
     max-height: 220px;
 }
 
 .recipe-pin-image.short {
+    aspect-ratio: 5 / 4;
     max-height: 150px;
 }
 
