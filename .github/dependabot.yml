@@ -1,0 +1,36 @@
+version: 2
+updates:
+  # npm-Pakete (playwright, ffmpeg-static, ffprobe-static, youtube-dl-exec)
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # kleinere Updates gebündelt, damit nicht jede Patch-Version einen eigenen PR erzeugt
+      npm-minor-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: deps
+
+  # GitHub Actions (greift, sobald der erste Workflow existiert)
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      actions-minor-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: ci
