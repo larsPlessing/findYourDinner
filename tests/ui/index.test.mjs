@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const html = fs.readFileSync(path.resolve(__dirname, '../../index.html'), 'utf8');
+const homepageJs = fs.readFileSync(path.resolve(__dirname, '../../js/indexPage.mjs'), 'utf8');
 
 test('homepage provides the DOM elements used by recipe browsing', () => {
     for (const id of ['searchInput', 'categoryFilter', 'masonryGrid', 'loadingState']) {
@@ -21,39 +22,47 @@ test('category filters are inside the search container', () => {
 });
 
 test('homepage defaults to the salty category', () => {
-    assert.match(html, /let currentCategory = ['"]Salzig['"]/);
-    assert.match(html, /let healthyOnly = false/);
-    assert.match(html, /healthyOnly = !healthyOnly/);
-    assert.match(html, /currentCategory = currentCategory === category \? null : category/);
-    assert.match(html, /applyFilters\(searchInput\.value\)/);
+    assert.match(homepageJs, /let currentCategory = ['"]Salzig['"]/);
+    assert.match(homepageJs, /let healthyOnly = false/);
+    assert.match(homepageJs, /healthyOnly = !healthyOnly/);
+    assert.match(homepageJs, /currentCategory = currentCategory === category \? null : category/);
+    assert.match(homepageJs, /applyFilters\(searchInput\.value\)/);
 });
 
 test('homepage wires search, category filtering and recipe navigation', () => {
-    assert.match(html, /searchInput\.addEventListener\(['"]input['"],\s*handleSearch\)/);
-    assert.match(html, /button\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*filterByCategory\(category\)\)/);
-    assert.match(html, /pin\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*openRecipe\(recipe\.name\)\)/);
-    assert.match(html, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeName\)/);
+    assert.match(homepageJs, /searchInput\.addEventListener\(['"]input['"],\s*handleSearch\)/);
+    assert.match(homepageJs, /button\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*filterByCategory\(category\)\)/);
+    assert.match(homepageJs, /pin\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*openRecipe\(recipe\.name\)\)/);
+    assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeName\)/);
 });
 
 test('homepage renders recipe and category data without HTML interpolation', () => {
-    assert.doesNotMatch(html, /item\.innerHTML\s*=/);
-    assert.doesNotMatch(html, /categoryFilter\.innerHTML\s*=/);
-    assert.match(html, /title\.textContent\s*=\s*recipe\.name/);
-    assert.match(html, /button\.textContent\s*=\s*category/);
+    assert.doesNotMatch(homepageJs, /item\.innerHTML\s*=/);
+    assert.doesNotMatch(homepageJs, /categoryFilter\.innerHTML\s*=/);
+    assert.match(homepageJs, /title\.textContent\s*=\s*recipe\.name/);
+    assert.match(homepageJs, /button\.textContent\s*=\s*category/);
 });
 
 test('homepage uses the JSON source and offers local file selection', () => {
-    assert.match(html, /loadFromURL\(['"]recipes\.json['"]\)/);
+    assert.match(homepageJs, /loadFromURL\(['"]recipes\.json['"]\)/);
     assert.match(html, /<label for=["']recipesJsonInput["'][^>]*class=["']file-label["']/);
-    assert.match(html, /recipesJsonInput\.addEventListener\(['"]change['"],\s*handleLocalJsonFile\)/);
-    assert.match(html, /loadRecipesFile\(file\)/);
+    assert.match(homepageJs, /recipesJsonInput\.addEventListener\(['"]change['"],\s*handleLocalJsonFile\)/);
+    assert.match(homepageJs, /loadRecipesFile\(file\)/);
 });
 
 test('homepage provides the same upload dialog flow for choosing or reloading a file', () => {
     assert.match(html, /id=["']uploadOverlay["']/);
-    assert.match(html, /onclick=["']showUploadDialog\(\)["']/);
-    assert.match(html, /onclick=["']loadDefaultRecipes\(\)["']/);
-    assert.match(html, /onclick=["']closeUploadOverlay\(\)["']/);
+    for (const id of ['uploadRecipesBtn', 'loadDefaultRecipesBtn', 'closeUploadOverlayBtn', 'shuffleBtn', 'openEditorBtn', 'categoryChipAll']) {
+        assert.match(html, new RegExp(`id=["']${id}["']`), `missing #${id}`);
+    }
+    assert.match(homepageJs, /getElementById\(["']uploadRecipesBtn["']\)\.addEventListener\(["']click["'], \(\) => showUploadDialog\(\)\)/);
+    assert.match(homepageJs, /getElementById\(["']loadDefaultRecipesBtn["']\)\.addEventListener\(["']click["'], \(\) => loadDefaultRecipes\(\)\)/);
+    assert.match(homepageJs, /getElementById\(["']closeUploadOverlayBtn["']\)\.addEventListener\(["']click["'], closeUploadOverlay\)/);
+});
+
+test('homepage HTML carries no inline JavaScript', () => {
+    assert.doesNotMatch(html, /onclick=/);
+    assert.doesNotMatch(html, /<script type=["']module["']\s*>/);
 });
 
 test('homepage does not contain mojibake text', () => {

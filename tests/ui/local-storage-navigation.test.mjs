@@ -10,6 +10,8 @@ const projectRoot = path.resolve(__dirname, '../..');
 const homepage = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 const detailPage = fs.readFileSync(path.join(projectRoot, 'pages/recipe-detail.html'), 'utf8');
 const recipeEditor = fs.readFileSync(path.join(projectRoot, 'js/recipeEditor.mjs'), 'utf8');
+const homepageJs = fs.readFileSync(path.join(projectRoot, 'js/indexPage.mjs'), 'utf8');
+const detailJs = fs.readFileSync(path.join(projectRoot, 'js/recipeDetail.mjs'), 'utf8');
 
 test('recipe data stays available across navigation on a GitHub Pages project URL', () => {
     const githubPagesHome = new URL('https://example.github.io/findYourDinner/');
@@ -22,29 +24,30 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
     assert.equal(backUrl.pathname, '/findYourDinner/index.html');
 
     // Opening a recipe stores its key before following a relative URL.
-    assert.match(homepage, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeName\)/);
-    assert.match(homepage, /window\.location\.href\s*=\s*['"]pages\/recipe-detail\.html['"]/);
-    assert.match(detailPage, /localStorage\.getItem\(['"]currentRecipe['"]\)/);
-    assert.match(detailPage, /window\.location\.href\s*=\s*['"]\.\.\/index\.html['"]/);
+    assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeName\)/);
+    assert.match(homepageJs, /window\.location\.href\s*=\s*['"]pages\/recipe-detail\.html['"]/);
+    assert.match(detailJs, /localStorage\.getItem\(['"]currentRecipe['"]\)/);
+    assert.match(detailJs, /window\.location\.href\s*=\s*['"]\.\.\/index\.html['"]/);
 
     // Each page prefers locally saved edits and falls back to the shared recipe cache.
-    assert.match(homepage, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
-    assert.match(homepage, /generator\.loadFromLocalStorage\(\)/);
-    assert.match(detailPage, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
-    assert.match(detailPage, /generator\.loadFromLocalStorage\(\)/);
-    assert.doesNotMatch(homepage, /localStorage\.clear\s*\(/);
-    assert.doesNotMatch(detailPage, /localStorage\.clear\s*\(/);
+    assert.match(homepageJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
+    assert.match(homepageJs, /generator\.loadFromLocalStorage\(\)/);
+    assert.match(detailJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
+    assert.match(detailJs, /generator\.loadFromLocalStorage\(\)/);
+    assert.doesNotMatch(homepageJs, /localStorage\.clear\s*\(/);
+    assert.doesNotMatch(detailJs, /localStorage\.clear\s*\(/);
 });
 
 test('detail page opens the editor in place with the current recipe selected', () => {
-    assert.match(detailPage, /onclick=["']editCurrentRecipe\(\)["']/);
+    assert.match(detailPage, /id=["']editCurrentRecipeBtn["']/);
+    assert.match(detailJs, /getElementById\(["']editCurrentRecipeBtn["']\)\.addEventListener\(["']click["'], editCurrentRecipe\)/);
     assert.match(detailPage, /id=["']recipeEditor["']/);
     assert.match(detailPage, /<script type=["']module["'] src=["']\.\.\/js\/recipeEditor\.mjs["']/);
-    assert.match(detailPage, /function editCurrentRecipe\(\)\s*\{\s*if\s*\(!currentRecipe\)\s*return;\s*openRecipeEditor\(currentRecipe\.name\);\s*\}/);
-    assert.match(detailPage, /async function onRecipeEditorSaved\(recipe\)[\s\S]*?currentRecipe = recipe;[\s\S]*?await displayRecipe\(\);/);
+    assert.match(detailJs, /function editCurrentRecipe\(\)\s*\{\s*if\s*\(!currentRecipe\)\s*return;\s*openRecipeEditor\(currentRecipe\.name\);\s*\}/);
+    assert.match(detailJs, /async function onRecipeEditorSaved\(recipe\)[\s\S]*?currentRecipe = recipe;[\s\S]*?await displayRecipe\(\);/);
     assert.match(recipeEditor, /function openRecipeEditor\(recipeName = null\)/);
     assert.match(recipeEditor, /generator\.recipes\.findIndex\(recipe => recipe\.name === recipeName \|\| recipe\.sheetName === recipeName\)/);
-    assert.doesNotMatch(detailPage, /function editCurrentRecipe\(\)\s*\{[^}]*window\.location\.href/s);
+    assert.doesNotMatch(detailJs, /function editCurrentRecipe\(\)\s*\{[^}]*window\.location\.href/s);
 });
 
 test('recipe editor restricts base categories and offers healthy as an optional flag', () => {

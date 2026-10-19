@@ -9,18 +9,20 @@ const path = require('node:path');
 const projectRoot = path.resolve(__dirname, '../..');
 const homeHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 const detailHtml = fs.readFileSync(path.join(projectRoot, 'pages/recipe-detail.html'), 'utf8');
+const homepageJs = fs.readFileSync(path.join(projectRoot, 'js/indexPage.mjs'), 'utf8');
+const detailJs = fs.readFileSync(path.join(projectRoot, 'js/recipeDetail.mjs'), 'utf8');
 const recipes = JSON.parse(fs.readFileSync(path.join(projectRoot, 'recipes.json'), 'utf8')).recipes;
 
 test('homepage and detail page use the same existing image files for every recipe in recipes.json', async () => {
-    assert.match(homeHtml, /generator\.getRecipeImageURL\(recipeName\)/,
+    assert.match(homepageJs, /generator\.getRecipeImageURL\(recipeName\)/,
         'homepage should load each card image through RecipeGenerator');
-    assert.match(homeHtml, /img\.src\s*=\s*imageData\.dataUrl/,
+    assert.match(homepageJs, /img\.src\s*=\s*imageData\.dataUrl/,
         'homepage should display the image URL returned by RecipeGenerator');
-    assert.match(detailHtml, /generator\.getAllRecipeImageURLs\(currentRecipe\.name\)/,
+    assert.match(detailJs, /generator\.getAllRecipeImageURLs\(currentRecipe\.name\)/,
         'detail page should load images for the selected recipe through RecipeGenerator');
-    assert.match(detailHtml, /img\.src\s*=\s*resolveRecipeImageURL\(imageData\.dataUrl\)/,
+    assert.match(detailJs, /img\.src\s*=\s*resolveRecipeImageURL\(imageData\.dataUrl\)/,
         'detail page should resolve the same recipe image URL from its nested page');
-    assert.match(detailHtml, /return new URL\(`\.\.\/\$\{imageURL\}`, window\.location\.href\)\.href/,
+    assert.match(detailJs, /return new URL\(`\.\.\/\$\{imageURL\}`, window\.location\.href\)\.href/,
         'detail page should resolve relative image paths from the project root');
 
     const recipesWithImages = recipes.filter(recipe => Array.isArray(recipe.images) && recipe.images.length > 0);
