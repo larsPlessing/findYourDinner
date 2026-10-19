@@ -12,6 +12,15 @@ import {
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const minimumPassphraseLength = 20;
 
+function loadAppPassword() {
+    try {
+        process.loadEnvFile(path.join(rootDirectory, '.env'));
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
+    return process.env.APP_PASSWORD?.trim() || null;
+}
+
 function readPassword(promptText) {
     if (!process.stdin.isTTY || !process.stdin.setRawMode) {
         throw new Error('Bitte starte den Befehl in einem interaktiven Terminal, damit das Passwort verdeckt eingegeben wird.');
@@ -229,7 +238,7 @@ async function main() {
     const overwrite = args.includes('--overwrite');
     const unknownArgs = args.filter(argument => argument !== '--overwrite');
     if (unknownArgs.length) throw new Error(`Unbekannte Option: ${unknownArgs[0]}`);
-    const passphrase = await readPassword('Passwort: ');
+    const passphrase = loadAppPassword() || await readPassword('Passwort: ');
     const progressBarWidth = 30;
     let progressDisplayed = false;
     let result;

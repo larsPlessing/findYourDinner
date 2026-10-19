@@ -16,6 +16,15 @@ const mimeTypes = {
 };
 const minimumPassphraseLength = 20;
 
+function loadAppPassword() {
+    try {
+        process.loadEnvFile(path.join(rootDirectory, '.env'));
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
+    return process.env.APP_PASSWORD?.trim() || null;
+}
+
 function readPassword(promptText) {
     if (!process.stdin.isTTY || !process.stdin.setRawMode) {
         throw new Error('Bitte starte den Befehl in einem interaktiven Terminal, damit das Passwort verdeckt eingegeben wird.');
@@ -297,8 +306,9 @@ async function main() {
     const unknownArgs = args.filter(argument => argument !== '--delete-plaintext');
     if (unknownArgs.length) throw new Error(`Unbekannte Option: ${unknownArgs[0]}`);
 
-    const first = await readPassword('Passwort (mind. 20 Zeichen): ');
-    const second = await readPassword('Passwort wiederholen: ');
+    const configuredPassword = loadAppPassword();
+    const first = configuredPassword || await readPassword('Passwort (mind. 20 Zeichen): ');
+    const second = configuredPassword || await readPassword('Passwort wiederholen: ');
     if (first !== second) throw new Error('Die eingegebenen Passwörter stimmen nicht überein.');
     const confirmation = await new Promise(resolve => {
         process.stdout.write('Verschlüsselte Dateien erstellen? [j/N] ');
