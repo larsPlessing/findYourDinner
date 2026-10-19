@@ -66,7 +66,7 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         stdio: 'ignore'
     });
 
-    test('wake-lock request failure alerts once and does not retry on visibility changes', async t => {
+    await t.test('wake-lock request failure alerts once and does not retry on visibility changes', async t => {
         const testPort = port + 1;
         const testUrl = `http://127.0.0.1:${testPort}`;
         const server = spawn(process.execPath, ['server.mjs'], {
@@ -122,7 +122,7 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         assert.doesNotMatch(alerts[0], /nicht unterstützt/);
     });
 
-    test('slow image load from the previous recipe cannot replace the current recipe image', async t => {
+    await t.test('slow image load from the previous recipe cannot replace the current recipe image', async t => {
         const testPort = port + 2;
         const testUrl = `http://127.0.0.1:${testPort}`;
         const server = spawn(process.execPath, ['server.mjs'], {
@@ -169,7 +169,7 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         assert.match(await page.locator('#recipeImageMain img').getAttribute('src'), /new\.jpg$/);
     });
 
-    test('browser back restores the previous recipe after random navigation', async t => {
+    await t.test('browser back restores the previous recipe after random navigation', async t => {
         const testPort = port + 3;
         const testUrl = `http://127.0.0.1:${testPort}`;
         const server = spawn(process.execPath, ['server.mjs'], {

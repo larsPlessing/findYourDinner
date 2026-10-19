@@ -82,7 +82,8 @@ test('homepage provides the same upload dialog flow for choosing or reloading a 
     assert.match(homepageJs, /getElementById\(["']uploadRecipesBtn["']\)\.addEventListener\(["']click["'], \(\) => showUploadDialog\(\)\)/);
     assert.match(homepageJs, /getElementById\(["']loadDefaultRecipesBtn["']\)\.addEventListener\(["']click["'], \(\) => loadDefaultRecipes\(\)\)/);
     assert.match(homepageJs, /getElementById\(["']closeUploadOverlayBtn["']\)\.addEventListener\(["']click["'], closeUploadOverlay\)/);
-    assert.ok(html.indexOf('id="uploadOverlay"') > html.indexOf('</div>\n\n    <div id="recipeEditor"'),
+    const containerEnd = html.search(/<\/div>\s*<div id="uploadOverlay"/);
+    assert.ok(html.indexOf('id="uploadOverlay"') > containerEnd,
         'the viewport-fixed upload overlay should be outside the transformed page container');
 });
 

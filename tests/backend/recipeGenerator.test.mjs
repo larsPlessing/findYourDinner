@@ -154,7 +154,7 @@ test('fetches recipe data without cache when checking the published revision', a
         })
     });
 
-    test('normalizes a missing remote revision to null and does not prompt repeatedly', async t => {
+    await t.test('normalizes a missing remote revision to null and does not prompt repeatedly', async t => {
         const generator = createGenerator(t, {
             fetchImplementation: async () => ({
                 ok: true,
@@ -171,7 +171,7 @@ test('fetches recipe data without cache when checking the published revision', a
         assert.equal(generator.revision, null);
     });
 
-    test('declining a remote revision records it so later page syncs do not ask again', async t => {
+    await t.test('declining a remote revision records it so later page syncs do not ask again', async t => {
         const storage = {};
         const generator = createGenerator(t, {
             storage,

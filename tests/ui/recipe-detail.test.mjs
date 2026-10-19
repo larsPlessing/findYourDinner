@@ -67,7 +67,7 @@ describe('recipe detail page', () => {
 
     describe('recipe data and rendering', () => {
         it('loads repository JSON and restores the selected recipe', () => {
-            assert.match(detailJs, /loadFromURL\(['"]\.\.\/recipes\.json['"]\)/);
+            assert.match(detailJs, /syncWithRemote\(['"]\.\.\/recipes\.enc['"]/);
             assert.match(detailJs, /localStorage\.getItem\(['"]currentRecipe['"]\)/);
             assert.match(detailJs, /generator\.getRecipeById\(recipeKey\)\s*\|\|\s*generator\.getRecipeByName\(recipeKey\)/);
             assert.match(detailJs, /recipeTitle['"]\)\.textContent\s*=\s*currentRecipe\.name/);
@@ -115,8 +115,8 @@ describe('recipe detail page', () => {
 
         it('shows a responsive video player below the preparation steps only when a recipe has a video', () => {
             assert.match(html, /id="instructionsList"[\s\S]*?id="recipeVideoSection"[^>]*hidden[\s\S]*?id="recipeVideo"[^>]*controls[^>]*playsinline/);
-            assert.match(detailJs, /displayInstructions\(\);\s*displayRecipeVideo\(\);/);
-            assert.match(detailJs, /function displayRecipeVideo\(\)[\s\S]*?if \(!src\)[\s\S]*?section\.hidden = true/);
+            assert.match(detailJs, /displayInstructions\(\);\s*void displayRecipeVideo\(token\);/);
+            assert.match(detailJs, /async function displayRecipeVideo\(token\)[\s\S]*?if \(!src\)[\s\S]*?section\.hidden = true/);
             assert.match(detailJs, /video\.src =/);
             assert.match(detailCss, /\.recipe-video-section video[\s\S]*?width: 100%[\s\S]*?aspect-ratio: 16 \/ 9/);
         });
