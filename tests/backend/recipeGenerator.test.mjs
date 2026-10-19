@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { encryptAssetBytes, deriveKey } from '../../js/recipeCrypto.mjs';
 import RecipeGenerator from '../../js/recipeGenerator.mjs';
 
 const sampleRecipes = [
@@ -25,7 +26,7 @@ const sampleRecipes = [
 
 function createGenerator(t, { protocol = 'https:', storage = {}, confirmImplementation = () => false, fetchImplementation = async () => {
     throw new Error('Unexpected fetch call');
-} } = {}) {
+}, readStoredKeyImplementation = async () => null } = {}) {
     const localStorage = {
         getItem: t.mock.fn(key => Object.hasOwn(storage, key) ? storage[key] : null),
         setItem: t.mock.fn((key, value) => { storage[key] = String(value); }),
@@ -39,9 +40,27 @@ function createGenerator(t, { protocol = 'https:', storage = {}, confirmImplemen
             key: { type: 'secret' },
             recipes: envelope.recipes
         }),
-        getSaltImpl: () => new Uint8Array(16)
+        getSaltImpl: () => new Uint8Array(16),
+        readStoredKeyImpl: readStoredKeyImplementation
     });
 }
+
+test('restores the stored key and salt before loading encrypted media', async t => {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey('ein-langes-passwort-mit-mehreren-worten', salt);
+    const encryptedBytes = await encryptAssetBytes(new TextEncoder().encode('cached image'), key);
+    const generator = createGenerator(t, {
+        readStoredKeyImplementation: async () => ({ key, salt }),
+        fetchImplementation: async () => ({ ok: true, arrayBuffer: async () => encryptedBytes })
+    });
+    generator.window.location = { protocol: 'https:', pathname: '/', href: 'https://example.test/' };
+    const createObjectURL = t.mock.method(URL, 'createObjectURL', () => 'blob:cached-image');
+
+    assert.equal(await generator.getMediaURL('images/recipes/cached.jpg.enc', 'image/jpeg'), 'blob:cached-image');
+    assert.equal(generator.cryptoKey, key);
+    assert.deepEqual(generator.encryptionSalt, salt);
+    assert.equal(createObjectURL.mock.callCount(), 1);
+});
 
 test('loads recipe JSON and reports completion', async t => {
     const generator = createGenerator(t, {

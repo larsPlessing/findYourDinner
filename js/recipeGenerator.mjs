@@ -1,5 +1,5 @@
 /** Lädt Rezeptdaten aus dem verschlüsselten Archiv im Repository. */
-import { decryptAssetBytes, getSaltFromEnvelope, unlockRecipeEnvelope } from './recipeCrypto.mjs';
+import { decryptAssetBytes, getSaltFromEnvelope, readStoredKey, unlockRecipeEnvelope } from './recipeCrypto.mjs';
 
 export default class RecipeGenerator {
     constructor({
@@ -7,7 +7,8 @@ export default class RecipeGenerator {
         storage = globalThis.localStorage,
         fetchImpl = (...args) => globalThis.fetch(...args),
         unlockEnvelopeImpl = unlockRecipeEnvelope,
-        getSaltImpl = getSaltFromEnvelope
+        getSaltImpl = getSaltFromEnvelope,
+        readStoredKeyImpl = readStoredKey
     } = {}) {
         this.recipes = [];
         this.revision = null;
@@ -16,6 +17,7 @@ export default class RecipeGenerator {
         this.fetch = fetchImpl;
         this.unlockEnvelope = unlockEnvelopeImpl;
         this.getSalt = getSaltImpl;
+        this.readStoredKey = readStoredKeyImpl;
         this.cryptoKey = null;
         this.encryptionSalt = null;
         this.mediaUrls = new Map();
@@ -215,6 +217,11 @@ export default class RecipeGenerator {
     async getMediaURL(src, mimeType = 'application/octet-stream') {
         if (/^(?:data:|blob:|https?:|\/)/i.test(src) || !src.endsWith('.enc')) return src;
         if (this.mediaUrls.has(src)) return this.mediaUrls.get(src);
+        if (!this.cryptoKey) {
+            const stored = await this.readStoredKey();
+            this.cryptoKey = stored?.key ?? stored ?? null;
+            this.encryptionSalt ||= stored?.salt ?? null;
+        }
         if (!this.cryptoKey) throw new Error('Das Rezeptarchiv ist nicht entsperrt.');
         const pagePath = this.window?.location?.pathname || '';
         const prefix = /\/pages\/[^/]+$/.test(pagePath) ? '../' : './';

@@ -33,20 +33,27 @@ function openKeyDatabase() {
     return keyDatabasePromise;
 }
 
-async function readStoredKey() {
+export async function readStoredKey() {
     const database = await openKeyDatabase();
     return new Promise((resolve, reject) => {
         const request = database.transaction(keyStoreName).objectStore(keyStoreName).get('recipe-key');
-        request.onsuccess = () => resolve(request.result || null);
+        request.onsuccess = () => {
+            if (!request.result) {
+                resolve(null);
+                return;
+            }
+            // Keep existing installations working while migrating the stored value.
+            resolve(request.result.key ? request.result : { key: request.result, salt: null });
+        };
         request.onerror = () => reject(request.error || new Error('Der gespeicherte Schlüssel konnte nicht gelesen werden.'));
     });
 }
 
-async function writeStoredKey(key) {
+async function writeStoredKey(key, salt) {
     const database = await openKeyDatabase();
     return new Promise((resolve, reject) => {
         const transaction = database.transaction(keyStoreName, 'readwrite');
-        transaction.objectStore(keyStoreName).put(key, 'recipe-key');
+        transaction.objectStore(keyStoreName).put({ key, salt }, 'recipe-key');
         transaction.oncomplete = resolve;
         transaction.onerror = () => reject(transaction.error || new Error('Der Schlüssel konnte nicht gespeichert werden.'));
         transaction.onabort = () => reject(transaction.error || new Error('Der Schlüssel konnte nicht gespeichert werden.'));
@@ -157,10 +164,10 @@ export async function unlockRecipeEnvelope(envelope) {
     }
 
     let storedKey = await readStoredKey();
-    if (storedKey) {
+    if (storedKey?.key) {
         try {
-            const recipes = await decryptRecipeEnvelope(envelope, storedKey);
-            return { key: storedKey, recipes };
+            const recipes = await decryptRecipeEnvelope(envelope, storedKey.key);
+            return { key: storedKey.key, recipes };
         } catch {
             await deleteStoredKey();
             storedKey = null;
@@ -179,7 +186,7 @@ export async function unlockRecipeEnvelope(envelope) {
             message = 'Das Passwort ist falsch oder die Rezeptdatei ist beschädigt.';
             continue;
         }
-        await writeStoredKey(key);
+        await writeStoredKey(key, fromBase64(envelope.salt));
         dialog.close();
         return { key, recipes };
     }
