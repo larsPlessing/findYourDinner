@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { deriveKey, encryptRecipeEnvelope } from '../../js/recipeCrypto.mjs';
+import { deriveKey, encryptAssetBytes, encryptRecipeEnvelope } from '../../js/recipeCrypto.mjs';
 
 const require = createRequire(import.meta.url);
 const test = require('node:test');
@@ -167,6 +167,53 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         await page.waitForTimeout(500);
 
         assert.match(await page.locator('#recipeImageMain img').getAttribute('src'), /new\.jpg$/);
+    });
+
+    await t.test('reloads encrypted media with the current archive revision', async t => {
+        const testPort = port + 4;
+        const testUrl = `http://127.0.0.1:${testPort}`;
+        const server = spawn(process.execPath, ['server.mjs'], {
+            cwd: new URL('../..', import.meta.url),
+            env: { ...process.env, PORT: String(testPort) },
+            stdio: 'ignore'
+        });
+        t.after(() => server.kill());
+        await waitForServer(server, testUrl);
+
+        const browser = await chromium.launch({ headless: true });
+        t.after(() => browser.close());
+        const page = await browser.newPage();
+        const revision = 'fresh-media-revision';
+        const recipe = {
+            id: 1,
+            name: 'Cache-Test-Rezept',
+            category: 'Salzig',
+            ingredients: [],
+            instructions: [],
+            images: [{ src: 'images/recipes/cache-test.png.enc', mimeType: 'image/png' }]
+        };
+        const envelope = await makeEnvelope([recipe], revision);
+        const imageBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p8sAAAAASUVORK5CYII=', 'base64');
+        const encryptedImage = await encryptAssetBytes(imageBytes, await testKeyPromise);
+        const mediaRequests = [];
+
+        await page.route('**/recipes.enc', route => route.fulfill({ json: envelope }));
+        await page.route('**/images/recipes/cache-test.png.enc*', async route => {
+            mediaRequests.push(route.request().url());
+            await route.fulfill({ contentType: 'application/octet-stream', body: Buffer.from(encryptedImage) });
+        });
+        await seedRecipeKey(page, testUrl);
+        await page.addInitScript(({ cachedRecipe, cachedRevision }) => {
+            localStorage.setItem('currentRecipe', '1');
+            localStorage.setItem('recipes_revision', cachedRevision);
+            localStorage.setItem('recipes_user_edits', JSON.stringify([cachedRecipe]));
+        }, { cachedRecipe: recipe, cachedRevision: revision });
+
+        await page.goto(`${testUrl}/pages/recipe-detail.html?id=1`);
+        await page.waitForFunction(() => document.querySelector('#recipeImageMain img')?.complete);
+
+        assert.equal(mediaRequests.length, 1);
+        assert.equal(new URL(mediaRequests[0]).searchParams.get('v'), revision);
     });
 
     await t.test('browser back restores the previous recipe after random navigation', async t => {

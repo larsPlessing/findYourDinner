@@ -62,6 +62,26 @@ test('restores the stored key and salt before loading encrypted media', async t 
     assert.equal(createObjectURL.mock.callCount(), 1);
 });
 
+test('reloads encrypted media when the published revision changes', async t => {
+    const key = await deriveKey('ein-langes-passwort-mit-mehreren-worten', crypto.getRandomValues(new Uint8Array(16)));
+    const encryptedBytes = await encryptAssetBytes(new TextEncoder().encode('fresh image'), key);
+    const fetchImplementation = async () => ({ ok: true, arrayBuffer: async () => encryptedBytes });
+    const generator = createGenerator(t, {
+        fetchImplementation,
+        readStoredKeyImplementation: async () => ({ key, salt: new Uint8Array(16) })
+    });
+    generator.revision = 'fresh-revision';
+    generator.window.location = { protocol: 'https:', pathname: '/', href: 'https://example.test/' };
+    t.mock.method(URL, 'createObjectURL', () => 'blob:fresh-image');
+
+    await generator.getMediaURL('images/recipes/cached.jpg.enc', 'image/jpeg');
+
+    assert.deepEqual(generator.fetch.mock.calls[0].arguments, [
+        new URL('https://example.test/images/recipes/cached.jpg.enc?v=fresh-revision'),
+        { cache: 'no-cache' }
+    ]);
+});
+
 test('loads recipe JSON and reports completion', async t => {
     const generator = createGenerator(t, {
         fetchImplementation: async url => ({

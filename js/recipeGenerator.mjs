@@ -236,7 +236,12 @@ export default class RecipeGenerator {
         if (!this.cryptoKey) throw new Error('Das Rezeptarchiv ist nicht entsperrt.');
         const pagePath = this.window?.location?.pathname || '';
         const prefix = /\/pages\/[^/]+$/.test(pagePath) ? '../' : './';
-        const response = await this.fetch(new URL(`${prefix}${src}`, this.window.location.href), { cache: 'force-cache' });
+        const mediaURL = new URL(`${prefix}${src}`, this.window.location.href);
+        // Verschlüsselte Medien können bei gleicher URL nach einer neuen
+        // Verschlüsselung einen anderen Ciphertext enthalten. Ein alter
+        // Browser-Cache würde dann mit dem aktuellen Schlüssel fehlschlagen.
+        if (this.revision) mediaURL.searchParams.set('v', this.revision);
+        const response = await this.fetch(mediaURL, { cache: 'no-cache' });
         if (!response.ok) throw new Error(`HTTP-Fehler beim Laden eines verschlüsselten Mediums: ${response.status}`);
         const encryptedBytes = await response.arrayBuffer();
         const blob = await decryptAssetBytes(encryptedBytes, this.cryptoKey, mimeType);
