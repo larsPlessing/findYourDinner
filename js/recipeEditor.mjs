@@ -7,8 +7,10 @@ function instagramPostKey(value) {
     try {
         const url = new URL(value);
         if (!['instagram.com', 'www.instagram.com'].includes(url.hostname.toLowerCase())) return null;
-        const match = url.pathname.match(/^\/(reel|p|tv)\/([^/]+)\/?$/i);
-        return match ? `${match[1].toLowerCase()}/${match[2]}` : null;
+        const match = url.pathname.match(/\/(reels?|p|tv)\/([^/?#]+)/i);
+        if (!match) return null;
+        const type = match[1].toLowerCase() === 'reels' ? 'reel' : match[1].toLowerCase();
+        return `${type}/${match[2]}`;
     } catch {
         return null;
     }
@@ -19,7 +21,7 @@ function findMatchingInstagramRecipeIndex(recipes, sourceUrl) {
     if (!sourceKey) return -1;
     return recipes.findIndex(recipe => (Array.isArray(recipe.notes) ? recipe.notes : []).some(note => {
         const text = typeof note === 'string' ? note : '';
-        const links = text.match(/https?:\/\/(?:www\.)?instagram\.com\/(?:reel|p|tv)\/[^\s<>"']+/gi) || [];
+        const links = text.match(/https?:\/\/(?:www\.)?instagram\.com\/(?:[^/\s<>"']+\/)*(?:reels?|p|tv)\/[^\s<>"']+/gi) || [];
         return links.some(link => instagramPostKey(link.replace(/[),.;]+$/, '')) === sourceKey);
     }));
 }

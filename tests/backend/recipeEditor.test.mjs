@@ -18,6 +18,10 @@ test('re-import matches an existing Instagram recipe by post path despite differ
         findMatchingInstagramRecipeIndex(recipes, 'https://www.instagram.com/reel/C_gp9oXPMNq/?rpxt=cnJyd2VraHBpdXg0'),
         1
     );
+    assert.equal(
+        findMatchingInstagramRecipeIndex(recipes, 'https://www.instagram.com/foodie/reels/C_gp9oXPMNq/'),
+        1
+    );
 });
 
 test('Instagram source matching ignores unrelated links and malformed URLs', () => {

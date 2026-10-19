@@ -7,7 +7,7 @@ const { test } = require('node:test');
 const { downloadBrowserVideo, readInstagramPageSnapshot } = await import('../../server/instagramImporter/browserSession.mjs');
 const { downloadAuthenticatedVideo, downloadPublicVideo } = await import('../../server/instagramImporter/videoDownloader.mjs');
 const { fetchInstagramPost } = await import('../../server/instagramImporter/index.mjs');
-const { getInstagramVideoUrl } = await import('../../server/instagramImporter/postUtils.mjs');
+const { getInstagramEmbedUrl, getInstagramVideoUrl } = await import('../../server/instagramImporter/postUtils.mjs');
 
 function createContextStub() {
     return {
@@ -108,6 +108,35 @@ test('ohne Browser-Video (blob:-Fallback) wird yt-dlp als Fallback versucht', as
     assert.equal(ytDlpTried, true);
     assert.equal(result.video.mimeType, 'video/mp4');
     assert.equal(result.url, source);
+});
+
+test('Instagram-Embed-URLs akzeptieren Nutzerpfade und normalisieren reels', () => {
+    assert.equal(getInstagramEmbedUrl('https://www.instagram.com/foodie/reels/AbC123/?x=1'), 'https://www.instagram.com/reel/AbC123/embed/captioned/');
+    assert.equal(getInstagramEmbedUrl('https://www.instagram.com/share/reel/AbC123/'), 'https://www.instagram.com/reel/AbC123/embed/captioned/');
+});
+
+test('Instagram-Share-Links werden vor dem Embed-Abruf weitergeleitet', async () => {
+    const source = 'https://www.instagram.com/share/reel/AbC123/';
+    const resolved = 'https://www.instagram.com/foodie/reel/AbC123/';
+    const calls = [];
+    const result = await fetchInstagramPost(source, {
+        fetchImpl: async input => {
+            const url = String(input);
+            calls.push(url);
+            if (url === source) return { ok: true, url: resolved, text: async () => '' };
+            if (url === 'https://www.instagram.com/reel/AbC123/embed/captioned/') {
+                return new Response('<html><meta property="og:description" content="A complete recipe caption with enough detail to describe the dish and its preparation steps."></html>');
+            }
+            if (url === resolved) return new Response('<html></html>');
+            throw new Error(`Unexpected URL: ${url}`);
+        },
+        authenticatedLoader: async () => ({ html: '<html></html>', url: resolved, video: null }),
+        ytDlpDownloader: async () => ({ mimeType: 'video/mp4', data: 'd28=' })
+    });
+
+    assert.equal(calls[0], source);
+    assert.equal(calls[1], 'https://www.instagram.com/reel/AbC123/embed/captioned/');
+    assert.equal(result.video.mimeType, 'video/mp4');
 });
 
 test('öffentliche Video-Weiterleitungen werden vor dem Abruf erneut gegen Instagram-Hosts geprüft', async () => {

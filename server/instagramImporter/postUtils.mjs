@@ -1,6 +1,10 @@
 export function isInstagramUrl(value) {
-    const hostname = new URL(value).hostname.toLowerCase();
-    return hostname === 'instagram.com' || hostname === 'www.instagram.com';
+    try {
+        const hostname = new URL(value).hostname.toLowerCase();
+        return hostname === 'instagram.com' || hostname === 'www.instagram.com';
+    } catch {
+        return false;
+    }
 }
 
 export function htmlToText(html) {
@@ -31,9 +35,10 @@ export function hasPostContent(html) {
 
 export function getInstagramEmbedUrl(source) {
     const url = new URL(source);
-    const match = url.pathname.match(/^\/(reel|p|tv)\/([^/]+)/i);
+    const match = url.pathname.match(/\/(reels?|p|tv)\/([^/?#]+)/i);
     if (!match) throw new Error('Bitte gib einen Instagram-Reel- oder Beitragslink an.');
-    return `https://${url.hostname}/${match[1]}/${match[2]}/embed/captioned/`;
+    const type = match[1].toLowerCase() === 'reels' ? 'reel' : match[1].toLowerCase();
+    return `https://${url.hostname}/${type}/${match[2]}/embed/captioned/`;
 }
 
 export function getInstagramVideoUrl(html) {

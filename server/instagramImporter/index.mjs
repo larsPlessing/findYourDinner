@@ -10,7 +10,19 @@ export { isInstagramUrl };
 const MISSING_VIDEO_WARNING = 'Für diesen Instagram-Beitrag wurde kein abspielbares Video gefunden. Das Rezept wurde nur anhand der verfügbaren Beschreibung importiert.';
 
 function isVideoPostUrl(source) {
-    return /^\/(?:reel|tv)\//i.test(new URL(source).pathname);
+    try {
+        return /\/(?:reels?|tv)\/[^/?#]+/i.test(new URL(source).pathname);
+    } catch {
+        return false;
+    }
+}
+
+function isShareUrl(source) {
+    try {
+        return /\/share\//i.test(new URL(source).pathname);
+    } catch {
+        return false;
+    }
 }
 
 function queueAuthenticatedLoad(source, loader) {
@@ -45,7 +57,18 @@ export async function fetchInstagramPost(source, {
     let publicPost = null;
     let publicVideoFound = false;
 
-    for (const candidateUrl of [getInstagramEmbedUrl(source), source]) {
+    let candidateUrls = [getInstagramEmbedUrl(source), source];
+    if (isShareUrl(source)) {
+        try {
+            const redirectResponse = await fetchImpl(source, { redirect: 'follow', headers });
+            const resolvedUrl = redirectResponse.url || source;
+            if (resolvedUrl !== source) candidateUrls = [getInstagramEmbedUrl(resolvedUrl), resolvedUrl];
+        } catch (error) {
+            lastPublicError = error;
+        }
+    }
+
+    for (const candidateUrl of candidateUrls) {
         try {
             const response = await fetchImpl(candidateUrl, { redirect: 'follow', headers });
             if (!response.ok) {
