@@ -204,6 +204,62 @@ test('Gemini API errors are translated into actionable German messages', () => {
     assert.match(sandbox.formatImportError(new Error('Gemini API 400: {"error":{"message":"Ungültige Anfrage"}}')), /Ungültige Anfrage/);
 });
 
+test('failed local import persistence rolls back the pushed recipe', async () => {
+    const status = {
+        textContent: '',
+        classList: { add() {}, remove() {} },
+        setAttribute() {}
+    };
+    const sandbox = {
+        window: { location: { hostname: 'localhost' } },
+        document: {
+            getElementById(id) {
+                if (id === 'editorSearch') return { value: '', addEventListener() {} };
+                if (id === 'editorSaveStatus') return status;
+                if (id === 'recipeImportImageInput') return null;
+                if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
+                throw new Error(`Unerwartetes Element: ${id}`);
+            },
+            querySelectorAll() { return []; }
+        },
+        generator: {
+            recipes: [],
+            cryptoKey: { type: 'secret' },
+            encryptionSalt: new Uint8Array(16),
+            saveUserEditsToLocalStorage() { return false; },
+            saveToLocalStorage() { return false; }
+        },
+        fetch: async url => {
+            requests.push(url);
+            return {
+                ok: true,
+                async json() {
+                    return url === '/api/import-recipe'
+                        ? { recipe: { name: 'Instagram-Rezept', video: { src: 'data:video/mp4;base64,AAAA' } } }
+                        : { revision: 'saved', savedMedia: 1, deletedMedia: 0 };
+                }
+            };
+        }
+    };
+    const requests = [];
+    sandbox.prepareEncryptedRecipeSave = async recipes => ({
+        recipes,
+        plainRecipes: recipes,
+        envelope: {},
+        mediaFiles: [],
+        referencedFiles: [],
+        plainMediaFiles: [],
+        plainReferencedFiles: []
+    });
+    vm.runInNewContext(editorSource, sandbox);
+
+    await sandbox.importRecipe({ url: 'https://www.instagram.com/reel/example/' });
+
+    assert.deepEqual(requests, ['/api/import-recipe', '/api/save-recipes']);
+    assert.deepEqual(sandbox.generator.recipes, []);
+    assert.match(status.textContent, /Speicher/i);
+});
+
 test('deleting the last recipe saves the empty recipe list to the local server', async () => {
     const storage = {};
     let savedPayload;

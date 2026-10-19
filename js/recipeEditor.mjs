@@ -96,6 +96,8 @@ async function importRecipe(payload) {
         const existingIndex = result.recipe.video?.src && isInstagramUrl
             ? findMatchingInstagramRecipeIndex(generator.recipes, payload.url)
             : -1;
+        const previousEditingRecipeIndex = editingRecipeIndex;
+        let importedRecipeWasPushed = false;
         if (existingIndex >= 0) {
             generator.recipes[existingIndex] = { ...generator.recipes[existingIndex], video: result.recipe.video };
             editingRecipeIndex = existingIndex;
@@ -103,8 +105,16 @@ async function importRecipe(payload) {
             const id = Math.max(-1, ...generator.recipes.map(recipe => Number(recipe.id) || 0)) + 1;
             generator.recipes.push({ ...result.recipe, id });
             editingRecipeIndex = generator.recipes.length - 1;
+            importedRecipeWasPushed = true;
         }
-        if (!persistRecipeEdits()) {
+        const isLocalServer = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+        const savedToProject = isLocalServer ? await saveRecipeProjectToFolder(false) : false;
+        const savedInBrowser = persistRecipeEdits();
+        if (!savedToProject && !savedInBrowser) {
+            if (importedRecipeWasPushed) {
+                generator.recipes.pop();
+                editingRecipeIndex = previousEditingRecipeIndex;
+            }
             throw new Error('Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.');
         }
         selectRecipeForEdit(editingRecipeIndex);
