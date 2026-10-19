@@ -5,7 +5,8 @@ import {
     decodeBase64,
     decryptAssetBytes,
     decryptRecipeEnvelope,
-    deriveKey
+    deriveKey,
+    plainSrcForEncryptedSrc
 } from '../js/recipeCrypto.mjs';
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -103,26 +104,39 @@ async function restoreEncryptedFiles({ root = rootDirectory, passphrase, overwri
         }
     }
 
+    const mediaMimeType = new Map();
+    for (const recipe of recipes) {
+        for (const image of Array.isArray(recipe.images) ? recipe.images : []) {
+            if (typeof image?.src === 'string' && image.src.endsWith('.enc') && typeof image.mimeType === 'string') {
+                mediaMimeType.set(image.src, image.mimeType);
+            }
+        }
+        if (typeof recipe.video?.src === 'string' && recipe.video.src.endsWith('.enc') && typeof recipe.video.mimeType === 'string') {
+            mediaMimeType.set(recipe.video.src, recipe.video.mimeType);
+        }
+    }
+
     const outputFiles = [];
-    const decryptedMediaPaths = new Set();
+    const decryptedMediaPaths = new Map();
     for (const src of mediaFiles) {
         const encryptedPath = path.join(root, ...src.split('/'));
-        const plainSrc = src.slice(0, -4);
+        const plainSrc = plainSrcForEncryptedSrc(src, mediaMimeType.get(src));
         const plainPath = path.join(root, ...plainSrc.split('/'));
-        const blob = await decryptAssetBytes(await fs.readFile(encryptedPath), key);
+        const mimeType = mediaMimeType.get(src);
+        const blob = await decryptAssetBytes(await fs.readFile(encryptedPath), key, mimeType);
         outputFiles.push({ path: plainPath, bytes: new Uint8Array(await blob.arrayBuffer()) });
-        decryptedMediaPaths.add(src);
+        decryptedMediaPaths.set(src, plainSrc);
     }
 
     for (const recipe of recipes) {
         for (const image of Array.isArray(recipe.images) ? recipe.images : []) {
             if (typeof image?.src !== 'string' || !image.src.endsWith('.enc')) continue;
             if (!decryptedMediaPaths.has(image.src)) throw new Error(`Verschlüsseltes Rezeptbild fehlt: ${image.src}`);
-            image.src = image.src.slice(0, -4);
+            image.src = decryptedMediaPaths.get(image.src);
         }
         if (typeof recipe.video?.src === 'string' && recipe.video.src.endsWith('.enc')) {
             if (!decryptedMediaPaths.has(recipe.video.src)) throw new Error(`Verschlüsseltes Rezeptvideo fehlt: ${recipe.video.src}`);
-            recipe.video.src = recipe.video.src.slice(0, -4);
+            recipe.video.src = decryptedMediaPaths.get(recipe.video.src);
         }
     }
 

@@ -39,7 +39,7 @@ findYourDinner/
 ├── server/             # Serverseitige Logik
 ├── js/                 # Frontend-Logik (ES-Module)
 ├── css/                # Stylesheets
-├── images/recipes/     # Lokale Originale und verschlüsselte Repo-Dateien
-├── videos/recipes/     # Lokale Originale und verschlüsselte Repo-Dateien
+├── images/recipes/     # Bilder
+├── videos/recipes/     # Videos
 └── tests/              # Backend- und UI-Tests
 ```

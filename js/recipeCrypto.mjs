@@ -212,6 +212,19 @@ export async function encryptAssetBytes(bytes, key) {
     return result;
 }
 
+export function extensionForMimeType(mimeType) {
+    return {
+        'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp',
+        'video/mp4': '.mp4', 'video/webm': '.webm', 'video/quicktime': '.mov'
+    }[mimeType] || '';
+}
+
+export function plainSrcForEncryptedSrc(src, mimeType) {
+    const plainSrc = src.endsWith('.enc') ? src.slice(0, -4) : src;
+    if (/\.(?:jpe?g|png|webp|mp4|mov|webm)$/i.test(plainSrc)) return plainSrc;
+    return `${plainSrc}${extensionForMimeType(mimeType)}`;
+}
+
 export async function prepareEncryptedRecipeSave(recipes, key, salt) {
     const crypto = getCrypto();
     const updatedRecipes = structuredClone(recipes);
@@ -221,13 +234,10 @@ export async function prepareEncryptedRecipeSave(recipes, key, salt) {
     const prepareDataUrl = async (dataUrl, directory, expectedMime) => {
         const match = dataUrl.match(/^data:([a-z][a-z\d+.-]+\/[a-z\d+.-]+);base64,([A-Za-z0-9+/=]+)$/i);
         if (!match || !match[1].startsWith(expectedMime)) throw new Error('Ein neues Medium hat ein ungültiges Format.');
-        const extension = {
-            'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp',
-            'video/mp4': '.mp4', 'video/webm': '.webm', 'video/quicktime': '.mov'
-        }[match[1]];
+        const extension = extensionForMimeType(match[1]);
         if (!extension) throw new Error('Ein neues Medium hat ein nicht unterstütztes Format.');
         const filename = crypto.randomUUID();
-        const src = `${directory}/${filename}.enc`;
+        const src = `${directory}/${filename}${extension}.enc`;
         const plainSrc = `${directory}/${filename}${extension}`;
         const encrypted = await encryptAssetBytes(fromBase64(match[2]), key);
         mediaFiles.push({ src, data: toBase64(encrypted) });
@@ -248,13 +258,13 @@ export async function prepareEncryptedRecipeSave(recipes, key, salt) {
             recipe.video = { ...recipe.video, src: prepared.src, mimeType: prepared.mimeType };
             plainRecipe.video = { ...plainRecipe.video, src: prepared.plainSrc, mimeType: prepared.mimeType };
         } else if (typeof recipe.video?.src === 'string' && recipe.video.src.endsWith('.enc')) {
-            plainRecipe.video.src = recipe.video.src.slice(0, -4);
+            plainRecipe.video.src = plainSrcForEncryptedSrc(recipe.video.src, recipe.video.mimeType);
         }
         for (const [imageIndex, image] of (Array.isArray(recipe.images) ? recipe.images : []).entries()) {
             if (typeof image?.src === 'string' && image.src.endsWith('.enc')
                 && typeof plainRecipe.images?.[imageIndex]?.src === 'string'
                 && plainRecipe.images[imageIndex].src === image.src) {
-                plainRecipe.images[imageIndex].src = image.src.slice(0, -4);
+                plainRecipe.images[imageIndex].src = plainSrcForEncryptedSrc(image.src, image.mimeType);
             }
         }
     }

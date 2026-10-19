@@ -48,14 +48,65 @@ test('editor save encrypts new media while maintaining local plaintext copies', 
         video: { src: toDataUrl('video/mp4', videoBytes), mimeType: 'video/mp4' }
     }], key, salt);
 
-    assert.match(result.recipes[0].images[0].src, /^images\/recipes\/.*\.enc$/);
-    assert.match(result.plainRecipes[0].images[0].src, /^images\/recipes\/.*\.jpg$/);
-    assert.match(result.recipes[0].video.src, /^videos\/recipes\/.*\.enc$/);
-    assert.match(result.plainRecipes[0].video.src, /^videos\/recipes\/.*\.mp4$/);
+    assert.match(result.recipes[0].images[0].src, /^images\/recipes\/[0-9a-f-]+\.jpg\.enc$/);
+    assert.match(result.plainRecipes[0].images[0].src, /^images\/recipes\/[0-9a-f-]+\.jpg$/);
+    assert.match(result.recipes[0].video.src, /^videos\/recipes\/[0-9a-f-]+\.mp4\.enc$/);
+    assert.match(result.plainRecipes[0].video.src, /^videos\/recipes\/[0-9a-f-]+\.mp4$/);
     assert.equal(result.mediaFiles.length, 2);
     assert.equal(result.plainMediaFiles.length, 2);
+    assert.deepEqual(result.referencedFiles, [result.recipes[0].images[0].src, result.recipes[0].video.src]);
+    assert.deepEqual(result.plainReferencedFiles, [result.plainRecipes[0].images[0].src, result.plainRecipes[0].video.src]);
     const image = await decryptAssetBytes(Buffer.from(result.mediaFiles[0].data, 'base64'), key, 'image/jpeg');
     assert.equal(await image.text(), 'new image');
+});
+
+test('resaving recipes with legacy extensionless enc names restores plaintext extensions', async () => {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey(password, salt);
+    const result = await prepareEncryptedRecipeSave([{
+        name: 'Testrezept',
+        images: [{ src: 'images/recipes/11111111-2222-3333-4444-555555555555.enc', mimeType: 'image/jpeg' }],
+        video: { src: 'videos/recipes/66666666-7777-8888-9999-000000000000.enc', mimeType: 'video/mp4' }
+    }], key, salt);
+
+    assert.equal(result.plainRecipes[0].images[0].src, 'images/recipes/11111111-2222-3333-4444-555555555555.jpg');
+    assert.equal(result.plainRecipes[0].video.src, 'videos/recipes/66666666-7777-8888-9999-000000000000.mp4');
+    assert.deepEqual(result.plainReferencedFiles, [
+        'images/recipes/11111111-2222-3333-4444-555555555555.jpg',
+        'videos/recipes/66666666-7777-8888-9999-000000000000.mp4'
+    ]);
+    assert.equal(result.mediaFiles.length, 0);
+    assert.equal(result.plainMediaFiles.length, 0);
+});
+
+test('restore derives missing plaintext extensions from media mime types', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-legacy-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    const legacyImagePath = path.join(root, 'images', 'recipes', 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+    const legacyVideoPath = path.join(root, 'videos', 'recipes', 'ffffffff-0000-1111-2222-333333333333');
+    await mkdir(path.dirname(legacyImagePath), { recursive: true });
+    await mkdir(path.dirname(legacyVideoPath), { recursive: true });
+    const salt = new Uint8Array(16).fill(1);
+    const key = await deriveKey(password, salt);
+    await writeFile(`${legacyImagePath}.enc`, await encryptAssetBytes(new TextEncoder().encode('legacy image'), key));
+    await writeFile(`${legacyVideoPath}.enc`, await encryptAssetBytes(new TextEncoder().encode('legacy video'), key));
+    const envelope = await encryptRecipeEnvelope([{
+        id: 1,
+        name: 'Legacy',
+        images: [{ src: 'images/recipes/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.enc', mimeType: 'image/jpeg' }],
+        video: { src: 'videos/recipes/ffffffff-0000-1111-2222-333333333333.enc', mimeType: 'video/mp4' }
+    }], key, salt, 'revision-legacy');
+    await writeFile(path.join(root, 'recipes.enc'), JSON.stringify(envelope));
+    await writeFile(path.join(root, 'AGENTS.md.enc'), await encryptAssetBytes(new TextEncoder().encode('# Private'), key));
+
+    const result = await restoreEncryptedFiles({ root, passphrase: password });
+    const restoredRecipes = JSON.parse(await readFile(path.join(root, 'recipes.json'), 'utf8'));
+
+    assert.equal(result.mediaFiles, 2);
+    assert.equal(restoredRecipes.recipes[0].images[0].src, 'images/recipes/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.jpg');
+    assert.equal(restoredRecipes.recipes[0].video.src, 'videos/recipes/ffffffff-0000-1111-2222-333333333333.mp4');
+    assert.equal(await readFile(`${legacyImagePath}.jpg`, 'utf8'), 'legacy image');
+    assert.equal(await readFile(`${legacyVideoPath}.mp4`, 'utf8'), 'legacy video');
 });
 
 test('initial migration encrypts recipe and asset files but keeps plaintext files locally', async t => {
