@@ -272,3 +272,100 @@ test('local restore decrypts recipe data, media and docs without changing cipher
     assert.deepEqual(await readFile(`${imagePath}.enc`), encryptedImageBefore);
     await assert.rejects(restoreEncryptedFiles({ root, passphrase: password }), /bereits/);
 });
+
+test('encrypt and decrypt restore a server file byte-for-byte', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-roundtrip-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    const relativeFile = 'server/instagramImporter/browserSession.mjs';
+    const sourcePath = path.join(root, ...relativeFile.split('/'));
+    const originalContent = 'export const testValue = "verschlüsselt";\n';
+    await mkdir(path.dirname(sourcePath), { recursive: true });
+    await writeFile(path.join(root, 'recipes.json'), JSON.stringify({ version: 1, recipes: [] }));
+    await writeFile(sourcePath, originalContent);
+
+    await migrateRecipeData({
+        root,
+        passphrase: password,
+        documentFiles: [relativeFile],
+        deletePlaintext: true
+    });
+    await assert.rejects(readFile(sourcePath), { code: 'ENOENT' });
+
+    await restoreEncryptedFiles({ root, passphrase: password });
+    assert.equal(await readFile(sourcePath, 'utf8'), originalContent);
+});
+
+test('encrypt and decrypt handle nested server files and documentation together', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-nested-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    const files = {
+        'server/recipeImporter.mjs': 'export const importer = true;\n',
+        'server/instagramImporter/postUtils.mjs': 'export const postUtils = true;\n',
+        'AGENTS.md': '# Private instructions\n'
+    };
+    await writeFile(path.join(root, 'recipes.json'), JSON.stringify({ version: 1, recipes: [] }));
+    for (const [relativeFile, content] of Object.entries(files)) {
+        const filePath = path.join(root, ...relativeFile.split('/'));
+        await mkdir(path.dirname(filePath), { recursive: true });
+        await writeFile(filePath, content);
+    }
+
+    await migrateRecipeData({
+        root,
+        passphrase: password,
+        documentFiles: Object.keys(files),
+        deletePlaintext: true
+    });
+    for (const relativeFile of Object.keys(files)) {
+        await assert.rejects(readFile(path.join(root, ...relativeFile.split('/'))), { code: 'ENOENT' });
+        await readFile(path.join(root, ...`${relativeFile}.enc`.split('/')));
+    }
+
+    const result = await restoreEncryptedFiles({ root, passphrase: password });
+    assert.equal(result.documents, 3);
+    for (const [relativeFile, content] of Object.entries(files)) {
+        assert.equal(await readFile(path.join(root, ...relativeFile.split('/')), 'utf8'), content);
+    }
+});
+
+test('decrypt rejects an incorrect password', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-wrong-password-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    await writeFile(path.join(root, 'recipes.json'), JSON.stringify({ version: 1, recipes: [] }));
+    await migrateRecipeData({ root, passphrase: password });
+
+    await assert.rejects(
+        restoreEncryptedFiles({ root, passphrase: 'ein-anderes-passwort-mit-20-zeichen' }),
+        /OperationError|Authentifizierung|decrypt|GCM/i
+    );
+});
+
+test('decrypt rejects a manipulated encrypted recipe archive', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-tampered-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    await writeFile(path.join(root, 'recipes.json'), JSON.stringify({ version: 1, recipes: [] }));
+    await migrateRecipeData({ root, passphrase: password });
+
+    const archivePath = path.join(root, 'recipes.enc');
+    const archive = JSON.parse(await readFile(archivePath, 'utf8'));
+    const lastByte = archive.ciphertext.at(-1);
+    archive.ciphertext = `${archive.ciphertext.slice(0, -1)}${lastByte === 'A' ? 'B' : 'A'}`;
+    await writeFile(archivePath, `${JSON.stringify(archive)}\n`);
+
+    await assert.rejects(restoreEncryptedFiles({ root, passphrase: password }));
+});
+
+test('encrypt and decrypt reject passwords shorter than the minimum', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-password-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    await writeFile(path.join(root, 'recipes.json'), JSON.stringify({ version: 1, recipes: [] }));
+
+    await assert.rejects(
+        migrateRecipeData({ root, passphrase: 'zu-kurz' }),
+        /mindestens 20 Zeichen/
+    );
+    await assert.rejects(
+        restoreEncryptedFiles({ root, passphrase: 'zu-kurz' }),
+        /mindestens 20 Zeichen/
+    );
+});
