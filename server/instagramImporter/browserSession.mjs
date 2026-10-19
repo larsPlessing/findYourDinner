@@ -57,10 +57,23 @@ export async function loadAuthenticatedInstagramPost(source) {
 
         let video = null;
         if (videoUrl) {
-            video = await downloadAuthenticatedVideo(context, videoUrl);
+            video = await downloadBrowserVideo(context, videoUrl);
         }
         return { html, url: finalUrl, video };
     } finally {
         await context.close();
+    }
+}
+
+/**
+ * Lädt ein Video aus der Browsersitzung. Instagram liefert als currentSrc oft eine blob:-URL,
+ * die eine Download-Quelle ist und keinen Fehler werfen soll – sonst scheitert der ganze Abruf.
+ */
+export async function downloadBrowserVideo(context, videoUrl) {
+    try {
+        return await downloadAuthenticatedVideo(context, videoUrl);
+    } catch (error) {
+        console.warn(`Instagram-Video aus der Browsersitzung konnte nicht geladen werden: ${error.message}`);
+        return null;
     }
 }
