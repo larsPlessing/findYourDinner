@@ -89,8 +89,8 @@ async function listEncryptedMedia(directory, relativeDirectory = '') {
     return files;
 }
 
-async function listEncryptedDocuments(root, sourceDirectory, relativeDirectory = '') {
-    const directory = path.join(root, sourceDirectory, relativeDirectory);
+async function listEncryptedDocuments(root, relativeDirectory = '') {
+    const directory = path.join(root, 'server', relativeDirectory);
     let entries;
     try {
         entries = await fs.readdir(directory, { withFileTypes: true });
@@ -102,8 +102,8 @@ async function listEncryptedDocuments(root, sourceDirectory, relativeDirectory =
     for (const entry of entries) {
         if (entry.name.startsWith('.')) continue;
         const relativePath = path.posix.join(relativeDirectory.replaceAll(path.sep, '/'), entry.name);
-        if (entry.isDirectory()) files.push(...await listEncryptedDocuments(root, sourceDirectory, relativePath));
-        else if (entry.isFile() && entry.name.endsWith('.enc')) files.push(`${sourceDirectory}/${relativePath}`);
+        if (entry.isDirectory()) files.push(...await listEncryptedDocuments(root, relativePath));
+        else if (entry.isFile() && entry.name.endsWith('.enc')) files.push(`server/${relativePath}`);
     }
     return files;
 }
@@ -130,8 +130,7 @@ async function restoreEncryptedFiles({ root = rootDirectory, passphrase, overwri
     } catch (error) {
         if (error.code !== 'ENOENT') throw error;
     }
-    documentFiles.push(...await listEncryptedDocuments(root, 'server'));
-    documentFiles.push(...await listEncryptedDocuments(root, 'scripts'));
+    documentFiles.push(...await listEncryptedDocuments(root));
 
     const mediaFiles = [];
     for (const directory of ['images/recipes', 'videos/recipes']) {
