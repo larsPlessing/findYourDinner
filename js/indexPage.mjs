@@ -16,7 +16,7 @@ const uploadStatus = document.getElementById('uploadStatus');
 searchInput.addEventListener('input', handleSearch);
 recipesJsonInput.addEventListener('change', handleLocalJsonFile);
 
-window.addEventListener('load', loadRecipes);
+window.addEventListener('load', () => loadRecipes());
 
 async function loadRecipes(forceRemote = false) {
     try {
