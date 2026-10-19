@@ -136,6 +136,7 @@ function selectLocalRecipesJson() {
                 reject(error);
             }
         }, { once: true });
+        input.addEventListener('cancel', () => reject(new Error('Dateiauswahl wurde abgebrochen.')), { once: true });
         input.click();
     });
 }

@@ -319,6 +319,43 @@ test('removes the legacy recipe cache before writing the full editable list', ()
     assert.deepEqual(JSON.parse(storage.recipes_user_edits), sampleRecipes);
 });
 
+test('failed published revision save preserves the active recipes and revision', async t => {
+    const localRecipes = [{ id: 7, name: 'Meine lokale Änderung' }];
+    const storage = {
+        recipes_user_edits: JSON.stringify(localRecipes),
+        getItem(key) { return Object.hasOwn(this, key) ? this[key] : null; },
+        setItem(key) { if (key === 'recipes') throw new Error('quota'); },
+        removeItem(key) { delete this[key]; }
+    };
+    const generator = createGenerator(t, { storage, confirmImplementation: () => true, fetchImplementation: async () => ({
+        ok: true, json: async () => ({ revision: 'rev-new', recipes: [{ id: 7, name: 'Neue veröffentlichte Version' }] })
+    }) });
+    generator.storage.setItem.mock.mockImplementation((key, value) => {
+        if (key === 'recipes') throw new Error('quota');
+        storage[key] = String(value);
+    });
+    generator.recipes = localRecipes;
+    generator.revision = 'rev-old';
+
+    await assert.rejects(generator.syncWithRemote('recipes.enc', { hasLocalEdits: true, hasCachedRecipes: true }));
+    assert.deepEqual(generator.recipes, localRecipes);
+    assert.equal(generator.revision, 'rev-old');
+    assert.equal(storage.recipes_user_edits, JSON.stringify(localRecipes));
+});
+
+test('successful published revision change revokes and clears cached media URLs', async t => {
+    const generator = createGenerator(t, { fetchImplementation: async () => ({
+        ok: true, json: async () => ({ revision: 'rev-new', recipes: sampleRecipes })
+    }) });
+    generator.revision = 'rev-old';
+    generator.mediaUrls.set('images/recipes/suppe.jpg.enc', 'blob:old');
+    const revoke = t.mock.method(URL, 'revokeObjectURL');
+
+    await generator.syncWithRemote('recipes.enc', { hasCachedRecipes: true });
+    assert.equal(generator.mediaUrls.size, 0);
+    assert.deepEqual(revoke.mock.calls.map(call => call.arguments[0]), ['blob:old']);
+});
+
 test('clearAllData removes cached recipes and user edits', async t => {
     const storage = {
         recipes: JSON.stringify(sampleRecipes),

@@ -11,6 +11,10 @@ const detailCss = fs.readFileSync(path.resolve(__dirname, '../../css/detail.css'
 const detailJs = fs.readFileSync(path.resolve(__dirname, '../../js/recipeDetail.mjs'), 'utf8');
 
 describe('recipe detail page', () => {
+    it('rejects local recipe file selection when the picker is cancelled', () => {
+        assert.match(detailJs, /input\.addEventListener\(['"]cancel['"],\s*\(\) => reject\(new Error\(['"]Dateiauswahl wurde abgebrochen\./);
+    });
+
     describe('layout and controls', () => {
         it('provides the DOM elements used to render a recipe', () => {
             for (const id of [

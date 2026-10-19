@@ -73,15 +73,20 @@ export default class RecipeGenerator {
         }
 
         if ((hasNewRevision && (!hasLocalEdits || !dismissedCurrentRevision)) || !hasCachedRecipes) {
+            const previousRecipes = this.recipes;
+            const previousRevision = this.revision;
             this.recipes = remote.recipes;
             this.revision = remoteRevision;
-            this.normalizeCategories();
             const saved = hasLocalEdits
                 ? this.saveRemoteRecipesToLocalStorage()
                 : this.saveToLocalStorage();
             if (!saved) {
+                this.recipes = previousRecipes;
+                this.revision = previousRevision;
                 throw new Error('Die neue Rezeptversion konnte nicht gespeichert werden. Lokale Änderungen wurden beibehalten.');
             }
+            this.normalizeCategories();
+            if (previousRevision !== remoteRevision) this.clearMediaCache();
             if (shouldPrompt) this.storage.removeItem('recipes_dismissed_revision');
             return { updated: true, remoteRevision };
         }
@@ -227,6 +232,11 @@ export default class RecipeGenerator {
             this.mediaLoads.delete(src);
         }
     }
+    clearMediaCache() {
+        for (const url of this.mediaUrls.values()) URL.revokeObjectURL(url);
+        this.mediaUrls.clear();
+        this.mediaLoads.clear();
+    }
     async loadMediaURL(src, mimeType) {
         if (!this.cryptoKey) {
             const stored = await this.readStoredKey();
@@ -264,9 +274,7 @@ export default class RecipeGenerator {
         return Boolean(recipe && recipe.images && recipe.images.length);
     }
     async clearAllData() {
-        for (const url of this.mediaUrls.values()) URL.revokeObjectURL(url);
-        this.mediaUrls.clear();
-        this.mediaLoads.clear();
+        this.clearMediaCache();
         this.clearLocalStorage();
         this.recipes = [];
     }

@@ -140,6 +140,7 @@ async function importRecipe(payload) {
             ? findMatchingInstagramRecipeIndex(generator.recipes, payload.url)
             : -1;
         const previousEditingRecipeIndex = editingRecipeIndex;
+        const previousExistingRecipe = existingIndex >= 0 ? { ...generator.recipes[existingIndex] } : null;
         let importedRecipeWasPushed = false;
         if (existingIndex >= 0) {
             const existingRecipe = generator.recipes[existingIndex];
@@ -156,8 +157,9 @@ async function importRecipe(payload) {
         if (!savedToProject && !savedInBrowser) {
             if (importedRecipeWasPushed) {
                 generator.recipes.pop();
-                editingRecipeIndex = previousEditingRecipeIndex;
             }
+            if (previousExistingRecipe) generator.recipes[existingIndex] = previousExistingRecipe;
+            editingRecipeIndex = previousEditingRecipeIndex;
             throw new Error('Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.');
         }
         selectRecipeForEdit(editingRecipeIndex);
