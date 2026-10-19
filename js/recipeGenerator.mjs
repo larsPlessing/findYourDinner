@@ -29,9 +29,11 @@ export default class RecipeGenerator {
             if (this.window.location.protocol === 'file:') {
                 throw new Error('Bei file:// muss recipes.enc über die Dateiauswahl geladen werden.');
             }
+            const previousRevision = this.revision;
             const data = await this.fetchRecipeData(url);
             this.recipes = data.recipes;
             this.revision = typeof data.revision === 'string' ? data.revision : null;
+            if (previousRevision !== this.revision) this.clearMediaCache();
             this.normalizeCategories();
             if (progressCallback) progressCallback({ phase: 'complete', progress: 100, message: 'Rezepte geladen' });
             return this.recipes;

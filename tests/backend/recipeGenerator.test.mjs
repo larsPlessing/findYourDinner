@@ -356,6 +356,21 @@ test('successful published revision change revokes and clears cached media URLs'
     assert.deepEqual(revoke.mock.calls.map(call => call.arguments[0]), ['blob:old']);
 });
 
+test('loading the standard recipe file invalidates media cached for the previous revision', async t => {
+    const generator = createGenerator(t, { fetchImplementation: async () => ({
+        ok: true, json: async () => ({ revision: 'standard-new', recipes: sampleRecipes })
+    }) });
+    generator.revision = 'standard-old';
+    generator.mediaUrls.set('images/recipes/suppe.jpg.enc', 'blob:old-standard');
+    const revoke = t.mock.method(URL, 'revokeObjectURL');
+
+    await generator.loadFromURL('recipes.enc');
+
+    assert.equal(generator.revision, 'standard-new');
+    assert.equal(generator.mediaUrls.size, 0);
+    assert.deepEqual(revoke.mock.calls.map(call => call.arguments[0]), ['blob:old-standard']);
+});
+
 test('clearAllData removes cached recipes and user edits', async t => {
     const storage = {
         recipes: JSON.stringify(sampleRecipes),
