@@ -37,6 +37,16 @@ export function getInstagramEmbedUrl(source) {
 }
 
 export function getInstagramVideoUrl(html) {
-    return html.match(/<meta\b[^>]*(?:property|name)=["'](?:og:video|og:video:url|og:video:secure_url|twitter:player:stream)["'][^>]*>/i)?.[0]
-        ?.match(/content=["']([^"']+)/i)?.[1] || null;
+    const value = html.match(/<meta\b[^>]*(?:property|name)=["'](?:og:video|og:video:url|og:video:secure_url|twitter:player:stream)["'][^>]*>/i)?.[0]
+        ?.match(/content=["']([^"']+)/i)?.[1];
+    return value ? decodeHtmlAttribute(value) : null;
+}
+
+export function decodeHtmlAttribute(value) {
+    return value
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;|&apos;/g, "'")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>');
 }

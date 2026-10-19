@@ -20,6 +20,31 @@ test('localhost save API writes image files and recipes.json into the project', 
         fs.rmSync(projectDirectory, { recursive: true, force: true });
     });
 
+    test('image cleanup preserves dotfiles while deleting orphaned recipe images', async t => {
+        const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+        const imageDirectory = path.join(projectDirectory, 'images', 'recipes');
+        fs.mkdirSync(imageDirectory, { recursive: true });
+        fs.writeFileSync(path.join(imageDirectory, '.gitkeep'), '');
+        fs.writeFileSync(path.join(imageDirectory, 'orphan.jpg'), 'unused');
+        const server = createServer({ rootDirectory: projectDirectory });
+        t.after(async () => {
+            await new Promise(resolve => server.close(resolve));
+            fs.rmSync(projectDirectory, { recursive: true, force: true });
+        });
+        await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+
+        const baseUrl = `http://127.0.0.1:${server.address().port}`;
+        const response = await fetch(`${baseUrl}/api/save-recipes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Origin: baseUrl },
+            body: JSON.stringify({ recipes: [] })
+        });
+
+        assert.equal(response.status, 200);
+        assert.equal(fs.existsSync(path.join(imageDirectory, '.gitkeep')), true);
+        assert.equal(fs.existsSync(path.join(imageDirectory, 'orphan.jpg')), false);
+    });
+
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const address = server.address();
     const imageBytes = Buffer.from('test-image-bytes');
@@ -282,6 +307,9 @@ test('localhost import API stores recipe videos, streams byte ranges and removes
     assert.equal(videoResponse.headers.get('content-type'), 'video/mp4');
     assert.equal(videoResponse.headers.get('content-range'), `bytes 2-6/${videoBytes.length}`);
     assert.deepEqual(Buffer.from(await videoResponse.arrayBuffer()), videoBytes.subarray(2, 7));
+    const fullVideoResponse = await fetch(`${baseUrl}/${recipe.video.src}`);
+    assert.equal(fullVideoResponse.status, 200);
+    assert.deepEqual(Buffer.from(await fullVideoResponse.arrayBuffer()), videoBytes);
     const suffixResponse = await fetch(`${baseUrl}/${recipe.video.src}`, { headers: { Range: 'bytes=-4' } });
     assert.equal(suffixResponse.status, 206);
     assert.equal(suffixResponse.headers.get('content-range'), `bytes ${videoBytes.length - 4}-${videoBytes.length - 1}/${videoBytes.length}`);

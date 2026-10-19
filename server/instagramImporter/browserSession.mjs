@@ -9,6 +9,18 @@ export const INSTAGRAM_USER_DATA_DIRECTORY = path.join(
     'instagram-session'
 );
 
+export async function readInstagramPageSnapshot(page) {
+    try {
+        return await page.evaluate(() => ({
+            html: document.documentElement?.outerHTML || '',
+            videoUrl: document.querySelector('video')?.currentSrc || document.querySelector('video')?.src || null
+        }));
+    } catch {
+        await page.waitForTimeout(1000);
+        return null;
+    }
+}
+
 /** Lädt einen Beitrag in einer sichtbaren, persistenten lokalen Instagram-Sitzung. */
 export async function loadAuthenticatedInstagramPost(source) {
     let chromium;
@@ -41,10 +53,8 @@ export async function loadAuthenticatedInstagramPost(source) {
         let videoUrl = null;
         while (Date.now() < deadline) {
             finalUrl = page.url();
-            const snapshot = await page.evaluate(() => ({
-                html: document.documentElement?.outerHTML || '',
-                videoUrl: document.querySelector('video')?.currentSrc || document.querySelector('video')?.src || null
-            }));
+            const snapshot = await readInstagramPageSnapshot(page);
+            if (!snapshot) continue;
             html = snapshot.html;
             videoUrl = snapshot.videoUrl;
             if (!/\/accounts\/login(?:\/|$)/i.test(new URL(finalUrl).pathname) && (hasPostContent(html) || videoUrl)) break;

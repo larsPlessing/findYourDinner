@@ -199,10 +199,13 @@ function selectRecipeForEdit(index) {
     form.innerHTML = '';
     addEditorField(form, 'Name', 'name', recipe.name || '');
     addCategoryField(form, recipe.category || '', recipe.healthy);
-    addEditorField(form, 'Portionen', 'servings', recipe.servings ?? '', 'number');
+    addEditorField(form, 'Portionen', 'servings', recipe.servings ?? '', 'text');
+    form.elements.servings.inputMode = 'decimal';
     addIngredientsEditor(form, recipe.ingredients || []);
     addInstructionsEditor(form, recipe.instructions || []);
-    addEditorField(form, 'Notizen oder Links (eine pro Zeile)', 'notes', (recipe.notes || []).map(item => typeof item === 'string' ? item : JSON.stringify(item)).join('\n'), 'textarea');
+    const notesValue = (recipe.notes || []).map(item => typeof item === 'string' ? item : JSON.stringify(item)).join('\n');
+    addEditorField(form, 'Notizen oder Links (eine pro Zeile)', 'notes', notesValue, 'textarea');
+    form.dataset.originalNotes = notesValue;
     const placeholder = document.createElement('label');
     placeholder.className = 'editor-checkbox';
     placeholder.innerHTML = '<input name="isPlaceholder" type="checkbox"> In Vorbereitung';
@@ -541,10 +544,13 @@ async function saveEditedRecipe(event) {
     if (!updated.name) { form.elements.name.focus(); return; }
     updated.category = form.elements.category.value.trim();
     updated.healthy = form.elements.healthy.checked;
-    updated.servings = form.elements.servings.value ? Number(form.elements.servings.value) : null;
+    const servings = form.elements.servings.value.trim();
+    updated.servings = servings === '' ? null : (Number.isFinite(Number(servings)) ? Number(servings) : servings);
     updated.ingredients = readIngredientRows(form);
     updated.instructions = readInstructionRows(form);
-    updated.notes = parseEditorLines(form.elements.notes.value);
+    updated.notes = form.elements.notes.value === form.dataset.originalNotes
+        ? original.notes || []
+        : parseEditorLines(form.elements.notes.value);
     updated.isPlaceholder = form.elements.isPlaceholder.checked;
     if (!Array.isArray(updated.images)) updated.images = [];
     await commitRecipeChanges(updated, editingRecipeIndex);
@@ -554,10 +560,12 @@ async function saveEditedRecipe(event) {
 async function commitRecipeChanges(recipe, index) {
     generator.recipes[index] = recipe;
     const savedInBrowser = persistRecipeEdits();
-    if (!await saveRecipeProjectToFolder(savedInBrowser)) return;
+    const savedToProject = await saveRecipeProjectToFolder(savedInBrowser);
+    if (!savedInBrowser) return;
     if (typeof globalThis.onRecipeEditorSaved === 'function') {
-        globalThis.onRecipeEditorSaved(generator.recipes[index]);
+        await globalThis.onRecipeEditorSaved(generator.recipes[index]);
     }
+    if (!savedToProject) return;
 }
 
 function newRecipe() {

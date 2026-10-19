@@ -16,6 +16,7 @@ function dependencies(t, fetchImplementation, extras = {}) {
         fetchImpl: t.mock.fn(fetchImplementation),
         apiKey: testApiKey,
         ytDlpDownloader: t.mock.fn(async () => null),
+        lookupImpl: t.mock.fn(async () => [{ address: '93.184.216.34', family: 4 }]),
         ...extras
     };
 }
@@ -56,12 +57,87 @@ test('URL recipe import uses the provided category enum and imports a webpage im
         throw new Error(`Unexpected fetch URL: ${url}`);
     });
 
+    test('URL import rejects private hosts and redirects before fetching the destination', async t => {
+        let calls = 0;
+        const deps = dependencies(t, async (input, options) => {
+            calls++;
+            assert.equal(options.redirect, 'manual');
+            return new Response(null, { status: 302, headers: { Location: 'http://127.0.0.1/private' } });
+        });
+
+        await assert.rejects(
+            importRecipe({ url: 'http://127.0.0.1/secret', categories }, deps),
+            /Private oder lokale Adressen/
+        );
+        assert.equal(calls, 0);
+
+        await assert.rejects(
+            importRecipe({ url: 'https://example.com/recipe', categories }, deps),
+            /Private oder lokale Adressen/
+        );
+        assert.equal(calls, 1, 'the private redirect target must not be requested');
+    });
+
     const imported = await importRecipe({ url: 'https://example.com/recipe', categories }, deps);
     assert.equal(imported.name, 'Classic Apple Cake');
     assert.equal(imported.category, categories[0]);
     assert.equal(imported.healthy, true);
     assert.equal(imported.images[0].src, `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`);
     assert.equal(deps.fetchImpl.mock.callCount(), 3);
+});
+
+test('Gemini reports a clear error when generation is cut off by the token limit', async t => {
+    const deps = dependencies(t, async input => {
+        if (String(input).includes('generativelanguage.googleapis.com')) {
+            return new Response(JSON.stringify({
+                candidates: [{ finishReason: 'MAX_TOKENS', content: { parts: [{ text: '{"title":"Cut off' }] } }]
+            }));
+        }
+        return new Response(`<html><body>${'Ein vollständiger Rezepttext mit Zutaten, Mengen und einer ausführlichen Zubereitung für die Zubereitung eines leckeren Gerichts. '.repeat(2)}</body></html>`);
+    });
+
+    await assert.rejects(
+        importRecipe({ url: 'https://example.com/recipe', categories }, deps),
+        /Tokenlimits abgeschnitten/
+    );
+});
+
+test('URL import rejects public hostnames resolving to private addresses', async t => {
+    let calls = 0;
+    const deps = dependencies(t, async () => {
+        calls++;
+        return new Response(`<html><body>${'A recipe page with enough text for a recipe import. '.repeat(3)}</body></html>`);
+    }, {
+        lookupImpl: t.mock.fn(async () => [{ address: '10.0.0.4', family: 4 }])
+    });
+
+    await assert.rejects(
+        importRecipe({ url: 'https://example.com/recipe', categories }, deps),
+        /Private oder lokale Adressen/
+    );
+    assert.equal(calls, 0);
+});
+
+test('Gemini text split across response parts is joined before JSON parsing', async t => {
+    const recipe = {
+        title: 'Mehrteilige Antwort',
+        category: 'Salzig',
+        healthy: false,
+        ingredients: [{ name: 'Mehl' }],
+        steps: ['Backen.']
+    };
+    const json = JSON.stringify(recipe);
+    const deps = dependencies(t, async input => {
+        if (String(input).includes('generativelanguage.googleapis.com')) {
+            return new Response(JSON.stringify({
+                candidates: [{ content: { parts: [{ text: json.slice(0, 12) }, { text: json.slice(12) }] } }]
+            }));
+        }
+        return new Response(`<html><body>${'Ein vollständiger Rezepttext mit Zutaten, Mengen und einer ausführlichen Zubereitung für die Zubereitung eines leckeren Gerichts. '.repeat(2)}</body></html>`);
+    });
+
+    const imported = await importRecipe({ url: 'https://example.com/recipe', categories }, deps);
+    assert.equal(imported.name, 'Mehrteilige Antwort');
 });
 
 test('webpage image redirects are validated before requesting the next address', async t => {

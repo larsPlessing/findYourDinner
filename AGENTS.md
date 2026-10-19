@@ -1,6 +1,9 @@
 # AGENTS.md – find-your-dinner ("Was koche ich heute?")
 
-Mobiler Rezeptfinder: statische Seite (GitHub Pages) plus lokaler Node-Server mit Schreib-API und Import (URL, Bild, Instagram-Video) über Gemini. Sprache im Projekt: Deutsch (UI, Kommentare, Commit-Texte).
+# Root RULES
+- You MUST use scoop or npm to install tools.
+- Use "S:\" as the target for all installations.
+- Do NOT use "C:\". Only use this if "S:\" is not an option.
 
 ## Befehle
 - `npm run serve` – lokaler Server auf http://localhost:4004 (lädt `.env`, Node 22.9+)
@@ -14,9 +17,8 @@ Mobiler Rezeptfinder: statische Seite (GitHub Pages) plus lokaler Node-Server mi
 - `js/indexPage.mjs` – Logik der Übersicht (Laden, Suche, Filter, Kacheln)
 - `js/recipeDetail.mjs` – Logik der Detailseite (Bilder, Zutaten, Portionen-Scaler, Dock, Wake Lock)
 - `js/recipeGenerator.mjs` – Laden, Suche, Filter, Speicherung
+- `js/recipeDisplayUtils.mjs` – gemeinsame Rezept-Emojis, Platzhalterbilder und Bildtransformationen
 - `js/recipeEditor.mjs` – Editor, Import-Aufrufe, Bildkomprimierung
-- `js/imageStore.mjs` – IndexedDB für Bilder
-- `js/xmlParser.mjs`, `js/lib/jszip.min.mjs` – alter Excel-Import (vermutlich Altlast, vor dem Löschen Nutzung prüfen)
 - `server.mjs` – statischer Server und Schreib-API
 - `server/recipeImporter.mjs` – URL-/Bildimport über Gemini, Modell-Fallback bei Token-Limit
 - `server/instagramImporter/` – Abruf, Browser-Sitzung, Video-Download, Frame-Extraktion
@@ -28,7 +30,7 @@ Mobiler Rezeptfinder: statische Seite (GitHub Pages) plus lokaler Node-Server mi
 
 ## Nie komplett lesen (zu groß, kein Code)
 - `recipes.json` – nur gezielt mit grep nach einem Rezeptnamen oder einer ID suchen
-- `images/`, `videos/`, `js/lib/jszip.min.mjs`, `node_modules/`
+- `images/`, `videos/`, `node_modules/`
 
 ## Regeln
 - Nur ES-Module (`.mjs`), keine Build-Tools. Relative URLs verwenden, damit GitHub Pages funktioniert.
@@ -37,8 +39,8 @@ Mobiler Rezeptfinder: statische Seite (GitHub Pages) plus lokaler Node-Server mi
 - Die README ist öffentlich: kurz halten (Was ist es, Installation, Tests) und keine sensiblen oder internen Details eintragen.
 - Nutzereingaben und Importdaten nie per `innerHTML` einfügen, sondern `textContent` oder DOM-Methoden.
 - Kein Inline-JS und kein Inline-CSS in den HTML-Dateien: Skripte als `js/*.mjs` mit `<script type="module" src=…>`, Styles als `css/*.css` mit `<link rel="stylesheet">` (Seiten-Stylesheet zuletzt im Head, damit die Cascade gleich bleibt). Tests erzwingen das.
-- Die Funktionen `getRecipeEmoji`, `generatePlaceholderImage` und `applyImageTransform` stehen doppelt (`js/indexPage.mjs` und `js/recipeDetail.mjs`). Änderungen immer in beiden vornehmen, oder in ein gemeinsames Modul auslagern.
-- Browser-Speicher: `localStorage` Keys `recipes_user_edits` und `currentRecipe`.
+- `getRecipeEmoji`, `generatePlaceholderImage` und `applyImageTransform` liegen gemeinsam in `js/recipeDisplayUtils.mjs`.
+- Browser-Speicher: `localStorage` Keys `recipes_user_edits` und `recipes_revision`; Rezeptdetails werden über `?id=` verlinkt (`currentRecipe` bleibt als Abwärtskompatibilität).
 
 ## Arbeitsweise (Tokens sparen)
 - Erst mit grep/Suche die passende Stelle finden, dann nur diese Datei bzw. diesen Abschnitt lesen.

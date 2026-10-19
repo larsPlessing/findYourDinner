@@ -8,7 +8,7 @@ Ein mobiler Rezeptfinder: statische Seite (GitHub Pages) plus lokaler Node-Serve
 - Rezeptdetailseite mit Zutaten, Zubereitung, Bildern und Portionsanpassung
 - Editor auf der Startseite und direkt auf der Detailseite
 - Bilder per Dateiauswahl oder Drag-and-drop hinzufügen
-- Offlinefreundliche Rezeptdaten und zwischengespeicherte Bilder
+- Rezeptdaten werden im Browser zwischengespeichert; zum Abrufen neuer Versionen ist eine Internetverbindung erforderlich
 
 ## Lokal starten
 

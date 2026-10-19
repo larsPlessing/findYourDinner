@@ -27,12 +27,12 @@ test('leaves amounts it cannot understand unparsed', () => {
 });
 
 test('scales amounts without turning small fractions into rounded-up values', () => {
-    assert.equal(scaleIngredientAmount(1, 0.25), '0.25');
+    assert.equal(scaleIngredientAmount(1, 0.25), '0,25');
     assert.equal(scaleIngredientAmount('1/2', 2), '1');
     assert.equal(scaleIngredientAmount('2,5', 2), '5');
     assert.equal(scaleIngredientAmount(100, 1.5), '150');
     assert.equal(scaleIngredientAmount('1 1/2', 2), '3');
-    assert.equal(scaleIngredientAmount(1, 2 / 3), '0.67');
+    assert.equal(scaleIngredientAmount(1, 2 / 3), '0,67');
 });
 
 test('scales both ends of a range and keeps unknown amounts unchanged', () => {

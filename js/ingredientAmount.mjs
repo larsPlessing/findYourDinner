@@ -30,7 +30,7 @@ function parseIngredientAmount(value) {
 /** Formatiert eine skalierte Menge: höchstens zwei Nachkommastellen,
  *  ohne Nachkommastellen bei ganzen Zahlen. */
 function formatIngredientAmount(value) {
-    return String(Math.round(value * 100) / 100);
+    return (Math.round(value * 100) / 100).toLocaleString('de-DE', { useGrouping: false, maximumFractionDigits: 2 });
 }
 
 /** Skaliert eine Menge inklusive Bereich („200-300“). Unverstandene Mengen

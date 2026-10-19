@@ -1,5 +1,8 @@
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
 import { fetchInstagramPost, isInstagramUrl } from './instagramImporter/index.mjs';
 import { extractVideoFrames } from './instagramImporter/videoFrameExtractor.mjs';
+import { decodeHtmlAttribute } from './instagramImporter/postUtils.mjs';
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 // Modelle, auf die gewechselt wird, wenn das Token-Kontingent des Vorgängermodells erschöpft ist.
@@ -61,15 +64,6 @@ function extractJsonLdRecipe(html) {
     return null;
 }
 
-function decodeHtmlAttribute(value) {
-    return value
-        .replace(/&amp;/g, '&')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;|&apos;/g, "'")
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>');
-}
-
 function parseHtmlAttributes(tag) {
     return Object.fromEntries([...tag.matchAll(/([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)]
         .map(match => [match[1].toLowerCase(), decodeHtmlAttribute(match[2] ?? match[3] ?? match[4])]));
@@ -116,9 +110,57 @@ function resolveImageUrl(value, baseUrl) {
     }
 }
 
-async function downloadRecipeImage(imageUrl, fetchImpl = fetch) {
+function isPrivateAddress(address) {
+    const normalized = address.toLowerCase().split('%')[0];
+    if (isIP(normalized) === 4) {
+        const [first, second] = normalized.split('.').map(Number);
+        return first === 0 || first === 10 || first === 127
+            || (first === 100 && second >= 64 && second <= 127)
+            || (first === 169 && second === 254)
+            || (first === 172 && second >= 16 && second <= 31)
+            || (first === 192 && second === 168)
+            || (first === 192 && second === 0)
+            || (first === 198 && (second === 18 || second === 19))
+            || first >= 224;
+    }
+    if (isIP(normalized) !== 6) return true;
+    if (normalized === '::' || normalized === '::1'
+        || /^(?:fc|fd|fe[89ab]|ff)/.test(normalized)) return true;
+    const mapped = normalized.match(/^::ffff:(?:(\d+\.\d+\.\d+\.\d+)|([0-9a-f]{1,4}):([0-9a-f]{1,4}))$/);
+    if (mapped) {
+        const ipv4 = mapped[1] || [
+            Number.parseInt(mapped[2], 16) >> 8,
+            Number.parseInt(mapped[2], 16) & 255,
+            Number.parseInt(mapped[3], 16) >> 8,
+            Number.parseInt(mapped[3], 16) & 255
+        ].join('.');
+        return isPrivateAddress(ipv4);
+    }
+    return false;
+}
+
+async function assertPublicUrl(value, lookupImpl = lookup) {
+    const url = new URL(value);
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
+        throw new Error('Nur öffentliche HTTP- und HTTPS-Adressen können importiert werden.');
+    }
+    const hostname = url.hostname.replace(/^\[|\]$/g, '').toLowerCase();
+    if (hostname === 'localhost' || hostname.endsWith('.localhost')
+        || hostname.endsWith('.local') || hostname.endsWith('.internal')) {
+        throw new Error('Private oder lokale Adressen können nicht importiert werden.');
+    }
+    const addresses = isIP(hostname)
+        ? [{ address: hostname }]
+        : await lookupImpl(hostname, { all: true, verbatim: true });
+    if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
+        throw new Error('Private oder lokale Adressen können nicht importiert werden.');
+    }
+}
+
+async function downloadRecipeImage(imageUrl, fetchImpl = fetch, lookupImpl = lookup) {
     let response;
     for (let redirects = 0; redirects <= 10; redirects++) {
+        await assertPublicUrl(imageUrl, lookupImpl);
         response = await fetchImpl(imageUrl, { redirect: 'manual' });
         if (![301, 302, 303, 307, 308].includes(response.status)) break;
         const location = response.headers.get('location');
@@ -215,9 +257,17 @@ async function requestGemini(model, parts, categories, fetchImpl, apiKey) {
         throw error;
     }
     const result = await response.json();
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    const candidate = result.candidates?.[0];
+    if (candidate?.finishReason === 'MAX_TOKENS') {
+        throw new Error('Gemini-Antwort wurde wegen des Tokenlimits abgeschnitten. Bitte versuche einen kürzeren oder weniger umfangreichen Import.');
+    }
+    const text = candidate?.content?.parts?.map(part => part.text || '').join('').trim();
     if (!text) throw new Error('Gemini hat kein Rezept zurückgegeben.');
-    return JSON.parse(text);
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        throw new Error(`Gemini hat kein vollständiges Rezept-JSON zurückgegeben: ${error.message}`, { cause: error });
+    }
 }
 
 async function callGemini(parts, categories, fetchImpl = fetch, apiKey = process.env.GEMINI_API_KEY) {
@@ -291,13 +341,24 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
         html = instagramPost.html;
         pageUrl = instagramPost.url || source;
     } else {
-        const response = await fetchImpl(source, {
-            redirect: 'follow',
-            headers: { 'User-Agent': 'findYourDinner Recipe Importer', 'Accept-Language': 'de,en;q=0.8' }
-        });
+        const lookupImpl = dependencies.lookupImpl || lookup;
+        let pageSource = source;
+        let response;
+        for (let redirects = 0; redirects <= 10; redirects++) {
+            await assertPublicUrl(pageSource, lookupImpl);
+            response = await fetchImpl(pageSource, {
+                redirect: 'manual',
+                headers: { 'User-Agent': 'findYourDinner Recipe Importer', 'Accept-Language': 'de,en;q=0.8' }
+            });
+            if (![301, 302, 303, 307, 308].includes(response.status)) break;
+            const location = response.headers.get('location');
+            await response.body?.cancel();
+            pageSource = location ? resolveImageUrl(location, pageSource) : null;
+            if (!pageSource || redirects === 10) throw new Error('Die Rezeptseite hat zu viele oder ungültige Weiterleitungen.');
+        }
         if (!response.ok) throw new Error(`Seite nicht abrufbar (HTTP ${response.status}).`);
         html = await response.text();
-        pageUrl = response.url || source;
+        pageUrl = response.url || pageSource;
     }
     const jsonLdRecipe = extractJsonLdRecipe(html);
     const instagramContent = isInstagram
@@ -331,7 +392,7 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
     const imageUrl = resolveImageUrl(extractRecipeImage(jsonLdRecipe) || extractMetaImage(html), pageUrl);
     if (imageUrl) {
         try {
-            imageDataUrl = await downloadRecipeImage(imageUrl, fetchImpl);
+            imageDataUrl = await downloadRecipeImage(imageUrl, fetchImpl, dependencies.lookupImpl || lookup);
         } catch (error) {
             console.warn(`Webseitenbild konnte nicht importiert werden (${imageUrl}): ${error.message}`);
         }

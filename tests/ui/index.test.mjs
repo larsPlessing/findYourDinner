@@ -34,6 +34,8 @@ test('homepage wires search, category filtering and recipe navigation', () => {
     assert.match(homepageJs, /button\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*filterByCategory\(category\)\)/);
     assert.match(homepageJs, /pin\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*openRecipe\(recipe\)\)/);
     assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeKey\)/);
+    assert.match(homepageJs, /url\.searchParams\.set\(['"]id['"],\s*recipeKey\)/);
+    assert.match(homepageJs, /window\.location\.href\s*=\s*url\.href/);
 });
 
 test('homepage renders recipe and category data without HTML interpolation', () => {
@@ -47,6 +49,10 @@ test('homepage renders recipe and category data without HTML interpolation', () 
 
 test('homepage uses the JSON source and offers local file selection', () => {
     assert.match(homepageJs, /loadFromURL\(['"]recipes\.json['"]\)/);
+    assert.match(homepageJs, /fetchRecipeData\(['"]recipes\.json['"]\)/);
+    assert.match(homepageJs, /Neue Rezeptversion verfügbar/);
+    assert.match(homepageJs, /Lokale Änderungen gehen verloren\. Fortfahren\?/);
+    assert.match(homepageJs, /saveRemoteRecipesToLocalStorage\(\)/);
     assert.match(html, /<label for=["']recipesJsonInput["'][^>]*class=["']file-label["']/);
     assert.match(homepageJs, /recipesJsonInput\.addEventListener\(['"]change['"],\s*handleLocalJsonFile\)/);
     assert.match(homepageJs, /loadRecipesFile\(file\)/);

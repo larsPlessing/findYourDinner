@@ -14,11 +14,11 @@ const detailJs = fs.readFileSync(path.join(projectRoot, 'js/recipeDetail.mjs'), 
 const recipes = JSON.parse(fs.readFileSync(path.join(projectRoot, 'recipes.json'), 'utf8')).recipes;
 
 test('homepage and detail page use the same existing image files for every recipe in recipes.json', async () => {
-    assert.match(homepageJs, /generator\.getRecipeImageURL\(recipeName\)/,
+    assert.match(homepageJs, /generator\.getRecipeImageURL\(recipe\)/,
         'homepage should load each card image through RecipeGenerator');
     assert.match(homepageJs, /img\.src\s*=\s*imageData\.dataUrl/,
         'homepage should display the image URL returned by RecipeGenerator');
-    assert.match(detailJs, /generator\.getAllRecipeImageURLs\(currentRecipe\.name\)/,
+    assert.match(detailJs, /generator\.getAllRecipeImageURLs\(currentRecipe\)/,
         'detail page should load images for the selected recipe through RecipeGenerator');
     assert.match(detailJs, /img\.src\s*=\s*resolveRecipeImageURL\(imageData\.dataUrl\)/,
         'detail page should resolve the same recipe image URL from its nested page');
@@ -33,8 +33,8 @@ test('homepage and detail page use the same existing image files for every recip
 
     for (const recipe of recipesWithImages) {
         generator.recipes = [recipe];
-        const homepageImage = await generator.getRecipeImageURL(recipe.name);
-        const detailImages = await generator.getAllRecipeImageURLs(recipe.name);
+        const homepageImage = await generator.getRecipeImageURL(recipe);
+        const detailImages = await generator.getAllRecipeImageURLs(recipe);
 
         assert.equal(detailImages.length, recipe.images.length, `${recipe.name}: detail image count`);
         assert.equal(homepageImage.dataUrl, detailImages[0].dataUrl,

@@ -76,7 +76,9 @@ describe('recipe detail page', () => {
         it('renders ingredients, instructions and the image gallery', () => {
             assert.match(detailJs, /currentRecipe\.ingredients/);
             assert.match(detailJs, /currentRecipe\.instructions/);
-            assert.match(detailJs, /getAllRecipeImageURLs\(currentRecipe\.name\)/);
+            assert.match(detailJs, /getAllRecipeImageURLs\(currentRecipe\)/);
+            assert.match(detailJs, /document\.addEventListener\(['"]visibilitychange['"]/);
+            assert.match(detailJs, /wakeLockRequested && wakeLock === null/);
             assert.match(detailJs, /displayThumbnails\(\)/);
             assert.match(detailJs, /function createIngredientItem\(ingredient\)/);
             assert.match(detailJs, /function renderIngredientLists\(ingredients\)[\s\S]*?visibleIngredients\.map\(createIngredientItem\)/);

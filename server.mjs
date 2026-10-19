@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
+import { pipeline } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { importRecipe } from './server/recipeImporter.mjs';
 
@@ -61,7 +62,8 @@ function removeUnusedRecipeImages(imageDirectory, recipes) {
 
     let deletedImages = 0;
     for (const entry of fs.readdirSync(imageDirectory, { withFileTypes: true })) {
-        if (!entry.isFile() || referencedFiles.has(entry.name)) continue;
+        if (!entry.isFile() || entry.name.startsWith('.') || !/\.(?:jpe?g|png|webp)$/i.test(entry.name)
+            || referencedFiles.has(entry.name)) continue;
         fs.unlinkSync(path.join(imageDirectory, entry.name));
         deletedImages++;
     }
@@ -345,7 +347,9 @@ function createServer(options = {}) {
                     'X-Content-Type-Options': 'nosniff'
                 });
                 if (request.method === 'HEAD') { response.end(); return; }
-                fs.createReadStream(filePath, { start, end }).pipe(response);
+                pipeline(fs.createReadStream(filePath, { start, end }), response, error => {
+                    if (error) response.destroy();
+                });
                 return;
             }
             response.writeHead(200, {
@@ -355,7 +359,9 @@ function createServer(options = {}) {
                 'X-Content-Type-Options': 'nosniff'
             });
             if (request.method === 'HEAD') { response.end(); return; }
-            fs.createReadStream(filePath).pipe(response);
+            pipeline(fs.createReadStream(filePath), response, error => {
+                if (error) response.destroy();
+            });
         });
     });
 }

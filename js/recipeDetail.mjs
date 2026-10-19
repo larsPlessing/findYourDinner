@@ -1,5 +1,6 @@
 // Seitenlogik der Rezeptdetail-Seite (pages/recipe-detail.html). Früher als Inline-<script> in der HTML.
 import { scaleIngredientAmount } from './ingredientAmount.mjs';
+import { applyImageTransform, generatePlaceholderImage, getRecipeEmoji } from './recipeDisplayUtils.mjs';
 
 globalThis.generator = new RecipeGenerator();
 let currentRecipe = null;
@@ -10,6 +11,12 @@ function resolveRecipeImageURL(imageURL) {
     if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(imageURL)) return imageURL;
     return new URL(`../${imageURL}`, window.location.href).href;
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && wakeLockRequested && wakeLock === null) {
+        requestWakeLock();
+    }
+});
 
 // Portion Scaler State
 let originalServings = null;
@@ -24,11 +31,13 @@ let ingredientSectionWasVisible = false;
 // Wake Lock State
 let wakeLock = null;
 let wakeLockSupported = 'wakeLock' in navigator;
+let wakeLockRequested = false;
 
 window.addEventListener('load', async () => {
     try {
         const savedEdits = localStorage.getItem('recipes_user_edits');
         let loadedFromCache = false;
+        let hasLocalEdits = false;
         if (savedEdits) {
             generator.recipes = JSON.parse(savedEdits);
             if (!Array.isArray(generator.recipes)) throw new Error('Lokale Rezeptdaten sind ungültig.');
@@ -36,19 +45,43 @@ window.addEventListener('load', async () => {
             generator.normalizeCategories();
             localStorage.removeItem('recipes');
             loadedFromCache = true;
+            hasLocalEdits = true;
         } else if (generator.loadFromLocalStorage()) {
             // Verwende denselben Rezept-Cache wie die Übersicht.
             loadedFromCache = true;
-        } else {
+        }
+        if (window.location.protocol !== 'file:') {
+            try {
+                const remote = await generator.fetchRecipeData('../recipes.json');
+                if (remote.revision !== generator.revision) {
+                    if (hasLocalEdits) {
+                        if (window.confirm('Neue Rezeptversion verfügbar. Lokale Änderungen bleiben erhalten. Möchtest du die lokale Liste durch die neue Standardversion ersetzen?')) {
+                            generator.recipes = remote.recipes;
+                            generator.revision = remote.revision || null;
+                            generator.normalizeCategories();
+                            if (!generator.saveRemoteRecipesToLocalStorage()) {
+                                throw new Error('Die neue Rezeptversion konnte nicht gespeichert werden. Lokale Änderungen wurden beibehalten.');
+                            }
+                        }
+                    } else {
+                        generator.recipes = remote.recipes;
+                        generator.revision = remote.revision || null;
+                        generator.normalizeCategories();
+                        generator.saveToLocalStorage();
+                    }
+                } else if (!loadedFromCache) {
+                    generator.recipes = remote.recipes;
+                    generator.revision = remote.revision || null;
+                    generator.normalizeCategories();
+                    generator.saveToLocalStorage();
+                }
+            } catch (error) {
+                if (!loadedFromCache) throw error;
+                console.warn(`Neue Rezeptversion konnte nicht geprüft werden: ${error.message}`);
+            }
+        } else if (!loadedFromCache) {
             await generator.loadFromURL('../recipes.json');
             generator.saveToLocalStorage();
-        }
-        if (loadedFromCache && window.location.protocol !== 'file:') {
-            try {
-                await generator.syncHealthyClassifications('../recipes.json');
-            } catch (error) {
-                console.warn(`Healthy-Kennzeichnungen konnten nicht aktualisiert werden: ${error.message}`);
-            }
         }
     } catch (error) {
         if (window.location.protocol === 'file:') {
@@ -69,7 +102,8 @@ window.addEventListener('load', async () => {
         }
     }
     // Hole aktuelles Rezept
-    const recipeKey = localStorage.getItem('currentRecipe');
+    const recipeKey = new URLSearchParams(window.location.search).get('id')
+        || localStorage.getItem('currentRecipe');
     if (!recipeKey) {
         alert('Kein Rezept ausgewählt');
         goBack();
@@ -107,6 +141,8 @@ function selectLocalRecipesJson() {
 
 async function displayRecipe() {
     if (!currentRecipe) return;
+    allImages = [];
+    currentImageIndex = 0;
 
     // Titel
     document.getElementById('recipeTitle').textContent = currentRecipe.name;
@@ -117,17 +153,20 @@ async function displayRecipe() {
     if (currentRecipe.category) {
         categoryEl.textContent = currentRecipe.healthy ? `${currentRecipe.category} · healthy` : currentRecipe.category;
         categoryEl.style.display = 'inline-block';
+    } else {
+        categoryEl.style.display = 'none';
     }
 
     // Zeige Hinweis wenn Placeholder-Rezept
+    const metaEl = document.getElementById('recipeMeta');
+    metaEl.replaceChildren();
     if (currentRecipe.isPlaceholder) {
-        const infoEl = document.getElementById('recipeMeta');
         const notice = document.createElement('div');
         notice.style.cssText = 'background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px;';
         const noticeTitle = document.createElement('strong');
         noticeTitle.textContent = 'ℹ️ Hinweis:';
         notice.append(noticeTitle, document.createTextNode(' Dieses Rezept ist noch nicht vollständig erfasst.'));
-        infoEl.replaceChildren(notice);
+        metaEl.appendChild(notice);
     }
 
     // Bild/Emoji
@@ -140,11 +179,14 @@ async function displayRecipe() {
 
     // Setze zunächst Emoji + Gradient
     imageEl.className = `detail-image-main ${gradient}`;
-    imageEl.querySelector('.emoji-placeholder').textContent = emoji;
+    const emojiEl = document.createElement('div');
+    emojiEl.className = 'emoji-placeholder';
+    emojiEl.textContent = emoji;
+    imageEl.replaceChildren(emojiEl);
 
     // Versuche alle Bilder zu laden
     try {
-        const imageDataArray = await generator.getAllRecipeImageURLs(currentRecipe.name);
+        const imageDataArray = await generator.getAllRecipeImageURLs(currentRecipe);
 
         if (imageDataArray && imageDataArray.length > 0) {
             allImages = imageDataArray; // Jetzt Array von {dataUrl, transform}
@@ -159,32 +201,27 @@ async function displayRecipe() {
             }
         } else {
             // Kein Bild vorhanden - generiere Placeholder
-            const placeholder = generatePlaceholderImage(currentRecipe.name, emoji);
+            const placeholder = generatePlaceholderImage(currentRecipe.name, emoji, { size: 600, nameLimit: 30 });
             const img = document.createElement('img');
             img.src = placeholder;
             img.alt = currentRecipe.name;
             img.onload = () => {
-                imageEl.innerHTML = '';
-                imageEl.appendChild(img);
+                imageEl.replaceChildren(img);
                 imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
             };
         }
     } catch (error) {
         console.warn('Bilder konnten nicht geladen werden:', error);
         // Bei Fehler auch Placeholder verwenden
-        const placeholder = generatePlaceholderImage(currentRecipe.name, emoji);
+        const placeholder = generatePlaceholderImage(currentRecipe.name, emoji, { size: 600, nameLimit: 30 });
         const img = document.createElement('img');
         img.src = placeholder;
         img.alt = currentRecipe.name;
-        imageEl.innerHTML = '';
-        imageEl.appendChild(img);
+        imageEl.replaceChildren(img);
         imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
     }
 
     // Meta-Informationen
-    const metaEl = document.getElementById('recipeMeta');
-    if (!currentRecipe.isPlaceholder) metaEl.replaceChildren();
-
     if (currentRecipe.servings) {
         const servings = document.createElement('div');
         servings.className = 'detail-meta-item';
@@ -254,41 +291,6 @@ function displayImage(index) {
  * @param {HTMLImageElement} imgElement - Das Bild-Element
  * @param {Object} transform - Transformations-Objekt
  */
-function applyImageTransform(imgElement, transform) {
-    if (!transform) return;
-
-    const transforms = [];
-
-    // Rotation
-    if (transform.rotation && transform.rotation !== 0) {
-        transforms.push(`rotate(${transform.rotation}deg)`);
-    }
-
-    // Spiegelung
-    let scaleX = transform.flipH ? -1 : 1;
-    let scaleY = transform.flipV ? -1 : 1;
-    if (scaleX !== 1 || scaleY !== 1) {
-        transforms.push(`scale(${scaleX}, ${scaleY})`);
-    }
-
-    // CSS Transform anwenden
-    if (transforms.length > 0) {
-        imgElement.style.transform = transforms.join(' ');
-    }
-
-    // Cropping mit clip-path
-    if (transform.crop && (transform.crop.left > 0 || transform.crop.top > 0 || 
-        transform.crop.right > 0 || transform.crop.bottom > 0)) {
-
-        const left = transform.crop.left;
-        const top = transform.crop.top;
-        const right = 100 - transform.crop.right;
-        const bottom = 100 - transform.crop.bottom;
-
-        imgElement.style.clipPath = `inset(${top}% ${100-right}% ${100-bottom}% ${left}%)`;
-    }
-}
-
 function displayThumbnails() {
     const thumbnailsEl = document.getElementById('imageThumbnails');
     thumbnailsEl.innerHTML = '';
@@ -529,42 +531,6 @@ function displayNotes() {
     });
 }
 
-function getRecipeEmoji(recipeName) {
-    const name = recipeName.toLowerCase();
-
-    if (name.includes('pizza')) return '🍕';
-    if (name.includes('burger')) return '🍔';
-    if (name.includes('pasta') || name.includes('nudel')) return '🍝';
-    if (name.includes('salat')) return '🥗';
-    if (name.includes('suppe')) return '🍲';
-    if (name.includes('kuchen') || name.includes('torte')) return '🍰';
-    if (name.includes('brot')) return '🍞';
-    if (name.includes('hähnchen') || name.includes('chicken')) return '🍗';
-    if (name.includes('fisch')) return '🐟';
-    if (name.includes('reis')) return '🍚';
-    if (name.includes('curry')) return '🍛';
-    if (name.includes('sandwich') || name.includes('subway')) return '🥪';
-    if (name.includes('taco')) return '🌮';
-    if (name.includes('sushi')) return '🍣';
-    if (name.includes('steak')) return '🥩';
-    if (name.includes('ei')) return '🍳';
-    if (name.includes('auflauf')) return '🥘';
-    if (name.includes('dessert') || name.includes('nachtisch')) return '🍮';
-    if (name.includes('kartoffel')) return '🥔';
-    if (name.includes('pute')) return '🦃';
-    if (name.includes('gnocchi')) return '🥟';
-    if (name.includes('nacho')) return '🌮';
-    if (name.includes('punsch')) return '🍷';
-    if (name.includes('tiramisu')) return '🍰';
-    if (name.includes('kaiserschmarn')) return '🥞';
-    if (name.includes('apfel')) return '🍎';
-    if (name.includes('oatmeal') || name.includes('haferflocken')) return '🥣';
-    if (name.includes('naan')) return '🫓';
-    if (name.includes('mac')) return '🧀';
-
-    return '🍽️';
-}
-
 function getGradientForRecipe(recipeName) {
     const hash = recipeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return `gradient-${(hash % 8) + 1}`;
@@ -582,8 +548,11 @@ function editCurrentRecipe() {
 async function onRecipeEditorSaved(recipe) {
     if (!recipe) return;
     currentRecipe = recipe;
-    // Nach dem Umbenennen bleibt die ID stabil, der gespeicherte Schlüssel muss also nur aktualisiert werden.
-    if (recipe.id !== undefined && recipe.id !== null) localStorage.setItem('currentRecipe', String(recipe.id));
+    const recipeKey = recipe.id !== undefined && recipe.id !== null ? String(recipe.id) : recipe.name;
+    localStorage.setItem('currentRecipe', recipeKey);
+    const url = new URL(window.location.href);
+    url.searchParams.set('id', recipeKey);
+    window.history.replaceState(null, '', url);
     await displayRecipe();
 }
 
@@ -599,50 +568,12 @@ function selectRandomRecipe() {
     if (random) {
         const recipeKey = random.id !== undefined && random.id !== null ? String(random.id) : random.name;
         localStorage.setItem('currentRecipe', recipeKey);
-        window.location.reload();
+        const url = new URL(window.location.href);
+        url.searchParams.set('id', recipeKey);
+        window.history.pushState(null, '', url);
+        currentRecipe = random;
+        void displayRecipe();
     }
-}
-
-function generatePlaceholderImage(recipeName, emoji) {
-    // Erstelle SVG Placeholder mit Emoji und Rezeptname
-    const hash = recipeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-    const colors = [
-        ['#667eea', '#764ba2'],
-        ['#f093fb', '#f5576c'],
-        ['#4facfe', '#00f2fe'],
-        ['#43e97b', '#38f9d7'],
-        ['#fa709a', '#fee140'],
-        ['#30cfd0', '#330867'],
-        ['#a8edea', '#fed6e3'],
-        ['#ff9a56', '#ff6a88']
-    ];
-
-    const colorPair = colors[hash % colors.length];
-    const displayName = recipeName.length > 30 ? recipeName.substring(0, 27) + '...' : recipeName;
-    const safeDisplayName = displayName.replace(/[&<>"']/g, character => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&apos;'
-    })[character]);
-
-    const svg = `
-        <svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="grad${hash}" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:${colorPair[0]};stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:${colorPair[1]};stop-opacity:1" />
-                </linearGradient>
-            </defs>
-            <rect width="600" height="400" fill="url(#grad${hash})"/>
-            <text x="300" y="200" font-size="140" text-anchor="middle" fill="white" opacity="0.9">${emoji}</text>
-            <text x="300" y="310" font-size="28" text-anchor="middle" fill="white" font-weight="600" opacity="0.95">${safeDisplayName}</text>
-        </svg>
-    `;
-
-    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
 }
 
 // ========================================
@@ -654,10 +585,10 @@ function generatePlaceholderImage(recipeName, emoji) {
  */
 async function toggleWakeLock() {
     if (wakeLock !== null) {
-        // Bereits aktiv - deaktiviere
+        wakeLockRequested = false;
         await releaseWakeLock();
     } else {
-        // Aktiviere Wake Lock
+        wakeLockRequested = true;
         await requestWakeLock();
     }
 }
@@ -667,12 +598,14 @@ async function toggleWakeLock() {
  */
 async function requestWakeLock() {
     if (!wakeLockSupported) {
+        wakeLockRequested = false;
         // Fallback für Browser ohne Wake Lock API
         showWakeLockFallbackMessage();
         return;
     }
 
     try {
+        if (document.visibilityState !== 'visible') return;
         wakeLock = await navigator.wakeLock.request('screen');
         console.log('Wake Lock aktiviert');
 
@@ -684,6 +617,7 @@ async function requestWakeLock() {
             console.log('Wake Lock automatisch freigegeben');
             wakeLock = null;
             updateWakeLockButton(false);
+            if (wakeLockRequested && document.visibilityState === 'visible') requestWakeLock();
         });
 
     } catch (err) {

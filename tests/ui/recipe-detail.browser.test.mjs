@@ -34,7 +34,35 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
     t.after(() => browser.close());
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     page.setDefaultTimeout(5000);
+    let updateNotice = '';
+    page.on('dialog', dialog => {
+        updateNotice = dialog.message();
+        dialog.dismiss();
+    });
+    await page.route('**/recipes.json', route => route.fulfill({
+        json: { revision: 'published-revision', recipes: [{ id: 1, name: 'Neue Serverversion' }] }
+    }));
+    await page.route('**/api/save-recipes', route => route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Testweise blockiertes Projektspeichern' })
+    }));
     await page.addInitScript(() => {
+        window.wakeLockRequestCount = 0;
+        Object.defineProperty(navigator, 'wakeLock', {
+            configurable: true,
+            value: {
+                async request() {
+                    window.wakeLockRequestCount++;
+                    return {
+                        addEventListener(type, listener) {
+                            if (type === 'release') window.releaseWakeLock = listener;
+                        },
+                        async release() {}
+                    };
+                }
+            }
+        });
         localStorage.setItem('currentRecipe', '1');
         localStorage.setItem('recipes_user_edits', JSON.stringify([{
             id: 1,
@@ -47,12 +75,15 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
                 { amount: 50, unit: 'ml', product: 'Milch', note: '' }
             ],
             instructions: Array.from({ length: 24 }, (_, index) => ({ step: index + 1, text: `Schritt ${index + 1}` })),
-            notes: [],
+            notes: [{ source: 'unchanged object note' }],
             images: []
         }]));
     });
-    await page.goto(`${baseUrl}/pages/recipe-detail.html`);
-    await page.waitForSelector('#ingredientDock[hidden]', { state: 'attached' });
+    await page.goto(`${baseUrl}/pages/recipe-detail.html?id=1`);
+    await page.waitForFunction(() => document.getElementById('recipeTitle').textContent === 'Dock-Test');
+    assert.match(updateNotice, /Neue Rezeptversion verfügbar/);
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('recipes_user_edits'))[0].name), 'Dock-Test');
+    await page.locator('#ingredientDock').waitFor({ state: 'attached' });
     await page.locator('#ingredientsSection').scrollIntoViewIfNeeded();
     await page.waitForTimeout(100);
     await page.evaluate(() => {
@@ -80,4 +111,28 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
 
     await page.locator('#ingredientsSection').scrollIntoViewIfNeeded();
     await page.waitForSelector('#ingredientDock[hidden]', { state: 'attached' });
+
+    await page.locator('#wakeLockBtn').click();
+    await page.waitForFunction(() => window.wakeLockRequestCount === 1);
+    await page.evaluate(() => {
+        Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+        window.releaseWakeLock();
+        Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
+        document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await page.waitForFunction(() => window.wakeLockRequestCount === 2);
+
+    await page.locator('#editCurrentRecipeBtn').click();
+    await page.locator('#recipeEditForm [name="name"]').fill('Dock-Test aktualisiert');
+    await page.locator('#recipeEditForm [name="servings"]').fill('2-4');
+    await page.locator('#recipeEditForm button[type="submit"]').click();
+    await page.waitForFunction(() => document.getElementById('recipeTitle').textContent === 'Dock-Test aktualisiert');
+    assert.equal(await page.locator('#recipeImageMain img').count(), 1);
+    assert.equal(await page.locator('#ingredientsList .ingredient-item').count(), 3);
+    assert.equal(await page.locator('#instructionsList li').count(), 24);
+    assert.equal((await page.locator('#recipeMeta').textContent()).includes('2-4 Portionen'), true);
+    assert.equal(await page.evaluate(() => new URLSearchParams(location.search).get('id')), '1');
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('recipes_user_edits'))[0].notes), [
+        { source: 'unchanged object note' }
+    ]);
 });

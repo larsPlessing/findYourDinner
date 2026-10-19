@@ -3,8 +3,6 @@ export default class RecipeGenerator {
     constructor({ windowObject = globalThis.window, storage = globalThis.localStorage, fetchImpl = (...args) => globalThis.fetch(...args) } = {}) {
         this.recipes = [];
         this.revision = null;
-        this.imageStore = typeof imageStore !== 'undefined' ? imageStore : null;
-        this.hasImages = false;
         this.window = windowObject;
         this.storage = storage;
         this.fetch = fetchImpl;
@@ -15,19 +13,23 @@ export default class RecipeGenerator {
             if (this.window.location.protocol === 'file:') {
                 throw new Error('Bei file:// muss recipes.json über die Dateiauswahl geladen werden.');
             }
-            const response = await this.fetch(url, { cache: 'no-cache' });
-            if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`);
-            const data = await response.json();
-            if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
+            const data = await this.fetchRecipeData(url);
             this.recipes = data.recipes;
             this.revision = typeof data.revision === 'string' ? data.revision : null;
             this.normalizeCategories();
-            this.hasImages = this.recipes.some(recipe => recipe.images && recipe.images.length > 0);
             if (progressCallback) progressCallback({ phase: 'complete', progress: 100, message: 'Rezepte geladen' });
             return this.recipes;
         } catch (error) {
             throw new Error(`Fehler beim Laden der Rezepte: ${error.message}`);
         }
+    }
+
+    async fetchRecipeData(url) {
+        const response = await this.fetch(url, { cache: 'no-cache' });
+        if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`);
+        const data = await response.json();
+        if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
+        return data;
     }
 
     getRecipeById(id) {
@@ -49,29 +51,6 @@ export default class RecipeGenerator {
             };
         });
     }
-    async syncHealthyClassifications(url) {
-        const migrationKey = 'healthy_classification_version';
-        if (this.storage.getItem(migrationKey) === '1') return false;
-
-        const response = await this.fetch(url, { cache: 'no-cache' });
-        if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`);
-        const data = await response.json();
-        if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
-
-        const healthyIds = new Set(data.recipes.filter(recipe => recipe.healthy === true).map(recipe => String(recipe.id)));
-        this.recipes = this.recipes.map(recipe => ({
-            ...recipe,
-            healthy: recipe.healthy === true || healthyIds.has(String(recipe.id))
-        }));
-        if (this.storage.getItem('recipes_user_edits') !== null) {
-            if (!this.saveUserEditsToLocalStorage({ notify: false })) {
-                throw new Error('Lokale Rezeptänderungen konnten nicht gespeichert werden.');
-            }
-        }
-        this.saveToLocalStorage();
-        this.storage.setItem(migrationKey, '1');
-        return true;
-    }
     searchRecipes(term) {
         if (!term || !term.trim()) return this.recipes;
         const query = term.toLocaleLowerCase('de').trim();
@@ -90,7 +69,6 @@ export default class RecipeGenerator {
     getRandomRecipe(list = this.recipes) {
         return list.length ? list[Math.floor(Math.random() * list.length)] : null;
     }
-    getRandomRecipes(count) { return [...this.recipes].sort(() => Math.random() - 0.5).slice(0, count); }
     saveUserEditsToLocalStorage({ notify = true } = {}) {
         let previousRecipes = null;
         let legacyCacheRemoved = false;
@@ -136,6 +114,20 @@ export default class RecipeGenerator {
             return false;
         }
     }
+    saveRemoteRecipesToLocalStorage({ notify = true } = {}) {
+        try {
+            this.storage.setItem('recipes', JSON.stringify(this.recipes));
+            this.storage.setItem('recipes_timestamp', new Date().toISOString());
+            if (this.revision) this.storage.setItem('recipes_revision', this.revision);
+            else this.storage.removeItem('recipes_revision');
+            this.storage.removeItem('recipes_user_edits');
+            return true;
+        } catch (error) {
+            console.error('Fehler beim Speichern der Standard-Rezeptversion:', error);
+            if (notify) this.window?.alert?.('Die neue Rezeptversion konnte nicht im Browser gespeichert werden. Lokale Änderungen bleiben erhalten.');
+            return false;
+        }
+    }
     loadFromLocalStorage() {
         try {
             const stored = this.storage.getItem('recipes');
@@ -150,12 +142,14 @@ export default class RecipeGenerator {
             return false;
         }
     }
-    async getRecipeImageURL(name) {
-        const images = await this.getAllRecipeImageURLs(name);
+    async getRecipeImageURL(recipeOrIdOrName) {
+        const images = await this.getAllRecipeImageURLs(recipeOrIdOrName);
         return images[0] || null;
     }
-    async getAllRecipeImageURLs(name) {
-        const recipe = this.getRecipeByName(name);
+    async getAllRecipeImageURLs(recipeOrIdOrName) {
+        const recipe = recipeOrIdOrName && typeof recipeOrIdOrName === 'object'
+            ? recipeOrIdOrName
+            : this.getRecipeById(recipeOrIdOrName) || this.getRecipeByName(recipeOrIdOrName);
         if (recipe && Array.isArray(recipe.images)) {
             return recipe.images.filter(image => image && image.src).map(image => ({
                 dataUrl: image.src,
@@ -167,18 +161,15 @@ export default class RecipeGenerator {
     defaultTransform() {
         return { rotation: 0, flipH: false, flipV: false, crop: { left: 0, top: 0, right: 0, bottom: 0 } };
     }
-    async hasRecipeImage(name) {
-        const recipe = this.getRecipeByName(name);
+    async hasRecipeImage(recipeOrIdOrName) {
+        const recipe = recipeOrIdOrName && typeof recipeOrIdOrName === 'object'
+            ? recipeOrIdOrName
+            : this.getRecipeById(recipeOrIdOrName) || this.getRecipeByName(recipeOrIdOrName);
         return Boolean(recipe && recipe.images && recipe.images.length);
     }
     async clearAllData() {
         this.clearLocalStorage();
         this.recipes = [];
-        this.hasImages = false;
-    }
-    async getStats() {
-        const withImages = this.recipes.filter(recipe => recipe.images && recipe.images.length).length;
-        return { total: this.recipes.length, withImages, timestamp: this.storage.getItem('recipes_timestamp'), hasImages: withImages > 0 };
     }
     clearLocalStorage() {
         this.storage.removeItem('recipes');

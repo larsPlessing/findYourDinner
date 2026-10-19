@@ -49,7 +49,6 @@ test('loads recipe JSON and reports completion', async t => {
     const result = await generator.loadFromURL('recipes.json', item => progress.push(item));
     assert.equal(result.length, 2);
     assert.equal(generator.revision, 'rev-1');
-    assert.equal(generator.hasImages, true);
     assert.equal(progress.at(-1).progress, 100);
     assert.equal(generator.fetch.mock.callCount(), 1);
     assert.equal(generator.fetch.mock.calls[0].arguments[0], 'recipes.json');
@@ -110,6 +109,30 @@ test('searches, filters and returns recipe images', async t => {
     assert.equal(await generator.hasRecipeImage('Apfelkuchen'), true);
 });
 
+test('resolves images by recipe object or id when recipe names are duplicated', async t => {
+    const generator = createGenerator(t);
+    const first = { id: 10, name: 'Doppelname', images: [{ src: 'first.jpg' }] };
+    const second = { id: 20, name: 'Doppelname', images: [{ src: 'second.jpg' }] };
+    generator.recipes = [first, second];
+
+    assert.equal((await generator.getRecipeImageURL(second)).dataUrl, 'second.jpg');
+    assert.equal((await generator.getRecipeImageURL(20)).dataUrl, 'second.jpg');
+    assert.equal((await generator.getAllRecipeImageURLs(second))[0].dataUrl, 'second.jpg');
+});
+
+test('fetches recipe data without cache when checking the published revision', async t => {
+    const generator = createGenerator(t, {
+        fetchImplementation: async () => ({
+            ok: true,
+            json: async () => ({ revision: 'fresh', recipes: sampleRecipes })
+        })
+    });
+
+    const data = await generator.fetchRecipeData('recipes.json');
+    assert.equal(data.revision, 'fresh');
+    assert.deepEqual(generator.fetch.mock.calls[0].arguments, ['recipes.json', { cache: 'no-cache' }]);
+});
+
 test('normalizes legacy category labels from saved recipes', t => {
     const generator = createGenerator(t, { storage: { recipes: JSON.stringify([
         { name: 'Kuchen', category: 'Nachtisch - Süß', healthy: true },
@@ -118,28 +141,6 @@ test('normalizes legacy category labels from saved recipes', t => {
     assert.equal(generator.loadFromLocalStorage(), true);
     assert.deepEqual(generator.recipes.map(recipe => recipe.category), ['Süß', 'Salzig']);
     assert.deepEqual(generator.recipes.map(recipe => recipe.healthy), [true, false]);
-});
-
-test('syncs newly classified healthy recipes into existing browser caches', async t => {
-    const storage = {
-        recipes: JSON.stringify([{ id: 0, name: 'Apfel Oatmeal', category: 'Süß', healthy: false }]),
-        recipes_user_edits: JSON.stringify([{ id: 0, name: 'Apfel Oatmeal', category: 'Süß', healthy: false, notes: ['Eigene Notiz'] }])
-    };
-    const generator = createGenerator(t, {
-        storage,
-        fetchImplementation: async () => ({
-            ok: true,
-            json: async () => ({ recipes: [{ id: 0, healthy: true }] })
-        })
-    });
-    generator.recipes = JSON.parse(storage.recipes_user_edits);
-
-    assert.equal(await generator.syncHealthyClassifications('recipes.json'), true);
-    assert.equal(generator.recipes[0].healthy, true);
-    assert.deepEqual(generator.recipes[0].notes, ['Eigene Notiz']);
-    assert.deepEqual(JSON.parse(storage.recipes_user_edits), generator.recipes);
-    assert.equal(storage.healthy_classification_version, '1');
-    assert.equal(await generator.syncHealthyClassifications('recipes.json'), false);
 });
 
 test('filters combine one exclusive base category with optional healthy', async t => {
@@ -177,6 +178,41 @@ test('saves the editable recipe list only once instead of duplicating the full c
     assert.equal(generator.saveToLocalStorage(), true);
     assert.equal(Object.hasOwn(storage, 'recipes'), false);
     assert.deepEqual(JSON.parse(storage.recipes_user_edits), sampleRecipes);
+});
+
+test('writes the latest published cache before removing local user edits', t => {
+    const storage = { recipes_user_edits: JSON.stringify([{ name: 'Meine Änderungen' }]) };
+    const generator = createGenerator(t, { storage });
+    generator.recipes = sampleRecipes;
+    generator.revision = 'rev-2';
+
+    assert.equal(generator.saveRemoteRecipesToLocalStorage(), true);
+    assert.equal(Object.hasOwn(storage, 'recipes_user_edits'), false);
+    assert.deepEqual(JSON.parse(storage.recipes), sampleRecipes);
+    assert.equal(storage.recipes_revision, 'rev-2');
+});
+
+test('keeps local user edits when saving a replacement cache fails', t => {
+    const edited = JSON.stringify([{ name: 'Meine Änderungen' }]);
+    const storage = {
+        recipes_user_edits: edited,
+        getItem(key) { return Object.hasOwn(this, key) ? this[key] : null; },
+        setItem(key) {
+            if (key === 'recipes') throw new DOMException('Quota exceeded', 'QuotaExceededError');
+        },
+        removeItem(key) { delete this[key]; }
+    };
+    const generator = new RecipeGenerator({
+        windowObject: { location: { protocol: 'https:' } },
+        storage
+    });
+    generator.recipes = sampleRecipes;
+    const alert = t.mock.fn();
+    generator.window.alert = alert;
+
+    assert.equal(generator.saveRemoteRecipesToLocalStorage(), false);
+    assert.equal(storage.recipes_user_edits, edited);
+    assert.equal(alert.mock.callCount(), 1);
 });
 
 test('removes the legacy recipe cache before writing the full editable list', () => {
