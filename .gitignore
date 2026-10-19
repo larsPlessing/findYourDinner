@@ -6,6 +6,9 @@ recipes.enc.bak
 recipes.enc.tmp
 recipes.json
 /AGENTS.md
+/server/**
+!/server/**/
+!/server/**/*.enc
 /images/recipes/**
 !/images/recipes/**/
 !/images/recipes/**/*.enc

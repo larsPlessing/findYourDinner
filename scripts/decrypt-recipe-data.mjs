@@ -89,6 +89,25 @@ async function listEncryptedMedia(directory, relativeDirectory = '') {
     return files;
 }
 
+async function listEncryptedDocuments(root, relativeDirectory = '') {
+    const directory = path.join(root, 'server', relativeDirectory);
+    let entries;
+    try {
+        entries = await fs.readdir(directory, { withFileTypes: true });
+    } catch (error) {
+        if (error.code === 'ENOENT') return [];
+        throw error;
+    }
+    const files = [];
+    for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue;
+        const relativePath = path.posix.join(relativeDirectory.replaceAll(path.sep, '/'), entry.name);
+        if (entry.isDirectory()) files.push(...await listEncryptedDocuments(root, relativePath));
+        else if (entry.isFile() && entry.name.endsWith('.enc')) files.push(`server/${relativePath}`);
+    }
+    return files;
+}
+
 async function restoreEncryptedFiles({ root = rootDirectory, passphrase, overwrite = false, onProgress = () => {} } = {}) {
     if (typeof passphrase !== 'string' || passphrase.length < minimumPassphraseLength) {
         throw new Error(`Das Passwort muss mindestens ${minimumPassphraseLength} Zeichen lang sein.`);
@@ -111,6 +130,7 @@ async function restoreEncryptedFiles({ root = rootDirectory, passphrase, overwri
     } catch (error) {
         if (error.code !== 'ENOENT') throw error;
     }
+    documentFiles.push(...await listEncryptedDocuments(root));
 
     const mediaFiles = [];
     for (const directory of ['images/recipes', 'videos/recipes']) {
@@ -156,7 +176,7 @@ async function restoreEncryptedFiles({ root = rootDirectory, passphrase, overwri
     }
 
     for (const filename of documentFiles) {
-        const encryptedPath = path.join(root, `${filename}.enc`);
+        const encryptedPath = path.join(root, ...`${filename}.enc`.split('/'));
         const blob = await decryptAssetBytes(await fs.readFile(encryptedPath), key, 'text/markdown');
         outputFiles.push({ path: path.join(root, filename), bytes: new Uint8Array(await blob.arrayBuffer()) });
     }

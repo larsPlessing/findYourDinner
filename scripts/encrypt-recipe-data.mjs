@@ -171,6 +171,35 @@ async function listMediaFiles(directory, relativeDirectory = '') {
     return files;
 }
 
+async function listDocumentFiles(root, directory = 'server', relativeDirectory = '') {
+    let entries;
+    try {
+        entries = await fs.readdir(path.join(root, directory, relativeDirectory), { withFileTypes: true });
+    } catch (error) {
+        if (error.code === 'ENOENT') return [];
+        throw error;
+    }
+    const files = [];
+    for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue;
+        const relativePath = path.posix.join(relativeDirectory.replaceAll(path.sep, '/'), entry.name);
+        if (entry.isDirectory()) files.push(...await listDocumentFiles(root, directory, relativePath));
+        else if (entry.isFile() && !entry.name.endsWith('.enc')) files.push(path.posix.join(directory, relativePath));
+    }
+    return files;
+}
+
+function safeDocumentPath(root, filename) {
+    if (typeof filename !== 'string' || !filename || filename.startsWith('/') || filename.includes('\\')) {
+        throw new Error(`Ungültiger Dokumentpfad: ${filename}`);
+    }
+    const normalized = path.posix.normalize(filename);
+    if (normalized !== filename || normalized.split('/').some(segment => segment === '..')) {
+        throw new Error(`Ungültiger Dokumentpfad: ${filename}`);
+    }
+    return path.join(root, ...normalized.split('/'));
+}
+
 async function migrateRecipeData({
     root = rootDirectory,
     passphrase,
@@ -258,8 +287,7 @@ async function migrateRecipeData({
         }
 
         for (const filename of documentFiles) {
-            if (path.basename(filename) !== filename) throw new Error(`Ungültiger Dokumentpfad: ${filename}`);
-            const sourcePath = path.join(root, filename);
+            const sourcePath = safeDocumentPath(root, filename);
             const bytes = await fs.readFile(sourcePath);
             const encrypted = await encryptAssetBytes(bytes, key);
             await stageEncryptedFile(`${sourcePath}.enc`, encrypted, stagedFiles);
@@ -277,7 +305,7 @@ async function migrateRecipeData({
                 await fs.unlink(safeRecipeAssetPath(root, src, src.startsWith('images/') ? 'images/recipes' : 'videos/recipes'));
             }
             for (const filename of documentFiles) {
-                await fs.unlink(path.join(root, filename));
+                await fs.unlink(safeDocumentPath(root, filename));
             }
         }
         for (const committedFile of committedFiles) {
@@ -347,6 +375,7 @@ async function main() {
         } catch (error) {
             if (error.code !== 'ENOENT') throw error;
         }
+        documentFiles.push(...await listDocumentFiles(rootDirectory));
         result = await migrateRecipeData({
             passphrase: first,
             deletePlaintext,
