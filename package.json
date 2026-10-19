@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "serve": "node --env-file-if-exists=.env server.mjs",
-    "encrypt:recipes": "node scripts/encrypt-recipe-data.mjs",
-    "decrypt:recipes": "node scripts/decrypt-recipe-data.mjs",
+    "encrypt:data": "node scripts/encrypt-data.mjs",
+    "decrypt:data": "node scripts/decrypt-data.mjs",
     "install:media-browser": "playwright install chromium",
     "test": "node --test",
     "test:backend": "node --test \"tests/backend/*.test.mjs\"",

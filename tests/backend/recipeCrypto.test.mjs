@@ -12,8 +12,8 @@ import {
     getSaltFromEnvelope,
     prepareEncryptedRecipeSave
 } from '../../js/recipeCrypto.mjs';
-import { migrateRecipeData } from '../../scripts/encrypt-recipe-data.mjs';
-import { restoreEncryptedFiles } from '../../scripts/decrypt-recipe-data.mjs';
+import { migrateRecipeData } from '../../scripts/encrypt-data.mjs';
+import { restoreEncryptedFiles } from '../../scripts/decrypt-data.mjs';
 
 const password = 'ein-langes-passwort-mit-mehreren-worten';
 
