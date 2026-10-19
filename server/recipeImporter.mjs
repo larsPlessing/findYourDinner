@@ -1,5 +1,7 @@
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
+import http from 'node:http';
+import https from 'node:https';
 import { fetchInstagramPost, isInstagramUrl } from './instagramImporter/index.mjs';
 import { extractVideoFrames } from './instagramImporter/videoFrameExtractor.mjs';
 import { decodeHtmlAttribute } from './instagramImporter/postUtils.mjs';
@@ -8,6 +10,7 @@ const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 // Modelle, auf die gewechselt wird, wenn das Token-Kontingent des Vorgängermodells erschöpft ist.
 const GEMINI_FALLBACK_MODELS = ['gemini-3.7-flash', 'gemini-3.6-flash'];
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+const MAX_PAGE_BYTES = 5 * 1024 * 1024;
 
 const RULES = `Extrahiere das Rezept als JSON nach dem vorgegebenen Schema.
 Regeln:
@@ -155,21 +158,106 @@ async function assertPublicUrl(value, lookupImpl = lookup) {
     if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
         throw new Error('Private oder lokale Adressen können nicht importiert werden.');
     }
+    return addresses;
 }
 
-async function downloadRecipeImage(imageUrl, fetchImpl = fetch, lookupImpl = lookup) {
+export function createPinnedRequestOptions(value, address, headers = {}) {
+    const url = new URL(value);
+    const hostname = url.hostname.replace(/^\[|\]$/g, '');
+    return {
+        hostname: address.address,
+        family: address.family || isIP(address.address),
+        port: url.port || undefined,
+        path: `${url.pathname}${url.search}`,
+        method: 'GET',
+        headers: { ...headers, Host: url.host },
+        ...(url.protocol === 'https:' && !isIP(hostname) ? { servername: hostname } : {})
+    };
+}
+
+function requestPinnedUrl(value, address, headers) {
+    const url = new URL(value);
+    const client = url.protocol === 'https:' ? https : http;
+    const options = createPinnedRequestOptions(value, address, headers);
+    return new Promise((resolve, reject) => {
+        const request = client.request(options, response => {
+            resolve({
+                status: response.statusCode,
+                ok: response.statusCode >= 200 && response.statusCode < 300,
+                headers: {
+                    get(name) {
+                        const value = response.headers[name.toLowerCase()];
+                        return Array.isArray(value) ? value.join(', ') : value || null;
+                    }
+                },
+                body: response,
+                url: value
+            });
+        });
+        request.setTimeout(30000, () => request.destroy(new Error('Die Rezeptseite antwortet nicht rechtzeitig.')));
+        request.on('error', reject);
+        request.end();
+    });
+}
+
+async function fetchPublicUrl(value, { headers = {} } = {}, lookupImpl = lookup, fetchImpl = null) {
+    const addresses = await assertPublicUrl(value, lookupImpl);
+    if (fetchImpl) return fetchImpl(value, { redirect: 'manual', headers });
+    return requestPinnedUrl(value, addresses[0], headers);
+}
+
+async function readLimitedResponse(response, maxBytes, errorMessage) {
+    const chunks = [];
+    let totalBytes = 0;
+    let cancelBody = async () => {
+        await response.body?.cancel?.();
+        response.body?.destroy?.();
+    };
+    const append = async chunk => {
+        totalBytes += chunk.byteLength;
+        if (totalBytes > maxBytes) {
+            await cancelBody();
+            throw new Error(errorMessage);
+        }
+        chunks.push(Buffer.from(chunk));
+    };
+    if (response.body?.getReader) {
+        const reader = response.body.getReader();
+        cancelBody = () => reader.cancel();
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            await append(value);
+        }
+    } else if (response.body?.[Symbol.asyncIterator]) {
+        for await (const chunk of response.body) await append(chunk);
+    } else {
+        const buffer = Buffer.from(await response.arrayBuffer());
+        await append(buffer);
+    }
+    return Buffer.concat(chunks);
+}
+
+async function cancelResponseBody(response) {
+    if (response.body?.cancel) await response.body.cancel();
+    else response.body?.destroy?.();
+}
+
+async function downloadRecipeImage(imageUrl, fetchImpl = null, lookupImpl = lookup) {
     let response;
     for (let redirects = 0; redirects <= 10; redirects++) {
-        await assertPublicUrl(imageUrl, lookupImpl);
-        response = await fetchImpl(imageUrl, { redirect: 'manual' });
+        response = await fetchPublicUrl(imageUrl, {}, lookupImpl, fetchImpl);
         if (![301, 302, 303, 307, 308].includes(response.status)) break;
         const location = response.headers.get('location');
         if (!location || redirects === 10) throw new Error('Das Webseitenbild hat zu viele oder ungültige Weiterleitungen.');
-        await response.body?.cancel();
+        await cancelResponseBody(response);
         imageUrl = resolveImageUrl(location, imageUrl);
         if (!imageUrl) throw new Error('Das Webseitenbild wurde auf eine ungültige Adresse weitergeleitet.');
     }
-    if (!response.ok) throw new Error(`Bild nicht abrufbar (HTTP ${response.status}).`);
+    if (!response.ok) {
+        await cancelResponseBody(response);
+        throw new Error(`Bild nicht abrufbar (HTTP ${response.status}).`);
+    }
 
     const mimeType = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
     const supportedMimeTypes = { 'image/jpeg': 'jpeg', 'image/jpg': 'jpeg', 'image/png': 'png', 'image/webp': 'webp' };
@@ -177,31 +265,15 @@ async function downloadRecipeImage(imageUrl, fetchImpl = fetch, lookupImpl = loo
     if (!imageType) throw new Error('Das Webseitenbild hat ein nicht unterstütztes Format.');
 
     const contentLength = Number(response.headers.get('content-length'));
-    if (contentLength > MAX_IMAGE_BYTES) throw new Error('Das Webseitenbild ist größer als 15 MB.');
-
-    const chunks = [];
-    let totalBytes = 0;
-    if (response.body) {
-        const reader = response.body.getReader();
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            totalBytes += value.byteLength;
-            if (totalBytes > MAX_IMAGE_BYTES) {
-                await reader.cancel();
-                throw new Error('Das Webseitenbild ist größer als 15 MB.');
-            }
-            chunks.push(Buffer.from(value));
-        }
-    } else {
-        const buffer = Buffer.from(await response.arrayBuffer());
-        totalBytes = buffer.length;
-        if (totalBytes > MAX_IMAGE_BYTES) throw new Error('Das Webseitenbild ist größer als 15 MB.');
-        chunks.push(buffer);
+    if (contentLength > MAX_IMAGE_BYTES) {
+        await cancelResponseBody(response);
+        throw new Error('Das Webseitenbild ist größer als 15 MB.');
     }
-    if (!totalBytes) throw new Error('Das Webseitenbild ist leer.');
 
-    return `data:image/${imageType};base64,${Buffer.concat(chunks).toString('base64')}`;
+    const data = await readLimitedResponse(response, MAX_IMAGE_BYTES, 'Das Webseitenbild ist größer als 15 MB.');
+    if (!data.length) throw new Error('Das Webseitenbild ist leer.');
+
+    return `data:image/${imageType};base64,${data.toString('base64')}`;
 }
 
 function htmlToText(html) {
@@ -229,10 +301,10 @@ function validateImageDataUrl(value) {
     return { mimeType: `image/${match[1]}`, data: match[2], dataUrl: value };
 }
 
-// Erkennt Fehler, die durch ein überschreiten des Token-Kontingents entstehen (429 oder passende Fehlermeldung).
+// Nur explizite Quotenfehler lösen einen Modellwechsel aus, nicht abgeschnittene MAX_TOKENS-Antworten.
 function isTokenLimitError(error) {
     if (error.status === 429) return true;
-    return /RESOURCE_EXHAUSTED|TOKEN_EXHAUSTED|token.{0,80}(limit|exceed)|(limit|exceed).{0,80}token|Quota|Kontingent/i.test(error.message);
+    return error.code === 'RESOURCE_EXHAUSTED' || error.code === 'TOKEN_EXHAUSTED';
 }
 
 async function requestGemini(model, parts, categories, fetchImpl, apiKey) {
@@ -252,8 +324,19 @@ async function requestGemini(model, parts, categories, fetchImpl, apiKey) {
         })
     });
     if (!response.ok) {
-        const error = new Error(`Gemini API ${response.status}: ${await response.text()}`);
+        const responseText = await response.text();
+        let responseData;
+        try {
+            responseData = JSON.parse(responseText);
+        } catch {
+            responseData = null;
+        }
+        const error = new Error(`Gemini API ${response.status}: ${responseText}`);
         error.status = response.status;
+        error.code = responseData?.error?.status
+            || (typeof responseData?.error?.code === 'string'
+                ? responseData.error.code
+                : responseData?.error?.code === 429 ? 'RESOURCE_EXHAUSTED' : undefined);
         throw error;
     }
     const result = await response.json();
@@ -300,7 +383,11 @@ function normalizeRecipe(recipe, source, categories, imageDataUrl) {
         name: title,
         category: categories.includes(recipe.category) ? recipe.category : categories[0],
         healthy: recipe.healthy === true,
-        servings: Number.parseFloat(recipe.servings) || null,
+        servings: typeof recipe.servings === 'number'
+            ? recipe.servings
+            : typeof recipe.servings === 'string' && /^\d+([.,]\d+)?$/.test(recipe.servings.trim())
+                ? Number(recipe.servings.trim().replace(',', '.')) || null
+                : recipe.servings || null,
         ingredients,
         instructions,
         notes: [source, recipe.description, recipe.prepTime && `Vorbereitung: ${recipe.prepTime}`, recipe.cookTime && `Kochzeit: ${recipe.cookTime}`].filter(Boolean),
@@ -345,19 +432,25 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
         let pageSource = source;
         let response;
         for (let redirects = 0; redirects <= 10; redirects++) {
-            await assertPublicUrl(pageSource, lookupImpl);
-            response = await fetchImpl(pageSource, {
-                redirect: 'manual',
+            response = await fetchPublicUrl(pageSource, {
                 headers: { 'User-Agent': 'findYourDinner Recipe Importer', 'Accept-Language': 'de,en;q=0.8' }
-            });
+            }, lookupImpl, dependencies.fetchImpl || null);
             if (![301, 302, 303, 307, 308].includes(response.status)) break;
             const location = response.headers.get('location');
-            await response.body?.cancel();
+            await cancelResponseBody(response);
             pageSource = location ? resolveImageUrl(location, pageSource) : null;
             if (!pageSource || redirects === 10) throw new Error('Die Rezeptseite hat zu viele oder ungültige Weiterleitungen.');
         }
-        if (!response.ok) throw new Error(`Seite nicht abrufbar (HTTP ${response.status}).`);
-        html = await response.text();
+        if (!response.ok) {
+            await cancelResponseBody(response);
+            throw new Error(`Seite nicht abrufbar (HTTP ${response.status}).`);
+        }
+        const pageLength = Number(response.headers.get('content-length'));
+        if (pageLength > MAX_PAGE_BYTES) {
+            await cancelResponseBody(response);
+            throw new Error('Die Rezeptseite ist größer als 5 MB.');
+        }
+        html = (await readLimitedResponse(response, MAX_PAGE_BYTES, 'Die Rezeptseite ist größer als 5 MB.')).toString('utf8');
         pageUrl = response.url || pageSource;
     }
     const jsonLdRecipe = extractJsonLdRecipe(html);
@@ -392,7 +485,7 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
     const imageUrl = resolveImageUrl(extractRecipeImage(jsonLdRecipe) || extractMetaImage(html), pageUrl);
     if (imageUrl) {
         try {
-            imageDataUrl = await downloadRecipeImage(imageUrl, fetchImpl, dependencies.lookupImpl || lookup);
+            imageDataUrl = await downloadRecipeImage(imageUrl, dependencies.fetchImpl || null, dependencies.lookupImpl || lookup);
         } catch (error) {
             console.warn(`Webseitenbild konnte nicht importiert werden (${imageUrl}): ${error.message}`);
         }

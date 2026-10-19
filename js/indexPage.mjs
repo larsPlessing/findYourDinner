@@ -6,6 +6,7 @@ let allRecipes = [];
 let filteredRecipes = [];
 let currentCategory = 'Salzig';
 let healthyOnly = false;
+let recipeImageObserver = null;
 
 const searchInput = document.getElementById('searchInput');
 const masonryGrid = document.getElementById('masonryGrid');
@@ -57,29 +58,10 @@ async function loadRecipes(forceRemote = false, confirmed = false) {
         }
         if (window.location.protocol !== 'file:') {
             try {
-                const remote = await generator.fetchRecipeData('recipes.json');
-                if (remote.revision !== generator.revision) {
-                    if (hasLocalEdits) {
-                        if (window.confirm('Neue Rezeptversion verfügbar. Lokale Änderungen bleiben erhalten. Möchtest du die lokale Liste durch die neue Standardversion ersetzen?')) {
-                            generator.recipes = remote.recipes;
-                            generator.revision = remote.revision || null;
-                            generator.normalizeCategories();
-                            if (!generator.saveRemoteRecipesToLocalStorage()) {
-                                throw new Error('Die neue Rezeptversion konnte nicht gespeichert werden. Lokale Änderungen wurden beibehalten.');
-                            }
-                        }
-                    } else {
-                        generator.recipes = remote.recipes;
-                        generator.revision = remote.revision || null;
-                        generator.normalizeCategories();
-                        generator.saveToLocalStorage();
-                    }
-                } else if (!loadedFromCache) {
-                    generator.recipes = remote.recipes;
-                    generator.revision = remote.revision || null;
-                    generator.normalizeCategories();
-                    generator.saveToLocalStorage();
-                }
+                await generator.syncWithRemote('recipes.json', {
+                    hasLocalEdits,
+                    hasCachedRecipes: loadedFromCache
+                });
             } catch (error) {
                 if (!loadedFromCache) throw error;
                 console.warn(`Neue Rezeptversion konnte nicht geprüft werden: ${error.message}`);
@@ -249,6 +231,7 @@ async function displayRecipes() {
 
 async function loadRecipeImages() {
     // Chrome iOS optimization: Load images in batches with IntersectionObserver
+    recipeImageObserver?.disconnect();
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -265,6 +248,7 @@ async function loadRecipeImages() {
         rootMargin: '50px', // Start loading 50px before visible
         threshold: 0.01
     });
+    recipeImageObserver = observer;
 
     // Observe all recipe images
     const recipeImages = document.querySelectorAll('[data-recipe-id], [data-recipe-name]');
@@ -305,7 +289,7 @@ async function loadSingleRecipeImage(recipe, imageEl) {
             imageEl.appendChild(img);
         }
     } catch (error) {
-        console.warn(`Bild für ${recipeName} konnte nicht geladen werden:`, error);
+        console.warn(`Bild für ${recipe.name} konnte nicht geladen werden:`, error);
     }
 }
 

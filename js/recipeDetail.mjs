@@ -6,6 +6,7 @@ globalThis.generator = new RecipeGenerator();
 let currentRecipe = null;
 let allImages = [];
 let currentImageIndex = 0;
+let renderToken = 0;
 
 function resolveRecipeImageURL(imageURL) {
     if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(imageURL)) return imageURL;
@@ -52,29 +53,10 @@ window.addEventListener('load', async () => {
         }
         if (window.location.protocol !== 'file:') {
             try {
-                const remote = await generator.fetchRecipeData('../recipes.json');
-                if (remote.revision !== generator.revision) {
-                    if (hasLocalEdits) {
-                        if (window.confirm('Neue Rezeptversion verfügbar. Lokale Änderungen bleiben erhalten. Möchtest du die lokale Liste durch die neue Standardversion ersetzen?')) {
-                            generator.recipes = remote.recipes;
-                            generator.revision = remote.revision || null;
-                            generator.normalizeCategories();
-                            if (!generator.saveRemoteRecipesToLocalStorage()) {
-                                throw new Error('Die neue Rezeptversion konnte nicht gespeichert werden. Lokale Änderungen wurden beibehalten.');
-                            }
-                        }
-                    } else {
-                        generator.recipes = remote.recipes;
-                        generator.revision = remote.revision || null;
-                        generator.normalizeCategories();
-                        generator.saveToLocalStorage();
-                    }
-                } else if (!loadedFromCache) {
-                    generator.recipes = remote.recipes;
-                    generator.revision = remote.revision || null;
-                    generator.normalizeCategories();
-                    generator.saveToLocalStorage();
-                }
+                await generator.syncWithRemote('../recipes.json', {
+                    hasLocalEdits,
+                    hasCachedRecipes: loadedFromCache
+                });
             } catch (error) {
                 if (!loadedFromCache) throw error;
                 console.warn(`Neue Rezeptversion konnte nicht geprüft werden: ${error.message}`);
@@ -141,6 +123,7 @@ function selectLocalRecipesJson() {
 
 async function displayRecipe() {
     if (!currentRecipe) return;
+    const token = ++renderToken;
     allImages = [];
     currentImageIndex = 0;
 
@@ -187,6 +170,7 @@ async function displayRecipe() {
     // Versuche alle Bilder zu laden
     try {
         const imageDataArray = await generator.getAllRecipeImageURLs(currentRecipe);
+        if (token !== renderToken) return;
 
         if (imageDataArray && imageDataArray.length > 0) {
             allImages = imageDataArray; // Jetzt Array von {dataUrl, transform}
@@ -206,11 +190,13 @@ async function displayRecipe() {
             img.src = placeholder;
             img.alt = currentRecipe.name;
             img.onload = () => {
+                if (token !== renderToken) return;
                 imageEl.replaceChildren(img);
                 imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
             };
         }
     } catch (error) {
+        if (token !== renderToken) return;
         console.warn('Bilder konnten nicht geladen werden:', error);
         // Bei Fehler auch Placeholder verwenden
         const placeholder = generatePlaceholderImage(currentRecipe.name, emoji, { size: 600, nameLimit: 30 });
@@ -267,6 +253,7 @@ function displayImage(index) {
     if (index < 0 || index >= allImages.length) return;
 
     currentImageIndex = index;
+    const token = renderToken;
     const imageEl = document.getElementById('recipeImageMain');
 
     // Hole Bild-Daten mit Transformation
@@ -277,6 +264,7 @@ function displayImage(index) {
     img.src = resolveRecipeImageURL(imageData.dataUrl);
     img.alt = currentRecipe.name;
     img.onload = () => {
+        if (token !== renderToken) return;
         imageEl.innerHTML = '';
         imageEl.appendChild(img);
         imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
@@ -447,7 +435,7 @@ function displayInstructions() {
     }
 
     listEl.innerHTML = '';
-    currentRecipe.instructions
+    [...currentRecipe.instructions]
         .sort((a, b) => a.step - b.step)
         .forEach(instruction => {
             const li = document.createElement('li');
@@ -467,6 +455,7 @@ function displayRecipeVideo() {
     const recipeVideo = currentRecipe.video;
     const src = typeof recipeVideo?.src === 'string' ? recipeVideo.src.trim() : '';
     if (!src) {
+        video.pause();
         video.removeAttribute('src');
         video.load();
         error.hidden = true;
@@ -476,7 +465,9 @@ function displayRecipeVideo() {
 
     if (!/^videos\/recipes\/[^/\\]+\.(?:mp4|webm|mov)$/i.test(src)) {
         console.warn('Ungültige Videoquelle im Rezept.');
+        video.pause();
         video.removeAttribute('src');
+        video.load();
         error.hidden = true;
         section.hidden = true;
         return;
@@ -492,7 +483,8 @@ function displayNotes() {
     const sectionEl = document.getElementById('notesSection');
     const listEl = document.getElementById('notesList');
 
-    if (!currentRecipe.notes || currentRecipe.notes.length === 0) {
+    if (!currentRecipe.notes || !currentRecipe.notes.some(note => typeof note === 'string')) {
+        listEl.replaceChildren();
         sectionEl.style.display = 'none';
         return;
     }
@@ -501,10 +493,11 @@ function displayNotes() {
     listEl.innerHTML = '';
 
     currentRecipe.notes.forEach(note => {
+        if (typeof note !== 'string') return;
         const noteEl = document.createElement('div');
         noteEl.className = 'note-item';
 
-        const value = String(note);
+        const value = note;
         const urlPattern = /https?:\/\/[^\s]+/g;
         let lastIndex = 0;
         for (const match of value.matchAll(urlPattern)) {
@@ -622,7 +615,9 @@ async function requestWakeLock() {
 
     } catch (err) {
         console.error('Wake Lock Fehler:', err);
-        showWakeLockFallbackMessage();
+        wakeLockRequested = false;
+        updateWakeLockButton(false);
+        showWakeLockFallbackMessage('Display-Sperre konnte nicht aktiviert werden.');
     }
 }
 
@@ -662,8 +657,8 @@ function updateWakeLockButton(active) {
 /**
  * Fallback Nachricht für Browser ohne Wake Lock Support
  */
-function showWakeLockFallbackMessage() {
-    alert('Wake Lock wird von deinem Browser nicht unterstützt.\n\nTipp: Gehe zu deinen Geräteeinstellungen und stelle die Display-Timeout Zeit manuell ein.');
+function showWakeLockFallbackMessage(message = 'Wake Lock wird von deinem Browser nicht unterstützt.') {
+    alert(`${message}\n\nTipp: Gehe zu deinen Geräteeinstellungen und stelle die Display-Timeout Zeit manuell ein.`);
 }
 
 // Cleanup beim Verlassen der Seite

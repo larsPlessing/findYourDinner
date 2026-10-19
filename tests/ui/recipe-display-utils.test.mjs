@@ -12,6 +12,11 @@ test('shared emoji mapping does not treat unrelated "ei" substrings as eggs', ()
     assert.equal(getRecipeEmoji('Spiegelei'), '🍳');
 });
 
+test('emoji mapping does not match food words inside unrelated words', () => {
+    assert.equal(getRecipeEmoji('Preiselbeer-Kompott'), '🍽️');
+    assert.equal(getRecipeEmoji('Computer-Reparatur'), '🍽️');
+});
+
 test('shared placeholder safely escapes recipe names and allows detail-sized images', () => {
     const dataUrl = generatePlaceholderImage('<script>& Kuchen', '🍰', { size: 600, nameLimit: 30 });
     const svg = Buffer.from(dataUrl.split(',')[1], 'base64').toString('utf8');

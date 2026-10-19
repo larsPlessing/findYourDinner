@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const { test } = require('node:test');
 
 const { downloadBrowserVideo, readInstagramPageSnapshot } = await import('../../server/instagramImporter/browserSession.mjs');
-const { downloadPublicVideo } = await import('../../server/instagramImporter/videoDownloader.mjs');
+const { downloadAuthenticatedVideo, downloadPublicVideo } = await import('../../server/instagramImporter/videoDownloader.mjs');
 const { fetchInstagramPost } = await import('../../server/instagramImporter/index.mjs');
 const { getInstagramVideoUrl } = await import('../../server/instagramImporter/postUtils.mjs');
 
@@ -32,6 +32,34 @@ test('echte Instagram-Media-URL wird weiterhin geladen', async () => {
     assert.equal(Buffer.from(video.data, 'base64').toString(), 'abcd');
 });
 
+test('octet-stream video response is accepted when the media URL ends in mp4', async () => {
+    const video = await downloadPublicVideo(
+        'https://scontent.cdninstagram.com/video.mp4?signature=test',
+        async () => new Response(Buffer.from('abcd'), {
+            headers: { 'Content-Type': 'application/octet-stream' }
+        })
+    );
+
+    assert.equal(video.mimeType, 'video/mp4');
+    assert.equal(Buffer.from(video.data, 'base64').toString(), 'abcd');
+});
+
+test('authenticated octet-stream video uses its URL extension to infer the media type', async () => {
+    const context = {
+        request: {
+            get: async () => ({
+                ok: () => true,
+                headers: () => ({ 'content-type': 'application/octet-stream', 'content-length': '4' }),
+                body: async () => Buffer.from('abcd')
+            })
+        }
+    };
+
+    const video = await downloadAuthenticatedVideo(context, 'https://scontent.cdninstagram.com/video.mp4?signature=test');
+
+    assert.equal(video.mimeType, 'video/mp4');
+});
+
 test('Instagram-Video-URLs decodieren HTML-Entities in signierten Querystrings', () => {
     assert.equal(
         getInstagramVideoUrl('<meta property="og:video" content="https://cdn.instagram.test/video.mp4?x=1&amp;oe=2">'),
@@ -55,6 +83,15 @@ test('Instagram-Seitensnapshot wartet nach zerstörtem Ausführungskontext und s
     assert.equal(waited, 1000);
     assert.deepEqual(await readInstagramPageSnapshot(page), { html: '<html>Rezept</html>', videoUrl: null });
     assert.equal(attempts, 2);
+});
+
+test('Instagram-Seitensnapshot wirft unerwartete Fehler erneut', async () => {
+    const page = {
+        async evaluate() { throw new Error('Browser process crashed'); },
+        async waitForTimeout() { assert.fail('unexpected errors must not be swallowed'); }
+    };
+
+    await assert.rejects(readInstagramPageSnapshot(page), /Browser process crashed/);
 });
 
 test('ohne Browser-Video (blob:-Fallback) wird yt-dlp als Fallback versucht', async () => {

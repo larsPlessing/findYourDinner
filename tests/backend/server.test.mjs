@@ -20,7 +20,7 @@ test('localhost save API writes image files and recipes.json into the project', 
         fs.rmSync(projectDirectory, { recursive: true, force: true });
     });
 
-    test('image cleanup preserves dotfiles while deleting orphaned recipe images', async t => {
+    await t.test('image cleanup preserves dotfiles while deleting orphaned recipe images', async t => {
         const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
         const imageDirectory = path.join(projectDirectory, 'images', 'recipes');
         fs.mkdirSync(imageDirectory, { recursive: true });

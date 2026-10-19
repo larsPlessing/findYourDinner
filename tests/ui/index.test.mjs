@@ -8,6 +8,9 @@ const path = require('node:path');
 
 const html = fs.readFileSync(path.resolve(__dirname, '../../index.html'), 'utf8');
 const homepageJs = fs.readFileSync(path.resolve(__dirname, '../../js/indexPage.mjs'), 'utf8');
+const generatorJs = fs.readFileSync(path.resolve(__dirname, '../../js/recipeGenerator.mjs'), 'utf8');
+const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../manifest.json'), 'utf8'));
+const maskableIcon = fs.readFileSync(path.resolve(__dirname, '../../images/icon-maskable.svg'), 'utf8');
 
 test('homepage provides the DOM elements used by recipe browsing', () => {
     for (const id of ['searchInput', 'categoryFilter', 'masonryGrid', 'loadingState']) {
@@ -49,13 +52,25 @@ test('homepage renders recipe and category data without HTML interpolation', () 
 
 test('homepage uses the JSON source and offers local file selection', () => {
     assert.match(homepageJs, /loadFromURL\(['"]recipes\.json['"]\)/);
-    assert.match(homepageJs, /fetchRecipeData\(['"]recipes\.json['"]\)/);
-    assert.match(homepageJs, /Neue Rezeptversion verfügbar/);
+    assert.match(homepageJs, /syncWithRemote\(['"]recipes\.json['"]/);
+    assert.match(generatorJs, /Neue Rezeptversion verfügbar/);
     assert.match(homepageJs, /Lokale Änderungen gehen verloren\. Fortfahren\?/);
-    assert.match(homepageJs, /saveRemoteRecipesToLocalStorage\(\)/);
     assert.match(html, /<label for=["']recipesJsonInput["'][^>]*class=["']file-label["']/);
     assert.match(homepageJs, /recipesJsonInput\.addEventListener\(['"]change['"],\s*handleLocalJsonFile\)/);
     assert.match(homepageJs, /loadRecipesFile\(file\)/);
+});
+
+test('homepage reuses one image observer and logs image failures with the current recipe name', () => {
+    assert.match(homepageJs, /let recipeImageObserver = null/);
+    assert.match(homepageJs, /recipeImageObserver\?\.disconnect\(\)/);
+    assert.match(homepageJs, /Bild für \$\{recipe\.name\} konnte nicht geladen werden/);
+    assert.doesNotMatch(homepageJs, /Bild für \$\{recipeName\}/);
+});
+
+test('manifest reserves maskable purpose for a dedicated non-emoji icon', () => {
+    const maskable = manifest.icons.filter(icon => icon.purpose === 'maskable');
+    assert.deepEqual(maskable.map(icon => icon.src), ['images/icon-maskable.svg']);
+    assert.doesNotMatch(maskableIcon, /<text\b|[\u{1F300}-\u{1FAFF}]/u);
 });
 
 test('homepage provides the same upload dialog flow for choosing or reloading a file', () => {

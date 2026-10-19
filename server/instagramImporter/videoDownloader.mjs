@@ -13,7 +13,12 @@ function validateInstagramVideoUrl(value, baseUrl) {
     return url.href;
 }
 
-function validateVideoMimeType(mimeType) {
+function validateVideoMimeType(mimeType, videoUrl) {
+    if (mimeType === 'application/octet-stream') {
+        const extension = new URL(videoUrl).pathname.match(/\.(mp4|webm|mov)$/i)?.[1]?.toLowerCase();
+        const inferredMimeType = { mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime' }[extension];
+        if (inferredMimeType) return inferredMimeType;
+    }
     if (!['video/mp4', 'video/webm', 'video/quicktime'].includes(mimeType)) {
         throw new Error('Das Instagram-Video hat ein nicht unterstütztes Format.');
     }
@@ -32,7 +37,7 @@ export async function downloadPublicVideo(url, fetchImpl) {
         url = validateInstagramVideoUrl(location, url);
     }
     if (!response.ok) throw new Error(`Instagram-Video nicht abrufbar (HTTP ${response.status}).`);
-    const mimeType = validateVideoMimeType(response.headers.get('content-type')?.split(';')[0].trim().toLowerCase());
+    const mimeType = validateVideoMimeType(response.headers.get('content-type')?.split(';')[0].trim().toLowerCase(), url);
 
     const contentLength = Number(response.headers.get('content-length'));
     if (contentLength > MAX_VIDEO_BYTES) throw new Error('Das Instagram-Video ist größer als 20 MB.');
@@ -64,7 +69,10 @@ export async function downloadAuthenticatedVideo(context, videoUrl) {
     videoUrl = validateInstagramVideoUrl(videoUrl, 'https://www.instagram.com');
     const response = await context.request.get(videoUrl, { timeout: 30000 });
     if (!response.ok()) throw new Error(`Instagram-Video nicht abrufbar (HTTP ${response.status()}).`);
-    const mimeType = validateVideoMimeType(response.headers()['content-type']?.split(';')[0].trim().toLowerCase());
+    const mimeType = validateVideoMimeType(
+        response.headers()['content-type']?.split(';')[0].trim().toLowerCase(),
+        videoUrl
+    );
     const contentLength = Number(response.headers()['content-length']);
     if (contentLength > MAX_VIDEO_BYTES) throw new Error('Das Instagram-Video ist größer als 20 MB.');
     const body = await response.body();

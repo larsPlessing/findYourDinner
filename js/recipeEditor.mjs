@@ -203,7 +203,7 @@ function selectRecipeForEdit(index) {
     form.elements.servings.inputMode = 'decimal';
     addIngredientsEditor(form, recipe.ingredients || []);
     addInstructionsEditor(form, recipe.instructions || []);
-    const notesValue = (recipe.notes || []).map(item => typeof item === 'string' ? item : JSON.stringify(item)).join('\n');
+    const notesValue = (recipe.notes || []).filter(item => typeof item === 'string').join('\n');
     addEditorField(form, 'Notizen oder Links (eine pro Zeile)', 'notes', notesValue, 'textarea');
     form.dataset.originalNotes = notesValue;
     const placeholder = document.createElement('label');
@@ -271,6 +271,7 @@ function addRecipeImageControls(form, recipe) {
             coverButton.className = 'editor-image-cover-btn';
             coverButton.textContent = 'Als Titelbild';
             coverButton.addEventListener('click', async () => {
+                applyCurrentFormValuesToRecipe();
                 const current = generator.recipes[editingRecipeIndex];
                 if (!current) return;
                 current.images = setCoverImage(current.images, index);
@@ -284,6 +285,7 @@ function addRecipeImageControls(form, recipe) {
         remove.className = 'editor-image-remove-btn';
         remove.textContent = 'Entfernen';
         remove.addEventListener('click', async () => {
+            applyCurrentFormValuesToRecipe();
             const current = generator.recipes[editingRecipeIndex];
             if (!current || !Array.isArray(current.images)) return;
             current.images.splice(index, 1);
@@ -308,6 +310,7 @@ async function addRecipeImages(fileList) {
     const files = Array.from(fileList || []).filter(file => file.type.startsWith('image/'));
     if (!files.length) return;
     try {
+        applyCurrentFormValuesToRecipe();
         const recipe = generator.recipes[editingRecipeIndex];
         for (const file of files) {
             recipe.images = recipe.images || [];
@@ -459,7 +462,8 @@ function readIngredientRows(form) {
         const unit = row.querySelector('[name="unit"]').value.trim();
         const product = row.querySelector('[name="product"]').value.trim();
         const note = row.querySelector('[name="note"]').value.trim();
-        return { amount: amount && !Number.isNaN(Number(amount)) ? Number(amount) : amount, unit, product, note };
+        const numericAmount = /^\d+([.,]\d+)?$/.test(amount) ? Number(amount.replace(',', '.')) : amount;
+        return { amount: numericAmount, unit, product, note };
     }).filter(ingredient => ingredient.amount || ingredient.unit || ingredient.product || ingredient.note);
 }
 
@@ -538,23 +542,34 @@ function parseEditorLines(text) { return text.split('\n').map(line => line.trim(
 async function saveEditedRecipe(event) {
     event.preventDefault();
     const form = event.currentTarget;
+    const updated = collectFormValues(form);
+    if (!updated.name) { form.elements.name.focus(); return; }
+    await commitRecipeChanges(updated, editingRecipeIndex);
+    selectRecipeForEdit(editingRecipeIndex);
+}
+
+function collectFormValues(form) {
     const original = generator.recipes[editingRecipeIndex] || {};
     const updated = { ...original };
     updated.name = form.elements.name.value.trim();
-    if (!updated.name) { form.elements.name.focus(); return; }
     updated.category = form.elements.category.value.trim();
     updated.healthy = form.elements.healthy.checked;
     const servings = form.elements.servings.value.trim();
     updated.servings = servings === '' ? null : (Number.isFinite(Number(servings)) ? Number(servings) : servings);
     updated.ingredients = readIngredientRows(form);
     updated.instructions = readInstructionRows(form);
+    const originalNotes = Array.isArray(original.notes) ? original.notes : [];
     updated.notes = form.elements.notes.value === form.dataset.originalNotes
-        ? original.notes || []
-        : parseEditorLines(form.elements.notes.value);
+        ? originalNotes
+        : [...originalNotes.filter(note => typeof note !== 'string'), ...parseEditorLines(form.elements.notes.value)];
     updated.isPlaceholder = form.elements.isPlaceholder.checked;
     if (!Array.isArray(updated.images)) updated.images = [];
-    await commitRecipeChanges(updated, editingRecipeIndex);
-    selectRecipeForEdit(editingRecipeIndex);
+    return updated;
+}
+
+function applyCurrentFormValuesToRecipe() {
+    const form = document.getElementById('recipeEditForm');
+    if (form.elements.name) generator.recipes[editingRecipeIndex] = collectFormValues(form);
 }
 
 async function commitRecipeChanges(recipe, index) {
@@ -580,10 +595,18 @@ function newRecipe() {
 
 async function deleteCurrentRecipe() {
     if (!confirm(`„${generator.recipes[editingRecipeIndex].name}“ wirklich löschen?`)) return;
-    generator.recipes.splice(editingRecipeIndex, 1);
+    const oldIndex = editingRecipeIndex;
+    const [removed] = generator.recipes.splice(oldIndex, 1);
     editingRecipeIndex = generator.recipes.length ? 0 : -1;
     const savedInBrowser = persistRecipeEdits();
-    if (!await saveRecipeProjectToFolder(savedInBrowser)) return;
+    if (!await saveRecipeProjectToFolder(savedInBrowser)) {
+        generator.recipes.splice(oldIndex, 0, removed);
+        editingRecipeIndex = oldIndex;
+        persistRecipeEdits();
+        renderEditorRecipeList();
+        selectRecipeForEdit(oldIndex);
+        return;
+    }
     globalThis.onRecipeEditorDeleted?.();
     renderEditorRecipeList();
     if (editingRecipeIndex >= 0) selectRecipeForEdit(editingRecipeIndex);
@@ -672,4 +695,4 @@ globalThis.closeRecipeEditor = closeRecipeEditor;
 globalThis.importRecipeFromUrl = importRecipeFromUrl;
 globalThis.newRecipe = newRecipe;
 
-export { commitRecipeChanges, compressImportedRecipeImages, dataUrlToBlob, deleteCurrentRecipe, findMatchingInstagramRecipeIndex, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder, setCoverImage };
+export { commitRecipeChanges, compressImportedRecipeImages, dataUrlToBlob, deleteCurrentRecipe, findMatchingInstagramRecipeIndex, importRecipe, persistRecipeEdits, readIngredientRows, saveRecipeProjectToFolder, setCoverImage };

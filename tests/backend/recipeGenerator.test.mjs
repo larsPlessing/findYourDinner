@@ -23,7 +23,7 @@ const sampleRecipes = [
     }
 ];
 
-function createGenerator(t, { protocol = 'https:', storage = {}, fetchImplementation = async () => {
+function createGenerator(t, { protocol = 'https:', storage = {}, confirmImplementation = () => false, fetchImplementation = async () => {
     throw new Error('Unexpected fetch call');
 } } = {}) {
     const localStorage = {
@@ -32,7 +32,7 @@ function createGenerator(t, { protocol = 'https:', storage = {}, fetchImplementa
         removeItem: t.mock.fn(key => { delete storage[key]; })
     };
     return new RecipeGenerator({
-        windowObject: { location: { protocol } },
+        windowObject: { location: { protocol }, confirm: t.mock.fn(confirmImplementation) },
         storage: localStorage,
         fetchImpl: t.mock.fn(fetchImplementation)
     });
@@ -126,6 +126,43 @@ test('fetches recipe data without cache when checking the published revision', a
             ok: true,
             json: async () => ({ revision: 'fresh', recipes: sampleRecipes })
         })
+    });
+
+    test('normalizes a missing remote revision to null and does not prompt repeatedly', async t => {
+        const generator = createGenerator(t, {
+            fetchImplementation: async () => ({
+                ok: true,
+                json: async () => ({ recipes: sampleRecipes })
+            })
+        });
+        generator.recipes = sampleRecipes;
+        generator.revision = null;
+
+        const result = await generator.syncWithRemote('recipes.json', { hasLocalEdits: true, hasCachedRecipes: true });
+
+        assert.equal(result.remoteRevision, null);
+        assert.equal(generator.window.confirm.mock.callCount(), 0);
+        assert.equal(generator.revision, null);
+    });
+
+    test('declining a remote revision records it so later page syncs do not ask again', async t => {
+        const storage = {};
+        const generator = createGenerator(t, {
+            storage,
+            fetchImplementation: async () => ({
+                ok: true,
+                json: async () => ({ revision: 'rev-new', recipes: sampleRecipes })
+            })
+        });
+        generator.recipes = [{ id: 99, name: 'Lokale Änderung' }];
+        generator.revision = 'rev-old';
+
+        await generator.syncWithRemote('recipes.json', { hasLocalEdits: true, hasCachedRecipes: true });
+        await generator.syncWithRemote('recipes.json', { hasLocalEdits: true, hasCachedRecipes: true });
+
+        assert.equal(generator.window.confirm.mock.callCount(), 1);
+        assert.equal(storage.recipes_dismissed_revision, 'rev-new');
+        assert.deepEqual(generator.recipes, [{ id: 99, name: 'Lokale Änderung' }]);
     });
 
     const data = await generator.fetchRecipeData('recipes.json');

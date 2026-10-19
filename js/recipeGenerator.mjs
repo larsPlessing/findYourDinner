@@ -32,6 +32,40 @@ export default class RecipeGenerator {
         return data;
     }
 
+    async syncWithRemote(url, { hasLocalEdits = false, hasCachedRecipes = false } = {}) {
+        const remote = await this.fetchRecipeData(url);
+        const remoteRevision = remote.revision ?? null;
+        const dismissedRevision = this.storage.getItem('recipes_dismissed_revision');
+        const hasNewRevision = remoteRevision !== this.revision;
+        const dismissedCurrentRevision = dismissedRevision === (remoteRevision ?? '');
+        const shouldPrompt = hasLocalEdits
+            && hasNewRevision
+            && !dismissedCurrentRevision;
+
+        if (shouldPrompt && !this.window.confirm(
+            'Neue Rezeptversion verfügbar. Lokale Änderungen bleiben erhalten. Möchtest du die lokale Liste durch die neue Standardversion ersetzen?'
+        )) {
+            this.storage.setItem('recipes_dismissed_revision', remoteRevision ?? '');
+            return { updated: false, remoteRevision };
+        }
+
+        if ((hasNewRevision && (!hasLocalEdits || !dismissedCurrentRevision)) || !hasCachedRecipes) {
+            this.recipes = remote.recipes;
+            this.revision = remoteRevision;
+            this.normalizeCategories();
+            const saved = hasLocalEdits
+                ? this.saveRemoteRecipesToLocalStorage()
+                : this.saveToLocalStorage();
+            if (!saved) {
+                throw new Error('Die neue Rezeptversion konnte nicht gespeichert werden. Lokale Änderungen wurden beibehalten.');
+            }
+            if (shouldPrompt) this.storage.removeItem('recipes_dismissed_revision');
+            return { updated: true, remoteRevision };
+        }
+
+        return { updated: false, remoteRevision };
+    }
+
     getRecipeById(id) {
         if (id === null || id === undefined || id === '') return null;
         return this.recipes.find(recipe => String(recipe.id) === String(id)) || null;
@@ -175,6 +209,7 @@ export default class RecipeGenerator {
         this.storage.removeItem('recipes');
         this.storage.removeItem('recipes_timestamp');
         this.storage.removeItem('recipes_revision');
+        this.storage.removeItem('recipes_dismissed_revision');
     }
 }
 

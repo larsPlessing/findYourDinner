@@ -15,7 +15,10 @@ export async function readInstagramPageSnapshot(page) {
             html: document.documentElement?.outerHTML || '',
             videoUrl: document.querySelector('video')?.currentSrc || document.querySelector('video')?.src || null
         }));
-    } catch {
+    } catch (error) {
+        if (!/execution context was destroyed|cannot find context with specified id/i.test(error.message)) {
+            throw error;
+        }
         await page.waitForTimeout(1000);
         return null;
     }

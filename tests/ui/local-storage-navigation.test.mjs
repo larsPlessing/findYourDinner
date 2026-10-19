@@ -35,8 +35,8 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
     // Each page prefers locally saved edits and falls back to the shared recipe cache.
     assert.match(homepageJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
     assert.match(homepageJs, /generator\.loadFromLocalStorage\(\)/);
-    assert.match(homepageJs, /fetchRecipeData\(['"]recipes\.json['"]\)/);
-    assert.match(detailJs, /fetchRecipeData\(['"]\.\.\/recipes\.json['"]\)/);
+    assert.match(homepageJs, /syncWithRemote\(['"]recipes\.json['"]/);
+    assert.match(detailJs, /syncWithRemote\(['"]\.\.\/recipes\.json['"]/);
     assert.match(detailJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
     assert.match(homepageJs, /localStorage\.removeItem\(['"]recipes['"]\)/);
     assert.match(detailJs, /localStorage\.removeItem\(['"]recipes['"]\)/);

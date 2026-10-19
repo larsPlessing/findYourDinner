@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { importRecipe } from '../../server/recipeImporter.mjs';
+import { createPinnedRequestOptions, importRecipe } from '../../server/recipeImporter.mjs';
 
 const categories = ['Salzig', 'Süß'];
 const testApiKey = 'test-key';
@@ -57,7 +57,7 @@ test('URL recipe import uses the provided category enum and imports a webpage im
         throw new Error(`Unexpected fetch URL: ${url}`);
     });
 
-    test('URL import rejects private hosts and redirects before fetching the destination', async t => {
+    await t.test('URL import rejects private hosts and redirects before fetching the destination', async t => {
         let calls = 0;
         const deps = dependencies(t, async (input, options) => {
             calls++;
@@ -100,6 +100,54 @@ test('Gemini reports a clear error when generation is cut off by the token limit
         importRecipe({ url: 'https://example.com/recipe', categories }, deps),
         /Tokenlimits abgeschnitten/
     );
+    assert.equal(deps.fetchImpl.mock.callCount(), 2, 'MAX_TOKENS must not trigger a fallback model');
+});
+
+test('import keeps non-numeric serving ranges and ingredient amounts intact', async t => {
+    const deps = dependencies(t, async input => {
+        if (String(input).includes('generativelanguage.googleapis.com')) {
+            return recipeResponse({
+                title: 'Rezept',
+                category: 'Salzig',
+                healthy: false,
+                servings: '2-4',
+                ingredients: [{ amount: '6 Stück', name: 'Eier' }],
+                steps: ['Rühren.']
+            });
+        }
+        return new Response('<html></html>');
+    });
+
+    const imported = await importRecipe({
+        image: `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`,
+        categories
+    }, deps);
+
+    assert.equal(imported.servings, '2-4');
+    assert.equal(imported.ingredients[0].amount, '6 Stück');
+});
+
+test('pinned HTTPS request options connect to the resolved IP and retain the original host for TLS', () => {
+    const options = createPinnedRequestOptions(
+        'https://example.com:8443/recipe?lang=de',
+        { address: '93.184.216.34', family: 4 },
+        { 'User-Agent': 'test-client' }
+    );
+
+    assert.equal(options.hostname, '93.184.216.34');
+    assert.equal(options.servername, 'example.com');
+    assert.equal(options.headers.Host, 'example.com:8443');
+    assert.equal(options.path, '/recipe?lang=de');
+});
+
+test('URL import rejects webpage bodies larger than the streaming size limit', async t => {
+    const deps = dependencies(t, async () => new Response(new Uint8Array(5 * 1024 * 1024 + 1)));
+
+    await assert.rejects(
+        importRecipe({ url: 'https://example.com/recipe', categories }, deps),
+        /Rezeptseite ist größer als 5 MB/
+    );
+    assert.equal(deps.fetchImpl.mock.callCount(), 1, 'large page body should be rejected before Gemini is called');
 });
 
 test('URL import rejects public hostnames resolving to private addresses', async t => {
@@ -486,7 +534,7 @@ test('import walks through both Gemini fallback models when their token limits a
             return new Response('{"error":{"code":429,"message":"Quota exceeded"}}', { status: 429 });
         }
         if (calledModels.length === 2) {
-            return new Response('{"error":{"code":400,"message":"The input token count exceeds the maximum number of tokens allowed"}}', { status: 400 });
+            return new Response('{"error":{"code":400,"status":"RESOURCE_EXHAUSTED","message":"Quota exceeded"}}', { status: 400 });
         }
         return recipeResponse({ title: 'Kuchen', category: 'Süß', healthy: false, ingredients: [{ name: 'Mehl' }], steps: ['Rühren.'] });
     });

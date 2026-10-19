@@ -89,6 +89,24 @@ describe('recipe detail page', () => {
                 'random navigation should choose a different recipe where possible');
         });
 
+        it('guards asynchronous recipe image renders against stale navigation', () => {
+            assert.match(detailJs, /let renderToken = 0/);
+            assert.match(detailJs, /async function displayRecipe\(\)[\s\S]*?const token = \+\+renderToken;[\s\S]*?await generator\.getAllRecipeImageURLs\(currentRecipe\);[\s\S]*?if \(token !== renderToken\) return/);
+            assert.match(detailJs, /img\.onload = \(\) => \{\s*if \(token !== renderToken\) return;/);
+        });
+
+        it('keeps stored instruction order intact and renders only string notes', () => {
+            assert.match(detailJs, /\[\.\.\.currentRecipe\.instructions\]\s*\.sort/);
+            assert.match(detailJs, /currentRecipe\.notes\.forEach\(note => \{\s*if \(typeof note !== ['"]string['"]\) return/);
+        });
+
+        it('clears invalid video sources and reports wake-lock request failures accurately', () => {
+            assert.match(detailJs, /if \(!\/\^videos[\s\S]*?video\.pause\(\);\s*video\.removeAttribute\(['"]src['"]\);\s*video\.load\(\)/);
+            assert.match(detailJs, /catch \(err\)[\s\S]*?wakeLockRequested = false;[\s\S]*?Display-Sperre konnte nicht aktiviert werden/);
+            assert.match(detailJs, /recipeVideoError/);
+            assert.match(detailCss, /\.recipe-video-error\s*\{[\s\S]*?background:/);
+        });
+
         it('returns to the recipe list after deleting the current detail recipe', () => {
             assert.match(detailJs, /globalThis\.onRecipeEditorDeleted = goBack/);
             assert.match(fs.readFileSync(path.resolve(__dirname, '../../js/recipeEditor.mjs'), 'utf8'),

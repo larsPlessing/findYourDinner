@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { compressImportedRecipeImages, dataUrlToBlob, findMatchingInstagramRecipeIndex, setCoverImage } from '../../js/recipeEditor.mjs';
+import { compressImportedRecipeImages, dataUrlToBlob, findMatchingInstagramRecipeIndex, readIngredientRows, setCoverImage } from '../../js/recipeEditor.mjs';
 
 test('re-import matches an existing Instagram recipe by post path despite different query parameters', () => {
     const recipes = [
@@ -64,4 +64,16 @@ test('URL-imported base64 images are compressed before they enter the saved reci
 
 test('imported image conversion rejects unsupported or malformed data URLs', () => {
     assert.throws(() => dataUrlToBlob('data:image/svg+xml;base64,PHN2Zz4='), /ungültiges Format/);
+});
+
+test('ingredient amount parsing converts only plain decimal numbers', () => {
+    const ingredient = amount => ({
+        querySelector(selector) {
+            const values = { amount, unit: '', product: 'Zutat', note: '' };
+            return { value: values[selector.match(/name="([^"]+)"/)[1]] };
+        }
+    });
+    const rows = { querySelectorAll: () => ['0x10', '1e3', '2,5', '2-4'].map(ingredient) };
+
+    assert.deepEqual(readIngredientRows(rows).map(item => item.amount), ['0x10', '1e3', 2.5, '2-4']);
 });
