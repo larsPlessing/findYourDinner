@@ -24,6 +24,7 @@ function readPassword(promptText) {
         const input = process.stdin;
         const output = process.stdout;
         let value = '';
+        let escapeSequence = 0;
         output.write(promptText);
         input.setRawMode(true);
         input.resume();
@@ -34,6 +35,18 @@ function readPassword(promptText) {
         };
         const onData = buffer => {
             for (const character of buffer.toString('utf8')) {
+                if (escapeSequence === 1) {
+                    escapeSequence = character === '[' || character === 'O' ? 2 : 0;
+                    continue;
+                }
+                if (escapeSequence === 2) {
+                    if (character >= '@' && character <= '~') escapeSequence = 0;
+                    continue;
+                }
+                if (character === '\u001b') {
+                    escapeSequence = 1;
+                    continue;
+                }
                 if (character === '\u0003') {
                     restore();
                     output.write('\n');
@@ -289,7 +302,10 @@ async function main() {
     if (first !== second) throw new Error('Die eingegebenen Passwörter stimmen nicht überein.');
     const confirmation = await new Promise(resolve => {
         process.stdout.write('Verschlüsselte Dateien erstellen? [j/N] ');
-        process.stdin.once('data', data => resolve(data.toString('utf8').trim().toLowerCase()));
+        process.stdin.once('data', data => {
+            process.stdin.pause();
+            resolve(data.toString('utf8').trim().toLowerCase());
+        });
         process.stdin.resume();
     });
     if (!['j', 'ja', 'y', 'yes'].includes(confirmation)) {
@@ -299,7 +315,11 @@ async function main() {
     if (deletePlaintext) {
         const deleteConfirmation = await new Promise(resolve => {
             process.stdout.write('ACHTUNG: Alle lokalen Klartext-Rezept- und Mediendateien löschen? [j/N] ');
-            process.stdin.once('data', data => resolve(data.toString('utf8').trim().toLowerCase()));
+            process.stdin.once('data', data => {
+                process.stdin.pause();
+                resolve(data.toString('utf8').trim().toLowerCase());
+            });
+            process.stdin.resume();
         });
         if (!['j', 'ja', 'y', 'yes'].includes(deleteConfirmation)) {
             process.stdout.write('Abgebrochen; die lokalen Klartextdateien wurden nicht gelöscht.\n');
@@ -310,10 +330,17 @@ async function main() {
     let progressDisplayed = false;
     let result;
     try {
+        const documentFiles = [];
+        try {
+            await fs.access(path.join(rootDirectory, 'AGENTS.md'));
+            documentFiles.push('AGENTS.md');
+        } catch (error) {
+            if (error.code !== 'ENOENT') throw error;
+        }
         result = await migrateRecipeData({
             passphrase: first,
             deletePlaintext,
-            documentFiles: ['AGENTS.md'],
+            documentFiles,
             onProgress: ({ completed, total }) => {
                 progressDisplayed = true;
                 const percentage = total === 0 ? 100 : Math.floor(completed / total * 100);

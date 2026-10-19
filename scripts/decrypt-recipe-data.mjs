@@ -10,7 +10,6 @@ import {
 } from '../js/recipeCrypto.mjs';
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const documentFiles = ['AGENTS.md'];
 const minimumPassphraseLength = 20;
 
 function readPassword(promptText) {
@@ -96,6 +95,13 @@ async function restoreEncryptedFiles({ root = rootDirectory, passphrase, overwri
     const key = await deriveKey(passphrase, decodeBase64(envelope.salt), envelope.iterations);
     const recipes = await decryptRecipeEnvelope(envelope, key);
     if (!Array.isArray(recipes)) throw new Error('Die entschlüsselte Datei enthält keine gültige Rezeptliste.');
+    const documentFiles = [];
+    try {
+        await fs.access(path.join(root, 'AGENTS.md.enc'));
+        documentFiles.push('AGENTS.md');
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
 
     const mediaFiles = [];
     for (const directory of ['images/recipes', 'videos/recipes']) {
