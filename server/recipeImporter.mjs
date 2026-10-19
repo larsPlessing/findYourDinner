@@ -2,6 +2,8 @@ import { fetchInstagramPost, isInstagramUrl } from './instagramImporter/index.mj
 import { extractVideoFrames } from './instagramImporter/videoFrameExtractor.mjs';
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+// Modelle, auf die gewechselt wird, wenn das Token-Kontingent des Vorgängermodells erschöpft ist.
+const GEMINI_FALLBACK_MODELS = ['gemini-3.7-flash', 'gemini-3.6-flash'];
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 
 const RULES = `Extrahiere das Rezept als JSON nach dem vorgegebenen Schema.
@@ -176,9 +178,14 @@ function validateImageDataUrl(value) {
     return { mimeType: `image/${match[1]}`, data: match[2], dataUrl: value };
 }
 
-async function callGemini(parts, categories, fetchImpl = fetch, apiKey = process.env.GEMINI_API_KEY) {
-    if (!apiKey) throw new Error('GEMINI_API_KEY fehlt. Lege ihn in der Datei .env im Projektordner ab oder setze ihn als Umgebungsvariable.');
-    const response = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+// Erkennt Fehler, die durch ein überschreiten des Token-Kontingents entstehen (429 oder passende Fehlermeldung).
+function isTokenLimitError(error) {
+    if (error.status === 429) return true;
+    return /RESOURCE_EXHAUSTED|TOKEN_EXHAUSTED|token.{0,80}(limit|exceed)|(limit|exceed).{0,80}token|Quota|Kontingent/i.test(error.message);
+}
+
+async function requestGemini(model, parts, categories, fetchImpl, apiKey) {
+    const response = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify({
@@ -193,11 +200,32 @@ async function callGemini(parts, categories, fetchImpl = fetch, apiKey = process
             }
         })
     });
-    if (!response.ok) throw new Error(`Gemini API ${response.status}: ${await response.text()}`);
+    if (!response.ok) {
+        const error = new Error(`Gemini API ${response.status}: ${await response.text()}`);
+        error.status = response.status;
+        throw error;
+    }
     const result = await response.json();
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error('Gemini hat kein Rezept zurückgegeben.');
     return JSON.parse(text);
+}
+
+async function callGemini(parts, categories, fetchImpl = fetch, apiKey = process.env.GEMINI_API_KEY) {
+    if (!apiKey) throw new Error('GEMINI_API_KEY fehlt. Lege ihn in der Datei .env im Projektordner ab oder setze ihn als Umgebungsvariable.');
+    const models = [GEMINI_MODEL, ...GEMINI_FALLBACK_MODELS.filter(model => model !== GEMINI_MODEL)];
+    let lastError = null;
+    for (const [index, model] of models.entries()) {
+        try {
+            return await requestGemini(model, parts, categories, fetchImpl, apiKey);
+        } catch (error) {
+            lastError = error;
+            const nextModel = models[index + 1];
+            if (!isTokenLimitError(error) || !nextModel) throw error;
+            console.warn(`Token-Kontingent von Gemini-Modell ${model} erschöpft, wechsle zu ${nextModel}: ${error.message}`);
+        }
+    }
+    throw lastError;
 }
 
 function normalizeRecipe(recipe, source, categories, imageDataUrl) {

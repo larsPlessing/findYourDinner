@@ -347,3 +347,54 @@ test('image recipe import falls back to an existing category if Gemini returns a
     assert.equal(imported.healthy, true);
     assert.equal(imported.images[0].src, image);
 });
+
+test('import falls back to the next Gemini model when the token quota of the first one is exhausted', async t => {
+    const calledModels = [];
+    const deps = dependencies(t, async (input, options) => {
+        calledModels.push(String(input).match(/models\/([^:]+):generateContent/)[1]);
+        if (calledModels.length === 1) {
+            return new Response('{"error":{"code":429,"message":"RESOURCE_EXHAUSTED: Quota exceeded for quota metric"}}', { status: 429 });
+        }
+        return recipeResponse({ title: 'Kuchen', category: 'Süß', healthy: false, ingredients: [{ name: 'Mehl' }], steps: ['Rühren.'] });
+    });
+    const image = `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`;
+
+    const imported = await importRecipe({ image, categories }, deps);
+    assert.deepEqual(calledModels, ['gemini-3.8-flash', 'gemini-3.7-flash']);
+    assert.equal(imported.name, 'Kuchen');
+});
+
+test('import walks through both Gemini fallback models when their token limits are exceeded', async t => {
+    const calledModels = [];
+    const deps = dependencies(t, async (input, options) => {
+        calledModels.push(String(input).match(/models\/([^:]+):generateContent/)[1]);
+        if (calledModels.length === 1) {
+            return new Response('{"error":{"code":429,"message":"Quota exceeded"}}', { status: 429 });
+        }
+        if (calledModels.length === 2) {
+            return new Response('{"error":{"code":400,"message":"The input token count exceeds the maximum number of tokens allowed"}}', { status: 400 });
+        }
+        return recipeResponse({ title: 'Kuchen', category: 'Süß', healthy: false, ingredients: [{ name: 'Mehl' }], steps: ['Rühren.'] });
+    });
+    const image = `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`;
+
+    const imported = await importRecipe({ image, categories }, deps);
+    assert.deepEqual(calledModels, ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash']);
+    assert.equal(imported.name, 'Kuchen');
+});
+
+test('import reports token quota errors when every Gemini model is exhausted', async t => {
+    const deps = dependencies(t, async () => new Response('{"error":{"code":429,"message":"Quota exceeded"}}', { status: 429 }));
+    const image = `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`;
+
+    await assert.rejects(importRecipe({ image, categories }, deps), /Gemini API 429: .*Quota exceeded/);
+    assert.equal(deps.fetchImpl.mock.callCount(), 3);
+});
+
+test('import does not fall back to another Gemini model for unrelated errors', async t => {
+    const deps = dependencies(t, async () => new Response('{"error":{"code":400,"message":"Ungültige Anfrage"}}', { status: 400 }));
+    const image = `data:image/jpeg;base64,${Buffer.from('recipe image').toString('base64')}`;
+
+    await assert.rejects(importRecipe({ image, categories }, deps), /Gemini API 400: .*Ungültige Anfrage/);
+    assert.equal(deps.fetchImpl.mock.callCount(), 1);
+});

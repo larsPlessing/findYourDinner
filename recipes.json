@@ -2355,27 +2355,6 @@
       "healthy": false
     },
     {
-      "id": 28,
-      "name": "Milchreis",
-      "category": "Süß",
-      "hasImage": false,
-      "imageCount": 0,
-      "isPlaceholder": true,
-      "servings": null,
-      "ingredients": [],
-      "instructions": [
-        {
-          "step": 1,
-          "text": "Dieses Rezept ist noch nicht verfügbar. Es steht im Inhaltsverzeichnis, hat aber noch kein detailliertes Sheet."
-        }
-      ],
-      "notes": [],
-      "createdDate": null,
-      "modifiedDate": null,
-      "images": [],
-      "healthy": false
-    },
-    {
       "id": 29,
       "name": "Naan mit Gemüßerahmsoße",
       "category": "Salzig",
@@ -7257,6 +7236,618 @@
       ],
       "isPlaceholder": false,
       "id": 86
+    },
+    {
+      "name": "Cremige Pilz-Orzo",
+      "category": "Salzig",
+      "healthy": false,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Champignons, braun",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "g",
+          "product": "Austernpilze",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Stangen",
+          "product": "Frühlingslauch",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "rote Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Olivenöl",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Orzo-Nudeln",
+          "note": ""
+        },
+        {
+          "amount": 900,
+          "unit": "ml",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Sahne",
+          "note": ""
+        },
+        {
+          "amount": 50,
+          "unit": "g",
+          "product": "Parmesan, gerieben",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Just Spices Feta Gewürz",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Pilze putzen. Die Champignons anschließend vierteln und die Austernpilze entlang ihrer Lamellen in Streifen schneiden. Den Frühlingslauch waschen, putzen und in ca. 0,5 cm breite Ringe schneiden. Die Zwiebel und den Knoblauch schälen und fein würfeln."
+        },
+        {
+          "step": 2,
+          "text": "Das Olivenöl in einem großen Topf erhitzen und die Zwiebel- und Knoblauchwürfel ca. 3 Minuten glasig anbraten. Die Pilze hinzugeben und weitere 3 Minuten braten. Die Orzo-Nudeln hinzugeben und ca. 1 Minute mitbraten. Mit dem Wasser aufgießen und das Feta Gewürz hinzugeben. Aufkochen lassen und ca. 15 Minuten sanft köcheln lassen. Anschließend die Sahne hinzugeben und weitere 5 Minuten köcheln lassen."
+        },
+        {
+          "step": 3,
+          "text": "Den Frühlingslauch und den Parmesan unterrühren und mit dem Salz abschmecken."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Auch wenn dieses schmackhafte One-Pot-Gericht optisch an ein Pilzrisotto erinnert, spielen kleine Orzo-Nudeln hier die Hauptrolle. Wir verwenden nicht nur eine, sondern gleich zwei verschiedene Pilzarten, um Dir das volle Geschmackserlebnis zu garantieren! Die Cremigkeit darf natürlich auch nicht zu kurz kommen - dafür ist durch die Sahne und den würzigen Parmesan aber bereits bestens gesorgt.",
+        "Kochzeit: 40 Min."
+      ],
+      "tags": [
+        "One-Pot",
+        "Pasta",
+        "Pilze",
+        "Orzo"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/cremige-pilz-orzo-87-1-1.jpg"
+        },
+        {
+          "src": "images/recipes/cremige-pilz-orzo-87-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 87
+    },
+    {
+      "name": "Gefüllte Gnocchi in cremiger Pilzrahmsoße",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Hähnchenbrustfilet",
+          "note": ""
+        },
+        {
+          "amount": 350,
+          "unit": "g",
+          "product": "gemischte Pilze",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Olivenöl",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zitrone (Saft)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "EL",
+          "product": "Sojasoße",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "g",
+          "product": "Kochsahne",
+          "note": ""
+        },
+        {
+          "amount": 200,
+          "unit": "ml",
+          "product": "Wasser",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "gefüllte Gnocchi (Kühlregal)",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "TL",
+          "product": "Just Spices Hähnchen Gewürz",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Hähnchenbrust von Haut und Sehnen befreien und in ca. 0,2 cm breite Streifen schneiden. Die Pilze putzen und in mundgerechte Stücke schneiden. Die Zwiebel und den Knoblauch schälen und fein würfeln."
+        },
+        {
+          "step": 2,
+          "text": "In einer Pfanne das Olivenöl erhitzen, das Hähnchen mit dem Hähnchen Gewürz würzen und bei starker Hitze ca. 1 Minute anbraten. Die Pilze mit den Zwiebel- und Knoblauchwürfeln hinzugeben und bei mittlerer Hitze ca. 2 Minuten braten. Die Zitrone halbieren und den Saft auspressen. Mit der Sojasoße und dem Zitronensaft ablöschen. Die Kochsahne und das Wasser hinzugeben und zum Kochen bringen."
+        },
+        {
+          "step": 3,
+          "text": "Die Gnocchi hinzugeben und ca. 4 Minuten köcheln lassen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Ein absolutes Muss für alle Gnocchi-Liebhaber - die cremige Pilzrahmsoße ist nicht nur einfach, sondern auch schnell zubereitet! Zusammen mit saftiger Hähnchenbrust und gefüllten Gnocchi ist der Genuss auch schon komplett. Unser Hähnchen Gewürz erhält durch Paprika, Tomate und Chili eine herrlich rote Farbe und hebt das Aroma Deiner Hähnchenbrust so besonders gut hervor. Ganz klares Lieblingsgericht-Potenzial!",
+        "Vorbereitung: 35 Min."
+      ],
+      "tags": [
+        "Gnocchi",
+        "Hähnchen",
+        "Pilzrahmsoße",
+        "Hauptgericht",
+        "Pfannengericht"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/gefullte-gnocchi-in-cremiger-pilzrahmso-e-88-2.jpg"
+        },
+        {
+          "src": "images/recipes/gefullte-gnocchi-in-cremiger-pilzrahmso-e-88-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 88
+    },
+    {
+      "name": "SCHWEINEFLEISCH SÜSSSAUER",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Möhren (ca. 300 g)",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "kleine Stangen",
+          "product": "Lauch",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Knoblauchzehe",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "walnussgroßes Stück",
+          "product": "frischer Ingwer",
+          "note": ""
+        },
+        {
+          "amount": 100,
+          "unit": "g",
+          "product": "frische Sojasprossen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Dose",
+          "product": "Ananasstücke (580 g Inhalt)",
+          "note": ""
+        },
+        {
+          "amount": 6,
+          "unit": "EL",
+          "product": "Ketchup",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "neutrales Öl",
+          "note": ""
+        },
+        {
+          "amount": 400,
+          "unit": "g",
+          "product": "Schweinegeschnetzeltes",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Sojasauce",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Die Möhren schälen und in dünne Stifte schneiden. Den Lauch längs halbieren, waschen und putzen. In 10 cm lange Stücke schneiden, diese längs in feine Streifen schneiden."
+        },
+        {
+          "step": 2,
+          "text": "Den Knoblauch und Ingwer schälen, beides durch die Knoblauchpresse drücken. Sprossen waschen. Die Ananas in ein Sieb geben, den Saft auffangen und 200 ml davon mit dem Ketchup glatt rühren."
+        },
+        {
+          "step": 3,
+          "text": "Geschnetzeltes in dem Öl rundherum kräftig anbraten, salzen und pfeffern. Die Möhren zugeben, ca. 3 Min. braten. Knoblauch, Ingwer, Lauch und Sojasprossen zugeben. Alles weitere 3 Min. braten. Ketchupmix einrühren und aufkochen. Die Ananas in der Sauce heiß werden lassen. Mit der Sojasauce abschmecken. Dazu schmecken Reis oder Mie-Nudeln."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Für große und kleine Asia-Fans.",
+        "Vorbereitung: 25 Min."
+      ],
+      "tags": [
+        "Asiatisch",
+        "Hauptgericht",
+        "Schweinefleisch",
+        "Pfannengericht"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/schweinefleisch-susssauer-89-1-1.jpg"
+        },
+        {
+          "src": "images/recipes/schweinefleisch-susssauer-89-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 89
+    },
+    {
+      "name": "Joghurt-Hähnchenkeulen",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Knoblauchzehe",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "",
+          "product": "Saft und Schale von Bio-Zitrone",
+          "note": ""
+        },
+        {
+          "amount": 350,
+          "unit": "g",
+          "product": "griechischer Sahne-Joghurt",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "TL",
+          "product": "Harissa (arabische Chilipaste)",
+          "note": ""
+        },
+        {
+          "amount": 4,
+          "unit": "",
+          "product": "Hähnchenkeulen (mit Rückenstück, je 300 g)",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "sehr kleine Aubergine",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Zwiebel",
+          "note": ""
+        },
+        {
+          "amount": 150,
+          "unit": "g",
+          "product": "Kirschtomaten",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Olivenöl",
+          "note": ""
+        },
+        {
+          "amount": 250,
+          "unit": "ml",
+          "product": "Gemüsebrühe (Instant)",
+          "note": ""
+        },
+        {
+          "amount": 6,
+          "unit": "",
+          "product": "Walnusskerne",
+          "note": ""
+        },
+        {
+          "amount": "1/2",
+          "unit": "Bund",
+          "product": "glatte Petersilie",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Den Knoblauch schälen, durchpressen und mit Zitronensaft und -schale mit dem Joghurt glatt verrühren. Mit Salz und Harissa würzen. Hähnchenkeulen abspülen und trocken tupfen, die Haut abziehen. Die Keulen zum Joghurt geben. Zugedeckt über Nacht im Kühlschrank marinieren."
+        },
+        {
+          "step": 2,
+          "text": "Am nächsten Tag die Aubergine waschen, putzen und in sehr kleine Würfel schneiden. Die Zwiebel schälen und ebenfalls klein würfeln. Die Tomaten waschen. Den Ofen auf 180 °C (Umluft 160 °C) vorheizen."
+        },
+        {
+          "step": 3,
+          "text": "Die Hähnchenkeulen aus der Marinade nehmen, Joghurt abstreifen und die Keulen salzen und pfeffern (Marinade aufheben). Das Öl in einem Bräter erhitzen, Zwiebeln und Aubergine darin bei mittlerer Hitze 5 Min. braten, dann zur Seite schieben. Die Keulen im Bräter rundherum goldbraun braten. Mit Brühe ablöschen, die Tomaten untermischen. Abgedeckt im Ofen (Mitte) ca. 40 Min. schmoren."
+        },
+        {
+          "step": 4,
+          "text": "Die Nüsse grob hacken und in einer Pfanne ohne Fett bei mittlerer Hitze anrösten. Die Petersilie waschen und trocken schütteln, die Blättchen hacken. Beides mit der Hälfte der Joghurtmarinade unter Gemüse und Bratenfond rühren. Salzen und pfeffern."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Ein Hauch von Orient",
+        "Vorbereitung: 40 Min.",
+        "Kochzeit: 40 Min."
+      ],
+      "tags": [
+        "Geflügel",
+        "Hauptgericht",
+        "Orientalisch",
+        "Schmorgericht"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/joghurt-hahnchenkeulen-90-1-1.jpg"
+        },
+        {
+          "src": "images/recipes/joghurt-hahnchenkeulen-90-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 90
+    },
+    {
+      "name": "HÜHNERFRIKASSEE",
+      "category": "Salzig",
+      "healthy": true,
+      "servings": 4,
+      "ingredients": [
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Möhren",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "Stangen",
+          "product": "Staudensellerie",
+          "note": ""
+        },
+        {
+          "amount": 3,
+          "unit": "",
+          "product": "Frühlingszwiebeln",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "",
+          "product": "Knoblauchzehen",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "",
+          "product": "Bio-Zitrone",
+          "note": ""
+        },
+        {
+          "amount": "2-3",
+          "unit": "Zweige",
+          "product": "Liebstöckel (ersatzweise Petersilie)",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Salz",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "TL",
+          "product": "Pfefferkörner",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Stück (ca. 800 g)",
+          "product": "Poularde (ersatzweise Hähnchen)",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Mehl",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Butter",
+          "note": ""
+        },
+        {
+          "amount": "1/8",
+          "unit": "l",
+          "product": "Weißwein",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Pfeffer",
+          "note": ""
+        },
+        {
+          "amount": "",
+          "unit": "",
+          "product": "Muskatnuss, frisch gerieben",
+          "note": ""
+        },
+        {
+          "amount": 2,
+          "unit": "EL",
+          "product": "Kapern",
+          "note": ""
+        },
+        {
+          "amount": 1,
+          "unit": "Bund",
+          "product": "Basilikum",
+          "note": ""
+        }
+      ],
+      "instructions": [
+        {
+          "step": 1,
+          "text": "Gemüse schälen oder waschen und putzen; klein schneiden. Knoblauch schälen und halbieren. Zitrone heiß waschen, schälen, Fruchtfleisch in Scheiben schneiden. Alles mit 1 1/2 l Wasser in einen Topf geben. Liebstöckel waschen, mit 2 TL Salz und Pfefferkörnern dazugeben. Aufkochen, offen 10 Min. kräftig kochen."
+        },
+        {
+          "step": 2,
+          "text": "Hitze reduzieren. Poularde waschen, in den Topf geben. Sie sollte knapp bedeckt sein (evtl. heißes Wasser nachgießen). Bei halb aufgelegtem Deckel und mittlerer Hitze ca. 1 1/2 Std. sanft garen, nicht kochen. Herausnehmen, abkühlen lassen. Topfinhalt abseihen, Brühe auffangen. Fett abschöpfen. Fleisch entbeinen und klein schneiden."
+        },
+        {
+          "step": 3,
+          "text": "In einem breiten Topf das Mehl in der Butter hellbraun werden lassen. Nach und nach Wein und ca. 300 ml Brühe angießen. Kräftig durchrühren. Sauce unter Rühren bei schwacher Hitze 5–10 Min. sanft kochen lassen. Mit Salz, Pfeffer und Muskat würzen. Geflügelfleisch hineingeben, heiß werden lassen. Kapern untermischen. Alles abschmecken. Basilikum fein schneiden und aufstreuen."
+        }
+      ],
+      "notes": [
+        "Importiert aus Bild",
+        "Feiner Klassiker",
+        "Vorbereitung: ca. 45 Min.",
+        "Kochzeit: 1 Std. 30 Min."
+      ],
+      "tags": [
+        "Klassiker",
+        "Geflügel",
+        "Hauptgericht",
+        "Kalorienarm"
+      ],
+      "images": [
+        {
+          "src": "images/recipes/huhnerfrikassee-91-1-1.jpg"
+        },
+        {
+          "src": "images/recipes/huhnerfrikassee-91-1.jpg"
+        }
+      ],
+      "isPlaceholder": false,
+      "id": 91
     }
   ]
 }
