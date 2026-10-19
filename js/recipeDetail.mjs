@@ -128,7 +128,9 @@ function selectLocalRecipesJson() {
             if (!input.files.length) return reject(new Error('Keine Datei ausgewählt.'));
             try {
                 const data = JSON.parse(await input.files[0].text());
-                if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
+                if (data?.kdf !== 'PBKDF2-SHA-256' && !Array.isArray(data?.recipes)) {
+                    throw new Error('Die Datei enthält keine Rezeptliste.');
+                }
                 resolve(data);
             } catch (error) {
                 reject(error);

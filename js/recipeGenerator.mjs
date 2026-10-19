@@ -275,6 +275,7 @@ export default class RecipeGenerator {
         this.storage.removeItem('recipes_timestamp');
         this.storage.removeItem('recipes_revision');
         this.storage.removeItem('recipes_dismissed_revision');
+        this.storage.removeItem('recipes_user_edits');
     }
 }
 

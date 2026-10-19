@@ -45,6 +45,10 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
     assert.doesNotMatch(detailJs, /localStorage\.clear\s*\(/);
 });
 
+test('local recipe file validation accepts encrypted envelopes and plain recipe lists', () => {
+    assert.match(detailJs, /data\?\.kdf !== ['"]PBKDF2-SHA-256['"]\s*&&\s*!Array\.isArray\(data\?\.recipes\)/);
+});
+
 test('detail page opens the editor in place with the current recipe selected', () => {
     assert.match(detailPage, /id=["']editCurrentRecipeBtn["']/);
     assert.match(detailJs, /getElementById\(["']editCurrentRecipeBtn["']\)\.addEventListener\(["']click["'], editCurrentRecipe\)/);

@@ -319,6 +319,23 @@ test('removes the legacy recipe cache before writing the full editable list', ()
     assert.deepEqual(JSON.parse(storage.recipes_user_edits), sampleRecipes);
 });
 
+test('clearAllData removes cached recipes and user edits', async t => {
+    const storage = {
+        recipes: JSON.stringify(sampleRecipes),
+        recipes_timestamp: '2026-01-01T00:00:00.000Z',
+        recipes_revision: 'rev-1',
+        recipes_dismissed_revision: 'rev-0',
+        recipes_user_edits: JSON.stringify([{ id: 1, name: 'Lokale Änderung' }])
+    };
+    const generator = createGenerator(t, { storage });
+    generator.recipes = sampleRecipes;
+
+    await generator.clearAllData();
+
+    assert.deepEqual(storage, {});
+    assert.deepEqual(generator.recipes, []);
+});
+
 test('reports a localStorage quota failure instead of claiming the recipe cache was saved', t => {
     const storage = {};
     const generator = createGenerator(t, {
