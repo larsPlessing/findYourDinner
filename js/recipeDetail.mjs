@@ -108,6 +108,15 @@ window.addEventListener('load', async () => {
     await displayRecipe();
 });
 
+window.addEventListener('popstate', () => {
+    const key = new URLSearchParams(location.search).get('id');
+    const r = generator.getRecipeById(key) || generator.getRecipeByName(key);
+    if (r) {
+        currentRecipe = r;
+        void displayRecipe();
+    }
+});
+
 function selectLocalRecipesJson() {
     return new Promise((resolve, reject) => {
         const input = document.createElement('input');

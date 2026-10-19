@@ -168,6 +168,46 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
 
         assert.match(await page.locator('#recipeImageMain img').getAttribute('src'), /new\.jpg$/);
     });
+
+    test('browser back restores the previous recipe after random navigation', async t => {
+        const testPort = port + 3;
+        const testUrl = `http://127.0.0.1:${testPort}`;
+        const server = spawn(process.execPath, ['server.mjs'], {
+            cwd: new URL('../..', import.meta.url),
+            env: { ...process.env, PORT: String(testPort) },
+            stdio: 'ignore'
+        });
+        t.after(() => server.kill());
+        await waitForServer(server, testUrl);
+
+        const browser = await chromium.launch({ headless: true });
+        t.after(() => browser.close());
+        const page = await browser.newPage();
+        const recipes = [
+            { id: 1, name: 'Erstes Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [] },
+            { id: 2, name: 'Zweites Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [] }
+        ];
+        const envelope = await makeEnvelope(recipes, 'popstate-revision');
+        await page.route('**/recipes.enc', route => route.fulfill({ json: envelope }));
+        await seedRecipeKey(page, testUrl);
+        await page.addInitScript(() => {
+            localStorage.setItem('currentRecipe', '1');
+            localStorage.setItem('recipes_user_edits', JSON.stringify([
+                { id: 1, name: 'Erstes Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [] },
+                { id: 2, name: 'Zweites Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [] }
+            ]));
+        });
+
+        await page.goto(`${testUrl}/pages/recipe-detail.html?id=1`);
+        await page.waitForFunction(() => document.getElementById('recipeTitle').textContent === 'Erstes Rezept');
+        await page.locator('#selectRandomRecipeBtn').click();
+        await page.waitForFunction(() => document.getElementById('recipeTitle').textContent === 'Zweites Rezept');
+        assert.equal(new URL(page.url()).searchParams.get('id'), '2');
+
+        await page.goBack();
+        await page.waitForFunction(() => document.getElementById('recipeTitle').textContent === 'Erstes Rezept');
+        assert.equal(new URL(page.url()).searchParams.get('id'), '1');
+    });
     t.after(() => server.kill());
     await waitForServer(server);
 
