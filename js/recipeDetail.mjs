@@ -30,6 +30,7 @@ window.addEventListener('load', async () => {
         if (savedEdits) {
             generator.recipes = JSON.parse(savedEdits);
             if (!Array.isArray(generator.recipes)) throw new Error('Lokale Rezeptdaten sind ungültig.');
+            generator.revision = localStorage.getItem('recipes_revision') || null;
             generator.normalizeCategories();
             loadedFromCache = true;
         } else if (generator.loadFromLocalStorage()) {

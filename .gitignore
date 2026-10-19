@@ -1,5 +1,7 @@
 .env
 node_modules/
+recipes.json.bak
+recipes.json.tmp
 .opencode
 graphify-out
 repomix-output.xml

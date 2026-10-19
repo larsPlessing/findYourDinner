@@ -42,12 +42,13 @@ test('loads recipe JSON and reports completion', async t => {
     const generator = createGenerator(t, {
         fetchImplementation: async url => ({
             ok: true,
-            json: async () => ({ version: 1, recipes: sampleRecipes })
+            json: async () => ({ version: 1, revision: 'rev-1', recipes: sampleRecipes })
         })
     });
     const progress = [];
     const result = await generator.loadFromURL('recipes.json', item => progress.push(item));
     assert.equal(result.length, 2);
+    assert.equal(generator.revision, 'rev-1');
     assert.equal(generator.hasImages, true);
     assert.equal(progress.at(-1).progress, 100);
     assert.equal(generator.fetch.mock.callCount(), 1);
@@ -157,8 +158,10 @@ test('stores and restores recipes in local storage', t => {
     const storage = {};
     const generator = createGenerator(t, { storage });
     generator.recipes = sampleRecipes;
+    generator.revision = 'rev-1';
     assert.equal(generator.saveToLocalStorage(), true);
     const restored = createGenerator(t, { storage });
     assert.equal(restored.loadFromLocalStorage(), true);
     assert.deepEqual(restored.getAllRecipes(), sampleRecipes);
+    assert.equal(restored.revision, 'rev-1');
 });

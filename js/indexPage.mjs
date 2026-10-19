@@ -21,13 +21,17 @@ window.addEventListener('load', () => loadRecipes());
 async function loadRecipes(forceRemote = false) {
     try {
         loadingState.textContent = 'Lade Rezepte...';
-        if (forceRemote) localStorage.removeItem('recipes_user_edits');
+        if (forceRemote) {
+            localStorage.removeItem('recipes_user_edits');
+            localStorage.removeItem('recipes_revision');
+        }
         const savedRecipes = forceRemote ? null : localStorage.getItem('recipes_user_edits');
         let loadedFromCache = false;
         if (savedRecipes) {
             const parsed = JSON.parse(savedRecipes);
             if (!Array.isArray(parsed)) throw new Error('Lokal gespeicherte Rezeptdaten sind ungültig.');
             generator.recipes = parsed;
+            generator.revision = localStorage.getItem('recipes_revision') || null;
             generator.normalizeCategories();
             generator.hasImages = parsed.some(recipe => recipe.images && recipe.images.length);
             loadedFromCache = true;
@@ -64,6 +68,8 @@ async function loadRecipesFile(file) {
     const data = JSON.parse(await file.text());
     if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
     generator.recipes = data.recipes;
+    // Eine lokal gewählte Datei hat keine Server-Revision.
+    generator.revision = null;
     generator.normalizeCategories();
     generator.hasImages = data.recipes.some(recipe => recipe.images && recipe.images.length > 0);
     localStorage.setItem('recipes_user_edits', JSON.stringify(generator.recipes));

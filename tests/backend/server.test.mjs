@@ -37,12 +37,15 @@ test('localhost save API writes image files and recipes.json into the project', 
     assert.equal(response.status, 200);
     const result = await response.json();
     assert.equal(result.savedImages, 1);
+    assert.match(result.revision, /^[0-9a-f]{16}$/);
     assert.equal(result.recipes[0].images[0].src, 'images/recipes/apfel-kuchen-7-1.jpg');
     assert.deepEqual(fs.readFileSync(path.join(projectDirectory, result.recipes[0].images[0].src)), imageBytes);
-    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(projectDirectory, 'recipes.json'), 'utf8')), {
-        version: 1,
-        recipes: result.recipes
-    });
+    const stored = JSON.parse(fs.readFileSync(path.join(projectDirectory, 'recipes.json'), 'utf8'));
+    assert.equal(stored.version, 1);
+    assert.equal(stored.revision, result.revision);
+    assert.deepEqual(stored.recipes, result.recipes);
+    // Ohne vorherige Datei gibt es noch keine Sicherung.
+    assert.equal(fs.existsSync(path.join(projectDirectory, 'recipes.json.bak')), false);
 });
 
 test('localhost save API keeps existing images when a new image is moved to the front', async t => {
@@ -66,7 +69,8 @@ test('localhost save API keeps existing images when a new image is moved to the 
         body: JSON.stringify({ version: 1, recipes: [{ id: 7, name: 'Apfel Kuchen', images: [{ src: toDataUrl(originalBytes) }] }] })
     });
     assert.equal(first.status, 200);
-    const storedImagePath = (await first.json()).recipes[0].images[0].src;
+    const firstResult = await first.json();
+    const storedImagePath = firstResult.recipes[0].images[0].src;
     assert.equal(storedImagePath, 'images/recipes/apfel-kuchen-7-1.jpg');
 
     // Neue Aufnahme als Titelbild nach vorne sortieren und das bestehende Bild erhalten.
@@ -75,6 +79,7 @@ test('localhost save API keeps existing images when a new image is moved to the 
         headers,
         body: JSON.stringify({
             version: 1,
+            revision: firstResult.revision,
             recipes: [{ id: 7, name: 'Apfel Kuchen', images: [{ src: toDataUrl(coverBytes) }, { src: storedImagePath }] }]
         })
     });
@@ -227,15 +232,61 @@ test('localhost import API stores recipe videos, streams byte ranges and removes
         body: JSON.stringify({ version: 1, recipes: [recipe] })
     });
     assert.equal(saveResponse.status, 200);
-    assert.equal((await saveResponse.json()).deletedVideos, 0);
+    const saveResult = await saveResponse.json();
+    assert.equal(saveResult.deletedVideos, 0);
     assert.equal(fs.existsSync(path.join(projectDirectory, recipe.video.src)), true);
 
     const deleteResponse = await fetch(`${baseUrl}/api/save-recipes`, {
         method: 'POST',
         headers: origin,
-        body: JSON.stringify({ version: 1, recipes: [] })
+        body: JSON.stringify({ version: 1, revision: saveResult.revision, recipes: [] })
     });
     assert.equal(deleteResponse.status, 200);
     assert.equal((await deleteResponse.json()).deletedVideos, 1);
     assert.equal(fs.existsSync(path.join(projectDirectory, recipe.video.src)), false);
+});
+
+test('localhost save API rejects a stale revision and protects newer files and media', async t => {
+    const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+    const imageDirectory = path.join(projectDirectory, 'images', 'recipes');
+    fs.mkdirSync(imageDirectory, { recursive: true });
+    const currentFile = {
+        version: 1,
+        revision: 'neuer-stand',
+        recipes: [{ id: 1, name: 'Neues Rezept', images: [{ src: 'images/recipes/neu-1-1.jpg' }] }]
+    };
+    fs.writeFileSync(path.join(projectDirectory, 'recipes.json'), JSON.stringify(currentFile));
+    fs.writeFileSync(path.join(imageDirectory, 'neu-1-1.jpg'), 'neues-bild');
+    const server = createServer({ rootDirectory: projectDirectory });
+    t.after(async () => {
+        await new Promise(resolve => server.close(resolve));
+        fs.rmSync(projectDirectory, { recursive: true, force: true });
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const headers = { 'Content-Type': 'application/json', Origin: baseUrl };
+
+    // Veralteter Browserstand (andere Rezepte als auf der Platte) darf nichts überschreiben.
+    const staleRequest = await fetch(`${baseUrl}/api/save-recipes`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ version: 1, revision: 'veraltet', recipes: [{ id: 2, name: 'Altes Rezept', images: [] }] })
+    });
+    assert.equal(staleRequest.status, 409);
+    assert.match((await staleRequest.json()).error, /git pull|neu/i);
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(projectDirectory, 'recipes.json'), 'utf8')), currentFile);
+    assert.equal(fs.existsSync(path.join(imageDirectory, 'neu-1-1.jpg')), true, 'neuere Medien dürfen nicht gelöscht werden');
+    assert.equal(fs.existsSync(path.join(projectDirectory, 'recipes.json.bak')), false);
+
+    // Passende Revision wird gespeichert und sichert den vorherigen Stand.
+    const saveRequest = await fetch(`${baseUrl}/api/save-recipes`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ version: 1, revision: 'neuer-stand', recipes: [{ id: 2, name: 'Altes Rezept', images: [] }] })
+    });
+    assert.equal(saveRequest.status, 200);
+    const saved = await saveRequest.json();
+    assert.match(saved.revision, /^[0-9a-f]{16}$/);
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(projectDirectory, 'recipes.json.bak'), 'utf8')), currentFile);
 });

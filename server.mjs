@@ -1,7 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { importRecipe } from './server/recipeImporter.mjs';
 
@@ -166,6 +166,21 @@ function getRecipeCategories(root) {
     return categories;
 }
 
+/** Stabile Kennung des Rezeptinhalts, mit der ein veralteter Browserstand erkannt wird. */
+function computeRecipesRevision(recipes) {
+    return createHash('sha256').update(JSON.stringify(recipes)).digest('hex').slice(0, 16);
+}
+
+/** Liest die in recipes.json hinterlegte Revision (null bei alten oder fehlenden Dateien). */
+function readRecipesRevision(recipesPath) {
+    try {
+        const data = JSON.parse(fs.readFileSync(recipesPath, 'utf8'));
+        return typeof data?.revision === 'string' && data.revision ? data.revision : null;
+    } catch {
+        return null;
+    }
+}
+
 function createServer(options = {}) {
     const root = path.resolve(options.rootDirectory || rootDirectory);
     const recipeImporter = options.importRecipe || importRecipe;
@@ -200,6 +215,20 @@ function createServer(options = {}) {
                     return;
                 }
                 if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
+
+                const recipeFile = path.join(root, 'recipes.json');
+                const currentRevision = readRecipesRevision(recipeFile);
+                const baseRevision = typeof payload.revision === 'string' && payload.revision ? payload.revision : null;
+                // Der Browser muss den Stand bestätigen, auf dem seine Änderungen beruhen.
+                // Sonst würde ein veralteter localStorage (z. B. nach git pull) neuere
+                // Rezepte überschreiben und deren Bilder/Videos löschen.
+                if (currentRevision !== null && baseRevision !== currentRevision) {
+                    sendJson(response, 409, {
+                        error: 'recipes.json wurde außerhalb der App geändert (z. B. durch git pull). '
+                            + 'Es wurde nichts gespeichert. Bitte lade die Rezepte neu („Standardrezepte laden“) und wiederhole die Änderung.'
+                    });
+                    return;
+                }
 
                 const imageDirectory = path.join(root, 'images', 'recipes');
                 fs.mkdirSync(imageDirectory, { recursive: true });
@@ -237,13 +266,17 @@ function createServer(options = {}) {
                     });
                 });
 
-                const recipeFile = path.join(root, 'recipes.json');
+                const revision = computeRecipesRevision(payload.recipes);
+                if (fs.existsSync(recipeFile)) {
+                    // Vor dem Überschreiben den bisherigen Stand sichern.
+                    fs.copyFileSync(recipeFile, `${recipeFile}.bak`);
+                }
                 const temporaryFile = `${recipeFile}.tmp`;
-                fs.writeFileSync(temporaryFile, `${JSON.stringify({ version: 1, recipes: payload.recipes }, null, 2)}\n`, 'utf8');
+                fs.writeFileSync(temporaryFile, `${JSON.stringify({ version: 1, revision, recipes: payload.recipes }, null, 2)}\n`, 'utf8');
                 fs.renameSync(temporaryFile, recipeFile);
                 const deletedImages = removeUnusedRecipeImages(imageDirectory, payload.recipes);
                 const deletedVideos = removeUnusedRecipeVideos(path.join(root, 'videos', 'recipes'), payload.recipes);
-                sendJson(response, 200, { recipes: payload.recipes, savedImages, deletedImages, deletedVideos });
+                sendJson(response, 200, { recipes: payload.recipes, revision, savedImages, deletedImages, deletedVideos });
             } catch (error) {
                 if (!response.writableEnded) sendJson(response, 400, { error: error.message });
             }

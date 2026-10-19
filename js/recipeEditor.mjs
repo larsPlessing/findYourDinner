@@ -586,11 +586,19 @@ async function saveRecipeProjectToFolder() {
         const response = await fetch('/api/save-recipes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ version: 1, recipes: generator.recipes })
+            body: JSON.stringify({ version: 1, revision: generator.revision ?? null, recipes: generator.recipes })
         });
         const result = await response.json();
-        if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+        if (!response.ok) {
+            if (response.status === 409) {
+                // Konflikt: recipes.json wurde außerhalb der App geändert.
+                status.textContent = result.error || 'recipes.json wurde außerhalb der App geändert. Bitte lade die Rezepte neu.';
+                return;
+            }
+            throw new Error(result.error || `HTTP ${response.status}`);
+        }
         generator.recipes = result.recipes;
+        if (typeof result.revision === 'string') generator.revision = result.revision;
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
         status.textContent = `Gespeichert: recipes.json, ${result.savedImages} Bild(er) hinzugefügt, ${result.deletedImages || 0} nicht mehr verwendete Bild(er) und ${result.deletedVideos || 0} Video(s) entfernt.`;

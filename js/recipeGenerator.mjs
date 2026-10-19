@@ -2,6 +2,7 @@
 export default class RecipeGenerator {
     constructor({ windowObject = globalThis.window, storage = globalThis.localStorage, fetchImpl = (...args) => globalThis.fetch(...args) } = {}) {
         this.recipes = [];
+        this.revision = null;
         this.imageStore = typeof imageStore !== 'undefined' ? imageStore : null;
         this.hasImages = false;
         this.window = windowObject;
@@ -19,6 +20,7 @@ export default class RecipeGenerator {
             const data = await response.json();
             if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
             this.recipes = data.recipes;
+            this.revision = typeof data.revision === 'string' ? data.revision : null;
             this.normalizeCategories();
             this.hasImages = this.recipes.some(recipe => recipe.images && recipe.images.length > 0);
             if (progressCallback) progressCallback({ phase: 'complete', progress: 100, message: 'Rezepte geladen' });
@@ -91,6 +93,8 @@ export default class RecipeGenerator {
         try {
             this.storage.setItem('recipes', JSON.stringify(this.recipes));
             this.storage.setItem('recipes_timestamp', new Date().toISOString());
+            if (this.revision) this.storage.setItem('recipes_revision', this.revision);
+            else this.storage.removeItem('recipes_revision');
             return true;
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
@@ -103,6 +107,7 @@ export default class RecipeGenerator {
             if (!stored) return false;
             this.recipes = JSON.parse(stored);
             if (!Array.isArray(this.recipes)) return false;
+            this.revision = this.storage.getItem('recipes_revision') || null;
             this.normalizeCategories();
             return true;
         } catch (error) {
@@ -143,6 +148,7 @@ export default class RecipeGenerator {
     clearLocalStorage() {
         this.storage.removeItem('recipes');
         this.storage.removeItem('recipes_timestamp');
+        this.storage.removeItem('recipes_revision');
     }
 }
 

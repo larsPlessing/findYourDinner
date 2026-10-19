@@ -51,6 +51,14 @@ test('detail page opens the editor in place with the current recipe selected', (
     assert.doesNotMatch(detailJs, /function editCurrentRecipe\(\)\s*\{[^}]*window\.location\.href/s);
 });
 
+test('editor tells the server which recipes.json state the edits are based on', () => {
+    assert.match(recipeEditor, /revision: generator\.revision \?\? null/);
+    assert.match(recipeEditor, /generator\.revision = result\.revision/);
+    assert.match(detailJs, /localStorage\.getItem\(['"]recipes_revision['"]\)/);
+    assert.match(homepageJs, /localStorage\.getItem\(['"]recipes_revision['"]\)/);
+    assert.match(recipeEditor, /response\.status === 409/);
+});
+
 test('recipe editor restricts base categories and offers healthy as an optional flag', () => {
     assert.match(recipeEditor, /\['Salzig', 'Süß'\]/);
     assert.match(recipeEditor, /name: 'Neues Rezept', category: 'Salzig', healthy: false/);
