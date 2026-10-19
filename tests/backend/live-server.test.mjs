@@ -30,7 +30,7 @@ test('recipe import controls are shown only on localhost', () => {
         };
         vm.runInNewContext(editorSource, sandbox);
         assert.deepEqual(controls.map(control => control.hidden), [expectedHidden, expectedHidden]);
-        assert.equal(imageInput.hidden, expectedHidden);
+        assert.equal(imageInput.hidden, true);
         assert.equal(imageInput.disabled, expectedHidden);
     }
 });

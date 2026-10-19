@@ -765,7 +765,8 @@ if (typeof document !== 'undefined') {
     });
     const imageInput = document.getElementById('recipeImportImageInput');
     if (imageInput) {
-        imageInput.hidden = !localServer;
+        // Der Datei-Input bleibt verborgen und wird über den Import-Button geöffnet.
+        imageInput.hidden = true;
         imageInput.disabled = !localServer;
     }
     imageInput?.addEventListener('change', async event => {
