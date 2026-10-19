@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { findMatchingInstagramRecipeIndex, setCoverImage } from '../../js/recipeEditor.mjs';
+import { compressImportedRecipeImages, dataUrlToBlob, findMatchingInstagramRecipeIndex, setCoverImage } from '../../js/recipeEditor.mjs';
 
 test('re-import matches an existing Instagram recipe by post path despite different query parameters', () => {
     const recipes = [
@@ -43,4 +43,25 @@ test('setCoverImage keeps the image list unchanged for invalid selections', () =
     assert.equal(setCoverImage(images, 5), images);
     assert.equal(setCoverImage(images, -1), images);
     assert.equal(setCoverImage(undefined, 1), undefined);
+});
+
+test('URL-imported base64 images are compressed before they enter the saved recipe list', async () => {
+    const inputImage = `data:image/png;base64,${Buffer.from('original').toString('base64')}`;
+    const recipe = { images: [{ src: inputImage }, { src: 'images/recipes/existing.jpg' }] };
+    const compressedInputs = [];
+
+    await compressImportedRecipeImages(recipe, async blob => {
+        compressedInputs.push(blob);
+        return 'data:image/jpeg;base64,Y29tcHJlc3NlZA==';
+    });
+
+    assert.equal(compressedInputs.length, 1);
+    assert.equal(compressedInputs[0].type, 'image/png');
+    assert.equal(await compressedInputs[0].text(), 'original');
+    assert.equal(recipe.images[0].src, 'data:image/jpeg;base64,Y29tcHJlc3NlZA==');
+    assert.equal(recipe.images[1].src, 'images/recipes/existing.jpg');
+});
+
+test('imported image conversion rejects unsupported or malformed data URLs', () => {
+    assert.throws(() => dataUrlToBlob('data:image/svg+xml;base64,PHN2Zz4='), /ungültiges Format/);
 });

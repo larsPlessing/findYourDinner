@@ -165,3 +165,68 @@ test('stores and restores recipes in local storage', t => {
     assert.deepEqual(restored.getAllRecipes(), sampleRecipes);
     assert.equal(restored.revision, 'rev-1');
 });
+
+test('saves the editable recipe list only once instead of duplicating the full cache', t => {
+    const storage = {
+        recipes_user_edits: JSON.stringify(sampleRecipes),
+        recipes: JSON.stringify(sampleRecipes)
+    };
+    const generator = createGenerator(t, { storage });
+    generator.recipes = sampleRecipes;
+
+    assert.equal(generator.saveToLocalStorage(), true);
+    assert.equal(Object.hasOwn(storage, 'recipes'), false);
+    assert.deepEqual(JSON.parse(storage.recipes_user_edits), sampleRecipes);
+});
+
+test('removes the legacy recipe cache before writing the full editable list', () => {
+    const storage = {
+        recipes: JSON.stringify(sampleRecipes),
+        getItem(key) { return Object.hasOwn(this, key) ? this[key] : null; },
+        setItem(key, value) {
+            if (key === 'recipes_user_edits') assert.equal(Object.hasOwn(this, 'recipes'), false);
+            this[key] = String(value);
+        },
+        removeItem(key) { delete this[key]; }
+    };
+    const generator = new RecipeGenerator({
+        windowObject: { location: { protocol: 'https:' } },
+        storage
+    });
+    generator.recipes = sampleRecipes;
+
+    assert.equal(generator.saveUserEditsToLocalStorage(), true);
+    assert.equal(Object.hasOwn(storage, 'recipes'), false);
+    assert.deepEqual(JSON.parse(storage.recipes_user_edits), sampleRecipes);
+});
+
+test('reports a localStorage quota failure instead of claiming the recipe cache was saved', t => {
+    const storage = {};
+    const generator = createGenerator(t, {
+        storage,
+    });
+    generator.recipes = sampleRecipes;
+    generator.storage.setItem.mock.mockImplementation((key, value) => {
+        if (key === 'recipes') throw new DOMException('Quota exceeded', 'QuotaExceededError');
+        storage[key] = String(value);
+    });
+
+    assert.equal(generator.saveToLocalStorage(), false);
+});
+
+test('shows a visible warning when an automatic recipe cache write exceeds localStorage quota', t => {
+    const storage = {
+        setItem() { throw new DOMException('Quota exceeded', 'QuotaExceededError'); },
+        getItem() { return null; },
+        removeItem() {}
+    };
+    const alert = t.mock.fn();
+    const generator = new RecipeGenerator({
+        windowObject: { location: { protocol: 'https:' }, alert },
+        storage
+    });
+    generator.recipes = sampleRecipes;
+
+    assert.equal(generator.saveToLocalStorage(), false);
+    assert.match(alert.mock.calls[0].arguments[0], /Speicher ist möglicherweise voll/i);
+});

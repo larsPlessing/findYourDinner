@@ -130,17 +130,19 @@ function readJsonRequest(request, response) {
     return new Promise((resolve, reject) => {
         const chunks = [];
         let requestSize = 0;
+        let oversized = false;
         request.on('data', chunk => {
+            if (oversized || response.writableEnded) return;
             requestSize += chunk.length;
             if (requestSize > maxRequestBytes) {
+                oversized = true;
                 sendJson(response, 413, { error: 'Die Anfrage ist zu groß.' });
-                request.destroy();
                 return;
             }
             chunks.push(chunk);
         });
         request.on('end', () => {
-            if (response.writableEnded) return resolve(null);
+            if (oversized || response.writableEnded) return resolve(null);
             try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8'))); } catch { reject(new Error('Die Anfrage enthält kein gültiges JSON.')); }
         });
         request.on('error', reject);
@@ -148,22 +150,7 @@ function readJsonRequest(request, response) {
 }
 
 function getRecipeCategories(root) {
-    const recipesPath = path.join(root, 'recipes.json');
-    let recipeData;
-    try {
-        recipeData = JSON.parse(fs.readFileSync(recipesPath, 'utf8'));
-    } catch (error) {
-        throw new Error(`Rezeptkategorien konnten nicht aus recipes.json geladen werden: ${error.message}`);
-    }
-
-    const availableCategories = new Set(
-        (Array.isArray(recipeData.recipes) ? recipeData.recipes : [])
-            .map(recipe => typeof recipe?.category === 'string' ? recipe.category.trim() : '')
-            .filter(Boolean)
-    );
-    const categories = ['Salzig', 'Süß'].filter(category => availableCategories.has(category));
-    if (!categories.length) throw new Error('In recipes.json wurden keine Rezeptkategorien gefunden.');
-    return categories;
+    return ['Salzig', 'Süß'];
 }
 
 /** Stabile Kennung des Rezeptinhalts, mit der ein veralteter Browserstand erkannt wird. */
@@ -235,13 +222,16 @@ function createServer(options = {}) {
                 // Von bereits gespeicherten Bildern belegte Dateinamen dürfen nicht von
                 // neu geschriebenen Bildern überschrieben werden (z. B. nach Umsortieren).
                 const reservedImageFiles = new Set();
+                for (const entry of fs.readdirSync(imageDirectory, { withFileTypes: true })) {
+                    if (entry.isFile()) reservedImageFiles.add(entry.name);
+                }
                 for (const recipe of payload.recipes) {
                     for (const image of Array.isArray(recipe?.images) ? recipe.images : []) {
                         const match = typeof image?.src === 'string' ? image.src.match(/^images\/recipes\/([^/\\]+)$/) : null;
                         if (match) reservedImageFiles.add(match[1]);
                     }
                 }
-                let savedImages = 0;
+                const imagesToWrite = [];
                 payload.recipes.forEach((recipe, recipeIndex) => {
                     if (!recipe || typeof recipe !== 'object' || Array.isArray(recipe)) throw new Error(`Rezept ${recipeIndex + 1} ist ungültig.`);
                     if (recipe.images === undefined) recipe.images = [];
@@ -260,12 +250,24 @@ function createServer(options = {}) {
                             filename = `${baseName}-${suffix}.${extension}`;
                         }
                         reservedImageFiles.add(filename);
-                        fs.writeFileSync(path.join(imageDirectory, filename), bytes);
+                        imagesToWrite.push({ bytes, filename, image });
                         image.src = `images/recipes/${filename}`;
-                        savedImages++;
                     });
                 });
 
+                const writtenImages = [];
+                try {
+                    for (const { bytes, filename } of imagesToWrite) {
+                        const imagePath = path.join(imageDirectory, filename);
+                        fs.writeFileSync(imagePath, bytes, { flag: 'wx' });
+                        writtenImages.push(imagePath);
+                    }
+                } catch (error) {
+                    for (const imagePath of writtenImages) fs.unlinkSync(imagePath);
+                    throw error;
+                }
+
+                const savedImages = imagesToWrite.length;
                 const revision = computeRecipesRevision(payload.recipes);
                 if (fs.existsSync(recipeFile)) {
                     // Vor dem Überschreiben den bisherigen Stand sichern.

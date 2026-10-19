@@ -78,6 +78,6 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         assert.equal(await page.locator(`${selector} .ingredient-amount`).first().textContent(), '150');
     }
 
-    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.locator('#ingredientsSection').scrollIntoViewIfNeeded();
     await page.waitForSelector('#ingredientDock[hidden]', { state: 'attached' });
 });

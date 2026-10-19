@@ -67,24 +67,24 @@
 
         <!-- Loading State -->
         <div id="loadingState" class="loading">Lade Rezepte...</div>
-        <div id="uploadOverlay" class="upload-overlay is-hidden">
-            <div class="upload-card">
-                <h1>🍳 Was koche ich heute?</h1>
-                <p>Wähle deine <strong>recipes.json</strong>, um die Rezepte zu laden.</p>
-                <div class="upload-overlay-actions">
-                    <label for="recipesJsonInput" class="file-label">📂 Datei auswählen</label>
-                    <button type="button" id="loadDefaultRecipesBtn" class="file-label" title="Repository-Datei laden">
-                        🔄 Standard-Datei laden
-                    </button>
-                    <button type="button" id="closeUploadOverlayBtn" class="file-label file-label-back" title="Zurück">
-                        <span class="back-arrow">←</span> Zurück
-                    </button>
-                </div>
-                <input type="file" id="recipesJsonInput" accept=".json,application/json">
-                <div id="uploadStatus" class="upload-status" role="status" aria-live="polite"></div>
-            </div>
-        </div>
+    </div>
 
+    <div id="uploadOverlay" class="upload-overlay is-hidden">
+        <div class="upload-card">
+            <h1>🍳 Was koche ich heute?</h1>
+            <p>Wähle deine <strong>recipes.json</strong>, um die Rezepte zu laden.</p>
+            <div class="upload-overlay-actions">
+                <label for="recipesJsonInput" class="file-label">📂 Datei auswählen</label>
+                <button type="button" id="loadDefaultRecipesBtn" class="file-label" title="Repository-Datei laden">
+                    🔄 Standard-Datei laden
+                </button>
+                <button type="button" id="closeUploadOverlayBtn" class="file-label file-label-back" title="Zurück">
+                    <span class="back-arrow">←</span> Zurück
+                </button>
+            </div>
+            <input type="file" id="recipesJsonInput" accept=".json,application/json">
+            <div id="uploadStatus" class="upload-status" role="status" aria-live="polite"></div>
+        </div>
     </div>
 
     <div id="recipeEditor" class="editor-overlay" hidden>

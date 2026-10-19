@@ -64,6 +64,36 @@ test('URL recipe import uses the provided category enum and imports a webpage im
     assert.equal(deps.fetchImpl.mock.callCount(), 3);
 });
 
+test('webpage image redirects are validated before requesting the next address', async t => {
+    const calls = [];
+    const deps = dependencies(t, async (input, options) => {
+        const url = String(input);
+        calls.push({ url, options });
+        if (url === 'https://example.com/recipe') {
+            return new Response('<html><meta property="og:image" content="https://example.com/recipe.jpg"><body>Ein Rezept mit Mehl und Zucker. Zutaten vermengen und den Teig anschließend goldbraun im Ofen backen.</body></html>');
+        }
+        if (url.includes('generativelanguage.googleapis.com')) {
+            return recipeResponse({
+                title: 'Kuchen',
+                category: 'Süß',
+                healthy: false,
+                ingredients: [{ name: 'Mehl' }],
+                steps: ['Backen.']
+            });
+        }
+        if (url === 'https://example.com/recipe.jpg') {
+            return new Response(null, { status: 302, headers: { Location: 'javascript:alert(1)' } });
+        }
+        throw new Error(`Unexpected fetch URL: ${url}`);
+    });
+
+    const imported = await importRecipe({ url: 'https://example.com/recipe', categories }, deps);
+
+    assert.deepEqual(imported.images, []);
+    assert.equal(calls.some(call => call.url.startsWith('javascript:')), false);
+    assert.equal(calls.find(call => call.url === 'https://example.com/recipe.jpg').options.redirect, 'manual');
+});
+
 test('Instagram reel imports its public caption, frames and preview image in German', async t => {
     const caption = 'Ingredients: 200 g flour, 2 eggs and 100 ml milk. Mix everything and bake at 180 degrees for 25 minutes. Let the cake cool completely before serving.';
     const deps = dependencies(t, async (input, options) => {
@@ -224,7 +254,15 @@ test('Instagram reel imports the available caption and returns a warning without
         url,
         video: null
     }));
-    const deps = dependencies(t, async () => new Response('<html><meta property="og:description" content="A complete recipe caption with ingredients and cooking instructions that is long enough to be processed."></html>'), {
+    const deps = dependencies(t, async input => String(input).includes('generativelanguage.googleapis.com')
+        ? recipeResponse({
+            title: 'Instagram-Rezept',
+            category: 'Salzig',
+            healthy: false,
+            ingredients: [{ name: 'Mehl' }],
+            steps: ['Backen.']
+        })
+        : new Response('<html><meta property="og:description" content="A complete recipe caption with ingredients and cooking instructions that is long enough to be processed."></html>'), {
         authenticatedInstagramLoader: authLoader
     });
 

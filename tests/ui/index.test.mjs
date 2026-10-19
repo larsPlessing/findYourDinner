@@ -39,6 +39,8 @@ test('homepage wires search, category filtering and recipe navigation', () => {
 test('homepage renders recipe and category data without HTML interpolation', () => {
     assert.doesNotMatch(homepageJs, /item\.innerHTML\s*=/);
     assert.doesNotMatch(homepageJs, /categoryFilter\.innerHTML\s*=/);
+    assert.doesNotMatch(homepageJs, /img\.style\.objectFit\s*=/,
+        'recipe card images should inherit object-fit from the shared cover style');
     assert.match(homepageJs, /title\.textContent\s*=\s*recipe\.name/);
     assert.match(homepageJs, /button\.textContent\s*=\s*category/);
 });
@@ -58,6 +60,8 @@ test('homepage provides the same upload dialog flow for choosing or reloading a 
     assert.match(homepageJs, /getElementById\(["']uploadRecipesBtn["']\)\.addEventListener\(["']click["'], \(\) => showUploadDialog\(\)\)/);
     assert.match(homepageJs, /getElementById\(["']loadDefaultRecipesBtn["']\)\.addEventListener\(["']click["'], \(\) => loadDefaultRecipes\(\)\)/);
     assert.match(homepageJs, /getElementById\(["']closeUploadOverlayBtn["']\)\.addEventListener\(["']click["'], closeUploadOverlay\)/);
+    assert.ok(html.indexOf('id="uploadOverlay"') > html.indexOf('</div>\n\n    <div id="recipeEditor"'),
+        'the viewport-fixed upload overlay should be outside the transformed page container');
 });
 
 test('homepage HTML carries no inline JavaScript', () => {

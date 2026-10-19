@@ -18,8 +18,9 @@ test('recipe import controls are shown only on localhost', () => {
             window: { location: { hostname } },
             document: {
                 getElementById(id) {
-                    if (id === 'editorSearch') return { addEventListener() {} };
+                    if (id === 'editorSearch') return { value: '', addEventListener() {} };
                     if (id === 'recipeImportImageInput') return null;
+                    if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
                     throw new Error(`Unerwartetes Element: ${id}`);
                 },
                 querySelectorAll() { return controls; }
@@ -55,16 +56,19 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
     const storage = {};
     let networkRequests = 0;
     let legacyStorageSaves = 0;
-    const status = { textContent: '' };
+    const status = { textContent: '', setAttribute() {} };
     const sandbox = {
         window: { location: { hostname: 'my-recipes.github.io' } },
         document: {
             getElementById(id) {
-                if (id === 'editorSearch') return { addEventListener() {} };
+                if (id === 'editorSearch') return { value: '', addEventListener() {} };
                 if (id === 'editorSaveStatus') return status;
                 if (id === 'recipeImportImageInput') return null;
+                if (id === 'editorRecipeList') return { replaceChildren() {}, appendChild() {} };
+                if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
                 throw new Error(`Unerwartetes Element: ${id}`);
             },
+            createElement() { return { addEventListener() {} }; },
             querySelectorAll() { return []; }
         },
         localStorage: {
@@ -72,6 +76,10 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
         },
         generator: {
             recipes: [],
+            saveUserEditsToLocalStorage() {
+                storage.recipes_user_edits = JSON.stringify(this.recipes);
+                return true;
+            },
             saveToLocalStorage() { legacyStorageSaves++; return true; }
         },
         searchInput: { value: '' },
@@ -89,6 +97,39 @@ test('non-localhost save stores the edited recipe in browser localStorage', asyn
     assert.equal(legacyStorageSaves, 1, 'RecipeGenerator localStorage cache should also be updated');
     assert.equal(networkRequests, 0, 'non-localhost saves must not call the filesystem API');
     assert.match(status.textContent, /auf diesem Gerät gespeichert/i);
+});
+
+test('localStorage quota failures are announced as an accessible save error', () => {
+    const status = {
+        textContent: '',
+        attributes: {},
+        setAttribute(name, value) { status.attributes[name] = value; }
+    };
+    const sandbox = {
+        window: { location: { hostname: 'my-recipes.github.io' } },
+        document: {
+            getElementById(id) {
+                if (id === 'editorSearch') return { value: '', addEventListener() {} };
+                if (id === 'editorSaveStatus') return status;
+                if (['recipeImportImageInput', 'editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
+                throw new Error(`Unerwartetes Element: ${id}`);
+            },
+            querySelectorAll() { return []; }
+        },
+        localStorage: { setItem() { throw new DOMException('Quota exceeded', 'QuotaExceededError'); } },
+        generator: {
+            recipes: [{ name: 'Rezept' }],
+            saveUserEditsToLocalStorage() { return false; },
+            saveToLocalStorage() { return false; }
+        },
+        renderEditorRecipeList() {}
+    };
+    vm.runInNewContext(editorSource, sandbox);
+
+    assert.equal(sandbox.persistRecipeEdits(), false);
+    assert.match(status.textContent, /Speichern fehlgeschlagen.*Speicherplatz|Speichern fehlgeschlagen.*Speicher/i);
+    assert.equal(status.attributes.role, 'alert');
+    assert.equal(status.attributes['aria-live'], 'assertive');
 });
 
 test('recipe import shows an accessible loading state and a clear server error', async () => {
@@ -112,6 +153,7 @@ test('recipe import shows an accessible loading state and a clear server error',
                 if (id === 'editorSearch') return { addEventListener() {} };
                 if (id === 'editorSaveStatus') return status;
                 if (id === 'recipeImportImageInput') return imageInput;
+                if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
                 throw new Error(`Unerwartetes Element: ${id}`);
             },
             querySelectorAll() { return importButtons; }
@@ -147,6 +189,7 @@ test('Gemini API errors are translated into actionable German messages', () => {
             getElementById(id) {
                 if (id === 'editorSearch') return { addEventListener() {} };
                 if (id === 'recipeImportImageInput') return null;
+                if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
                 throw new Error(`Unerwartetes Element: ${id}`);
             },
             querySelectorAll() { return []; }
@@ -163,7 +206,7 @@ test('Gemini API errors are translated into actionable German messages', () => {
 test('deleting the last recipe saves the empty recipe list to the local server', async () => {
     const storage = {};
     let savedPayload;
-    const status = { textContent: '' };
+    const status = { textContent: '', setAttribute() {} };
     const recipeList = { replaceChildren() {} };
     const recipeForm = { innerHTML: '' };
     const sandbox = {
@@ -175,6 +218,7 @@ test('deleting the last recipe saves the empty recipe list to the local server',
                 if (id === 'editorRecipeList') return recipeList;
                 if (id === 'recipeEditForm') return recipeForm;
                 if (id === 'recipeImportImageInput') return null;
+                if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
                 throw new Error(`Unerwartetes Element: ${id}`);
             },
             querySelectorAll() { return []; }
@@ -185,6 +229,10 @@ test('deleting the last recipe saves the empty recipe list to the local server',
         confirm: () => true,
         generator: {
             recipes: [{ id: 4, name: 'Zu löschendes Rezept', images: [] }],
+            saveUserEditsToLocalStorage() {
+                storage.recipes_user_edits = JSON.stringify(this.recipes);
+                return true;
+            },
             saveToLocalStorage() { return true; }
         },
         fetch: async (url, options) => {

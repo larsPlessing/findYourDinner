@@ -16,12 +16,6 @@
         scroll-behavior: smooth;
     }
     
-    /* Better image rendering in Chrome */
-    img {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-    }
-    
     /* Fix Chrome iOS input zoom */
     input[type="text"],
     input[type="search"] {
@@ -78,13 +72,6 @@
     break-inside: avoid;
     display: inline-block;
     width: 100%;
-}
-
-/* Chrome iOS scroll performance */
-.container {
-    /* Hardware acceleration */
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
 }
 
 /* Improve Chrome iOS touch response */

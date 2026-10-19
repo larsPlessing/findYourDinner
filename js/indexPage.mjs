@@ -34,6 +34,7 @@ async function loadRecipes(forceRemote = false) {
             generator.revision = localStorage.getItem('recipes_revision') || null;
             generator.normalizeCategories();
             generator.hasImages = parsed.some(recipe => recipe.images && recipe.images.length);
+            localStorage.removeItem('recipes');
             loadedFromCache = true;
         } else if (!forceRemote && generator.loadFromLocalStorage()) {
             generator.hasImages = generator.recipes.some(recipe => recipe.images && recipe.images.length);
@@ -72,8 +73,12 @@ async function loadRecipesFile(file) {
     generator.revision = null;
     generator.normalizeCategories();
     generator.hasImages = data.recipes.some(recipe => recipe.images && recipe.images.length > 0);
-    localStorage.setItem('recipes_user_edits', JSON.stringify(generator.recipes));
-    generator.saveToLocalStorage();
+    if (generator.saveUserEditsToLocalStorage() === false) {
+        throw new Error('Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.');
+    }
+    if (generator.saveToLocalStorage() === false) {
+        throw new Error('Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.');
+    }
     allRecipes = generator.getAllRecipes();
     filteredRecipes = [...allRecipes];
     uploadOverlay.style.display = 'none';
@@ -242,8 +247,6 @@ async function loadSingleRecipeImage(recipeName, imageEl) {
             img.loading = 'lazy';
             img.style.width = '100%';
             img.style.height = '100%';
-            img.style.objectFit = 'contain';
-
             // Wende Transformationen an
             applyImageTransform(img, imageData.transform);
 
@@ -259,7 +262,6 @@ async function loadSingleRecipeImage(recipeName, imageEl) {
             img.loading = 'lazy';
             img.style.width = '100%';
             img.style.height = '100%';
-            img.style.objectFit = 'contain';
 
             imageEl.innerHTML = '';
             imageEl.appendChild(img);

@@ -64,7 +64,9 @@ export default class RecipeGenerator {
             healthy: recipe.healthy === true || healthyIds.has(String(recipe.id))
         }));
         if (this.storage.getItem('recipes_user_edits') !== null) {
-            this.storage.setItem('recipes_user_edits', JSON.stringify(this.recipes));
+            if (!this.saveUserEditsToLocalStorage({ notify: false })) {
+                throw new Error('Lokale Rezeptänderungen konnten nicht gespeichert werden.');
+            }
         }
         this.saveToLocalStorage();
         this.storage.setItem(migrationKey, '1');
@@ -89,15 +91,48 @@ export default class RecipeGenerator {
         return list.length ? list[Math.floor(Math.random() * list.length)] : null;
     }
     getRandomRecipes(count) { return [...this.recipes].sort(() => Math.random() - 0.5).slice(0, count); }
-    saveToLocalStorage() {
+    saveUserEditsToLocalStorage({ notify = true } = {}) {
+        let previousRecipes = null;
+        let legacyCacheRemoved = false;
         try {
-            this.storage.setItem('recipes', JSON.stringify(this.recipes));
+            previousRecipes = this.storage.getItem('recipes');
+            if (previousRecipes !== null) {
+                this.storage.removeItem('recipes');
+                legacyCacheRemoved = true;
+            }
+            this.storage.setItem('recipes_user_edits', JSON.stringify(this.recipes));
+            return true;
+        } catch (error) {
+            if (legacyCacheRemoved) {
+                try {
+                    this.storage.setItem('recipes', previousRecipes);
+                } catch (restoreError) {
+                    console.error('Der vorherige Rezeptcache konnte nicht wiederhergestellt werden:', restoreError);
+                }
+            }
+            console.error('Fehler beim Speichern der Rezeptänderungen:', error);
+            if (notify) {
+                this.window?.alert?.('Änderungen konnten nicht im Browser gespeichert werden. Der Speicher ist möglicherweise voll; entferne Bilder oder lösche nicht benötigte Rezepte.');
+            }
+            return false;
+        }
+    }
+    saveToLocalStorage({ notify = true } = {}) {
+        try {
+            if (this.storage.getItem('recipes_user_edits') !== null) {
+                this.storage.removeItem('recipes');
+            } else {
+                this.storage.setItem('recipes', JSON.stringify(this.recipes));
+            }
             this.storage.setItem('recipes_timestamp', new Date().toISOString());
             if (this.revision) this.storage.setItem('recipes_revision', this.revision);
             else this.storage.removeItem('recipes_revision');
             return true;
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
+            if (notify) {
+                this.window?.alert?.('Änderungen konnten nicht im Browser gespeichert werden. Der Speicher ist möglicherweise voll; entferne Bilder oder lösche nicht benötigte Rezepte.');
+            }
             return false;
         }
     }

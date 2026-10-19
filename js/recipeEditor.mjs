@@ -90,6 +90,7 @@ async function importRecipe(payload) {
                 : `Der Importserver antwortet mit HTTP ${response.status}.`);
         }
         if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+        await compressImportedRecipeImages(result.recipe);
         const existingIndex = result.recipe.video?.src && isInstagramUrl
             ? findMatchingInstagramRecipeIndex(generator.recipes, payload.url)
             : -1;
@@ -101,7 +102,9 @@ async function importRecipe(payload) {
             generator.recipes.push({ ...result.recipe, id });
             editingRecipeIndex = generator.recipes.length - 1;
         }
-        persistRecipeEdits();
+        if (!persistRecipeEdits()) {
+            throw new Error('Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.');
+        }
         selectRecipeForEdit(editingRecipeIndex);
         const importedMessage = existingIndex >= 0
             ? 'Video wurde dem vorhandenen Rezept zugeordnet. Bitte speichere die Änderung.'
@@ -338,6 +341,21 @@ function compressRecipeImage(file) {
     });
 }
 
+function dataUrlToBlob(dataUrl) {
+    const match = dataUrl.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/);
+    if (!match) throw new Error('Das importierte Bild hat ein ungültiges Format.');
+    const bytes = atob(match[2]);
+    return new Blob([Uint8Array.from(bytes, character => character.charCodeAt(0))], { type: `image/${match[1]}` });
+}
+
+async function compressImportedRecipeImages(recipe, compressImage = compressRecipeImage) {
+    if (!Array.isArray(recipe.images)) return;
+    for (const image of recipe.images) {
+        if (typeof image?.src !== 'string' || !image.src.startsWith('data:image/')) continue;
+        image.src = await compressImage(dataUrlToBlob(image.src));
+    }
+}
+
 function addEditorField(form, labelText, name, value, type = 'text') {
     const label = document.createElement('label');
     label.className = 'editor-field';
@@ -535,8 +553,8 @@ async function saveEditedRecipe(event) {
 
 async function commitRecipeChanges(recipe, index) {
     generator.recipes[index] = recipe;
-    persistRecipeEdits();
-    await saveRecipeProjectToFolder();
+    const savedInBrowser = persistRecipeEdits();
+    if (!await saveRecipeProjectToFolder(savedInBrowser)) return;
     if (typeof globalThis.onRecipeEditorSaved === 'function') {
         globalThis.onRecipeEditorSaved(generator.recipes[index]);
     }
@@ -556,8 +574,9 @@ async function deleteCurrentRecipe() {
     if (!confirm(`„${generator.recipes[editingRecipeIndex].name}“ wirklich löschen?`)) return;
     generator.recipes.splice(editingRecipeIndex, 1);
     editingRecipeIndex = generator.recipes.length ? 0 : -1;
-    persistRecipeEdits();
-    await saveRecipeProjectToFolder();
+    const savedInBrowser = persistRecipeEdits();
+    if (!await saveRecipeProjectToFolder(savedInBrowser)) return;
+    globalThis.onRecipeEditorDeleted?.();
     renderEditorRecipeList();
     if (editingRecipeIndex >= 0) selectRecipeForEdit(editingRecipeIndex);
     else document.getElementById('recipeEditForm').innerHTML = '<p class="editor-empty">Noch keine Rezepte. Lege ein neues an.</p>';
@@ -565,21 +584,38 @@ async function deleteCurrentRecipe() {
 
 function persistRecipeEdits() {
     try {
-        localStorage.setItem('recipes_user_edits', JSON.stringify(generator.recipes));
-        generator.saveToLocalStorage();
+        if (generator.saveUserEditsToLocalStorage({ notify: false }) === false) {
+            throw new Error('Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.');
+        }
+        if (generator.saveToLocalStorage({ notify: false }) === false) {
+            throw new Error('Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.');
+        }
         globalThis.refreshRecipesAfterEdit?.();
-        document.getElementById('editorSaveStatus').textContent = `Lokal gespeichert · ${generator.recipes.length} Rezepte`;
+        const status = document.getElementById('editorSaveStatus');
+        status.textContent = `Lokal gespeichert · ${generator.recipes.length} Rezepte`;
+        status.setAttribute('role', 'status');
+        status.setAttribute('aria-live', 'polite');
         renderEditorRecipeList();
+        return true;
     } catch (error) {
-        document.getElementById('editorSaveStatus').textContent = `Speichern fehlgeschlagen: ${error.message}`;
+        const status = document.getElementById('editorSaveStatus');
+        const message = error?.name === 'QuotaExceededError' || error?.code === 22
+            ? 'Der Browser-Speicher ist voll. Entferne Bilder oder lösche nicht benötigte Rezepte.'
+            : error.message;
+        status.textContent = `Speichern fehlgeschlagen: ${message}`;
+        status.setAttribute('role', 'alert');
+        status.setAttribute('aria-live', 'assertive');
+        return false;
     }
 }
 
-async function saveRecipeProjectToFolder() {
+async function saveRecipeProjectToFolder(savedInBrowser = true) {
     const status = document.getElementById('editorSaveStatus');
     if (!['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)) {
-        status.textContent = 'Änderungen sind auf diesem Gerät gespeichert. Direktes Speichern in Projektdateien ist nur lokal möglich.';
-        return;
+        if (savedInBrowser) {
+            status.textContent = 'Änderungen sind auf diesem Gerät gespeichert. Direktes Speichern in Projektdateien ist nur lokal möglich.';
+        }
+        return savedInBrowser;
     }
     try {
         status.textContent = 'Speichere Rezepte und Bilder im Projektordner …';
@@ -593,7 +629,7 @@ async function saveRecipeProjectToFolder() {
             if (response.status === 409) {
                 // Konflikt: recipes.json wurde außerhalb der App geändert.
                 status.textContent = result.error || 'recipes.json wurde außerhalb der App geändert. Bitte lade die Rezepte neu.';
-                return;
+                return false;
             }
             throw new Error(result.error || `HTTP ${response.status}`);
         }
@@ -602,8 +638,10 @@ async function saveRecipeProjectToFolder() {
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
         status.textContent = `Gespeichert: recipes.json, ${result.savedImages} Bild(er) hinzugefügt, ${result.deletedImages || 0} nicht mehr verwendete Bild(er) und ${result.deletedVideos || 0} Video(s) entfernt.`;
+        return true;
     } catch (error) {
         status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den Projektserver mit „node server.mjs“ und öffne die App über http://127.0.0.1:4004.`;
+        return false;
     }
 }
 if (typeof document !== 'undefined') {
@@ -626,4 +664,4 @@ globalThis.closeRecipeEditor = closeRecipeEditor;
 globalThis.importRecipeFromUrl = importRecipeFromUrl;
 globalThis.newRecipe = newRecipe;
 
-export { commitRecipeChanges, deleteCurrentRecipe, findMatchingInstagramRecipeIndex, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder, setCoverImage };
+export { commitRecipeChanges, compressImportedRecipeImages, dataUrlToBlob, deleteCurrentRecipe, findMatchingInstagramRecipeIndex, importRecipe, persistRecipeEdits, saveRecipeProjectToFolder, setCoverImage };

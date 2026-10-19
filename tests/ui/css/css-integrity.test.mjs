@@ -81,9 +81,13 @@ test.describe('recipe card readability', () => {
     test('text and photos retain readable styles across screen sizes', () => {
         const pinterestCss = stylesheets.get(path.join(projectRoot, 'css/pinterest.css'));
         const mainCss = stylesheets.get(path.join(projectRoot, 'css/main.css'));
+        const chromeIosCss = stylesheets.get(path.join(projectRoot, 'css/chrome-ios.css'));
 
         assert.ok(pinterestCss, 'homepage should include pinterest.css');
         assert.ok(mainCss, 'homepage should include main.css');
+        assert.ok(chromeIosCss, 'homepage should include chrome-ios.css');
+        assert.doesNotMatch(chromeIosCss, /image-rendering:\s*crisp-edges/i,
+            'Chrome iOS optimizations should not pixelate recipe photos');
         assert.match(pinterestCss, /\.recipe-pin-title\s*\{[^}]*font-size:\s*1(?:\.0)?em/i,
             'recipe titles should use a readable base font size');
         assert.match(pinterestCss, /\.recipe-pin-title\s*\{[^}]*line-height:\s*1\.3/i,
@@ -92,6 +96,8 @@ test.describe('recipe card readability', () => {
             'recipe titles should have strong contrast on white cards');
         assert.match(pinterestCss, /\.recipe-pin-image\s+img\s*\{[^}]*object-fit:\s*cover/i,
             'recipe photos should fill their card area without distortion');
+        assert.match(pinterestCss, /\.recipe-pin-image\.tall\s*\{[^}]*max-height:\s*(?!150px)[^;}]+/i,
+            'tall recipe photos should be taller than short recipe photos');
         assert.match(pinterestCss, /@media\s*\(max-width:\s*576px\)[\s\S]*?\.recipe-pin-title\s*\{/i,
             'mobile title styles should remain inside the small-screen rules');
         assert.match(mainCss, /\.card\s*\{[^}]*background:\s*white/i,

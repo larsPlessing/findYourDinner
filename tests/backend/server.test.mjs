@@ -3,6 +3,7 @@ const require = createRequire(import.meta.url);
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
 let createServer;
@@ -46,6 +47,67 @@ test('localhost save API writes image files and recipes.json into the project', 
     assert.deepEqual(stored.recipes, result.recipes);
     // Ohne vorherige Datei gibt es noch keine Sicherung.
     assert.equal(fs.existsSync(path.join(projectDirectory, 'recipes.json.bak')), false);
+});
+
+test('localhost save API writes no images when a later recipe has an invalid image list', async t => {
+    const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+    const server = createServer({ rootDirectory: projectDirectory });
+    t.after(async () => {
+        await new Promise(resolve => server.close(resolve));
+        fs.rmSync(projectDirectory, { recursive: true, force: true });
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const response = await fetch(`${baseUrl}/api/save-recipes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Origin: baseUrl },
+        body: JSON.stringify({
+            recipes: [
+                { id: 1, name: 'Erstes Rezept', images: [{ src: `data:image/jpeg;base64,${Buffer.from('image').toString('base64')}` }] },
+                { id: 2, name: 'Ungültiges Rezept', images: 'not-an-array' }
+            ]
+        })
+    });
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(fs.readdirSync(path.join(projectDirectory, 'images', 'recipes')), []);
+});
+
+test('oversized JSON requests receive HTTP 413 without destroying the request before the response', async t => {
+    const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+    const server = createServer({ rootDirectory: projectDirectory });
+    t.after(async () => {
+        await new Promise(resolve => server.close(resolve));
+        fs.rmSync(projectDirectory, { recursive: true, force: true });
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    const address = server.address();
+    const bodySize = 50 * 1024 * 1024 + 1;
+    const statusCode = await new Promise((resolve, reject) => {
+        const request = http.request({
+            hostname: '127.0.0.1',
+            port: address.port,
+            path: '/api/save-recipes',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': bodySize,
+                Origin: `http://127.0.0.1:${address.port}`
+            }
+        }, response => {
+            response.resume();
+            response.on('end', () => resolve(response.statusCode));
+        });
+        request.on('error', reject);
+        const chunk = Buffer.alloc(1024 * 1024);
+        for (let sent = 0; sent < bodySize; sent += chunk.length) {
+            request.write(sent + chunk.length > bodySize ? chunk.subarray(0, bodySize - sent) : chunk);
+        }
+        request.end();
+    });
+
+    assert.equal(statusCode, 413);
 });
 
 test('localhost save API keeps existing images when a new image is moved to the front', async t => {
@@ -156,18 +218,16 @@ test('static server serves mjs files with a JavaScript MIME type', async t => {
     assert.equal(await response.text(), 'export default true;');
 });
 
-test('localhost import API passes current recipe categories to the importer', async t => {
+test('localhost import API always offers both categories, including with an empty recipe list', async t => {
     const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
-    fs.writeFileSync(path.join(projectDirectory, 'recipes.json'), JSON.stringify({
-        recipes: [
-            { category: 'Süß' },
-            { category: 'Salzig' },
-            { category: 'Süß' }
-        ]
-    }));
+    fs.writeFileSync(path.join(projectDirectory, 'recipes.json'), JSON.stringify({ recipes: [] }));
+    let passedCategories;
     const server = createServer({
         rootDirectory: projectDirectory,
-        importRecipe: async payload => ({ categories: payload.categories })
+        importRecipe: async payload => {
+            passedCategories = payload.categories;
+            return { categories: payload.categories };
+        }
     });
     t.after(async () => {
         await new Promise(resolve => server.close(resolve));
@@ -182,6 +242,7 @@ test('localhost import API passes current recipe categories to the importer', as
     });
 
     assert.equal(response.status, 200);
+    assert.deepEqual(passedCategories, ['Salzig', 'Süß']);
     assert.deepEqual((await response.json()).recipe.categories, ['Salzig', 'Süß']);
 });
 

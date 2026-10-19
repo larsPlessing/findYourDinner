@@ -22,7 +22,15 @@ function validateVideoMimeType(mimeType) {
 
 export async function downloadPublicVideo(url, fetchImpl) {
     url = validateInstagramVideoUrl(url, 'https://www.instagram.com');
-    const response = await fetchImpl(url, { redirect: 'follow' });
+    let response;
+    for (let redirects = 0; redirects <= 10; redirects++) {
+        response = await fetchImpl(url, { redirect: 'manual' });
+        if (![301, 302, 303, 307, 308].includes(response.status)) break;
+        const location = response.headers.get('location');
+        if (!location || redirects === 10) throw new Error('Instagram hat zu viele oder ungültige Video-Weiterleitungen geliefert.');
+        await response.body?.cancel();
+        url = validateInstagramVideoUrl(location, url);
+    }
     if (!response.ok) throw new Error(`Instagram-Video nicht abrufbar (HTTP ${response.status}).`);
     const mimeType = validateVideoMimeType(response.headers.get('content-type')?.split(';')[0].trim().toLowerCase());
 

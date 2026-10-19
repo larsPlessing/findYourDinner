@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const { test } = require('node:test');
 
 const { downloadBrowserVideo } = await import('../../server/instagramImporter/browserSession.mjs');
+const { downloadPublicVideo } = await import('../../server/instagramImporter/videoDownloader.mjs');
 const { fetchInstagramPost } = await import('../../server/instagramImporter/index.mjs');
 
 function createContextStub() {
@@ -44,4 +45,16 @@ test('ohne Browser-Video (blob:-Fallback) wird yt-dlp als Fallback versucht', as
     assert.equal(ytDlpTried, true);
     assert.equal(result.video.mimeType, 'video/mp4');
     assert.equal(result.url, source);
+});
+
+test('öffentliche Video-Weiterleitungen werden vor dem Abruf erneut gegen Instagram-Hosts geprüft', async () => {
+    let fetchCount = 0;
+    await assert.rejects(downloadPublicVideo('https://scontent.cdninstagram.com/video.mp4', async () => {
+        fetchCount++;
+        return new Response(null, {
+            status: 302,
+            headers: { Location: 'https://example.com/video.mp4' }
+        });
+    }), /ungültige Videoquelle/);
+    assert.equal(fetchCount, 1, 'the redirected non-Instagram host must not be requested');
 });

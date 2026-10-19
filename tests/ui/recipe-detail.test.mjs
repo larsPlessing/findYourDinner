@@ -81,6 +81,16 @@ describe('recipe detail page', () => {
             assert.match(detailJs, /function createIngredientItem\(ingredient\)/);
             assert.match(detailJs, /function renderIngredientLists\(ingredients\)[\s\S]*?visibleIngredients\.map\(createIngredientItem\)/);
             assert.match(detailJs, /function scaleIngredients\(\)[\s\S]*?renderIngredientLists\(scaledIngredients\)/);
+            assert.match(detailJs, /thumbnailsEl\.replaceChildren\(\);\s*thumbnailsEl\.style\.display = ['"]none['"]/,
+                'old image thumbnails should be cleared when a recipe has fewer images');
+            assert.match(detailJs, /const alternatives = generator\.recipes\.filter\(recipe => recipe !== currentRecipe\)/,
+                'random navigation should choose a different recipe where possible');
+        });
+
+        it('returns to the recipe list after deleting the current detail recipe', () => {
+            assert.match(detailJs, /globalThis\.onRecipeEditorDeleted = goBack/);
+            assert.match(fs.readFileSync(path.resolve(__dirname, '../../js/recipeEditor.mjs'), 'utf8'),
+                /globalThis\.onRecipeEditorDeleted\?\.\(\)/);
         });
 
         it('shows a responsive video player below the preparation steps only when a recipe has a video', () => {

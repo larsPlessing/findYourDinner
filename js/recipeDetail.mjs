@@ -34,6 +34,7 @@ window.addEventListener('load', async () => {
             if (!Array.isArray(generator.recipes)) throw new Error('Lokale Rezeptdaten sind ungültig.');
             generator.revision = localStorage.getItem('recipes_revision') || null;
             generator.normalizeCategories();
+            localStorage.removeItem('recipes');
             loadedFromCache = true;
         } else if (generator.loadFromLocalStorage()) {
             // Verwende denselben Rezept-Cache wie die Übersicht.
@@ -132,6 +133,8 @@ async function displayRecipe() {
     // Bild/Emoji
     const imageEl = document.getElementById('recipeImageMain');
     const thumbnailsEl = document.getElementById('imageThumbnails');
+    thumbnailsEl.replaceChildren();
+    thumbnailsEl.style.display = 'none';
     const emoji = getRecipeEmoji(currentRecipe.name);
     const gradient = getGradientForRecipe(currentRecipe.name);
 
@@ -584,12 +587,15 @@ async function onRecipeEditorSaved(recipe) {
     await displayRecipe();
 }
 
+globalThis.onRecipeEditorDeleted = goBack;
+
 function printRecipe() {
     window.print();
 }
 
 function selectRandomRecipe() {
-    const random = generator.getRandomRecipe();
+    const alternatives = generator.recipes.filter(recipe => recipe !== currentRecipe);
+    const random = generator.getRandomRecipe(alternatives);
     if (random) {
         const recipeKey = random.id !== undefined && random.id !== null ? String(random.id) : random.name;
         localStorage.setItem('currentRecipe', recipeKey);

@@ -34,6 +34,8 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
     assert.match(homepageJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
     assert.match(homepageJs, /generator\.loadFromLocalStorage\(\)/);
     assert.match(detailJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
+    assert.match(homepageJs, /localStorage\.removeItem\(['"]recipes['"]\)/);
+    assert.match(detailJs, /localStorage\.removeItem\(['"]recipes['"]\)/);
     assert.match(detailJs, /generator\.loadFromLocalStorage\(\)/);
     assert.doesNotMatch(homepageJs, /localStorage\.clear\s*\(/);
     assert.doesNotMatch(detailJs, /localStorage\.clear\s*\(/);

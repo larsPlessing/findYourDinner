@@ -117,7 +117,16 @@ function resolveImageUrl(value, baseUrl) {
 }
 
 async function downloadRecipeImage(imageUrl, fetchImpl = fetch) {
-    const response = await fetchImpl(imageUrl, { redirect: 'follow' });
+    let response;
+    for (let redirects = 0; redirects <= 10; redirects++) {
+        response = await fetchImpl(imageUrl, { redirect: 'manual' });
+        if (![301, 302, 303, 307, 308].includes(response.status)) break;
+        const location = response.headers.get('location');
+        if (!location || redirects === 10) throw new Error('Das Webseitenbild hat zu viele oder ungültige Weiterleitungen.');
+        await response.body?.cancel();
+        imageUrl = resolveImageUrl(location, imageUrl);
+        if (!imageUrl) throw new Error('Das Webseitenbild wurde auf eine ungültige Adresse weitergeleitet.');
+    }
     if (!response.ok) throw new Error(`Bild nicht abrufbar (HTTP ${response.status}).`);
 
     const mimeType = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
