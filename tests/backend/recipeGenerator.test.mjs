@@ -100,6 +100,10 @@ test('searches, filters and returns recipe images', async t => {
     assert.deepEqual(generator.filterByCategory('Salzig', true), []);
     assert.deepEqual(generator.filterByCategory('healthy'), [sampleRecipes[0]]);
     assert.deepEqual(generator.getAllCategories(), ['Salzig', 'Süß', 'healthy']);
+    assert.equal(generator.getRecipeById(1), sampleRecipes[0]);
+    assert.equal(generator.getRecipeById('2'), sampleRecipes[1]);
+    assert.equal(generator.getRecipeById(99), null);
+    assert.equal(generator.getRecipeById(null), null);
     assert.equal((await generator.getRecipeImageURL('Apfelkuchen')).dataUrl, 'images/recipes/apfelkuchen.jpg');
     assert.deepEqual(await generator.getAllRecipeImageURLs('Kartoffelsuppe'), []);
     assert.equal(await generator.hasRecipeImage('Apfelkuchen'), true);

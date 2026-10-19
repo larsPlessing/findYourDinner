@@ -65,14 +65,14 @@ window.addEventListener('load', async () => {
         }
     }
     // Hole aktuelles Rezept
-    const recipeName = localStorage.getItem('currentRecipe');
-    if (!recipeName) {
+    const recipeKey = localStorage.getItem('currentRecipe');
+    if (!recipeKey) {
         alert('Kein Rezept ausgewählt');
         goBack();
         return;
     }
 
-    currentRecipe = generator.getRecipeByName(recipeName);
+    currentRecipe = generator.getRecipeById(recipeKey) || generator.getRecipeByName(recipeKey);
     if (!currentRecipe) {
         alert('Rezept nicht gefunden');
         goBack();
@@ -570,12 +570,14 @@ function goBack() {
 
 function editCurrentRecipe() {
     if (!currentRecipe) return;
-    openRecipeEditor(currentRecipe.name);
+    openRecipeEditor(currentRecipe.id);
 }
 
 async function onRecipeEditorSaved(recipe) {
     if (!recipe) return;
     currentRecipe = recipe;
+    // Nach dem Umbenennen bleibt die ID stabil, der gespeicherte Schlüssel muss also nur aktualisiert werden.
+    if (recipe.id !== undefined && recipe.id !== null) localStorage.setItem('currentRecipe', String(recipe.id));
     await displayRecipe();
 }
 
@@ -586,7 +588,8 @@ function printRecipe() {
 function selectRandomRecipe() {
     const random = generator.getRandomRecipe();
     if (random) {
-        localStorage.setItem('currentRecipe', random.name);
+        const recipeKey = random.id !== undefined && random.id !== null ? String(random.id) : random.name;
+        localStorage.setItem('currentRecipe', recipeKey);
         window.location.reload();
     }
 }

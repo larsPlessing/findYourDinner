@@ -69,7 +69,7 @@ describe('recipe detail page', () => {
         it('loads repository JSON and restores the selected recipe', () => {
             assert.match(detailJs, /loadFromURL\(['"]\.\.\/recipes\.json['"]\)/);
             assert.match(detailJs, /localStorage\.getItem\(['"]currentRecipe['"]\)/);
-            assert.match(detailJs, /getRecipeByName\(recipeName\)/);
+            assert.match(detailJs, /generator\.getRecipeById\(recipeKey\)\s*\|\|\s*generator\.getRecipeByName\(recipeKey\)/);
             assert.match(detailJs, /recipeTitle['"]\)\.textContent\s*=\s*currentRecipe\.name/);
         });
 

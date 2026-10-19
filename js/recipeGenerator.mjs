@@ -28,6 +28,10 @@ export default class RecipeGenerator {
         }
     }
 
+    getRecipeById(id) {
+        if (id === null || id === undefined || id === '') return null;
+        return this.recipes.find(recipe => String(recipe.id) === String(id)) || null;
+    }
     getRecipeByName(name) { return this.recipes.find(recipe => recipe.name === name || recipe.sheetName === name) || null; }
     getAllRecipes() { return this.recipes; }
     normalizeCategories() {

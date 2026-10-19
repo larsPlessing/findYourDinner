@@ -24,9 +24,10 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
     assert.equal(backUrl.pathname, '/findYourDinner/index.html');
 
     // Opening a recipe stores its key before following a relative URL.
-    assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeName\)/);
+    assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeKey\)/);
     assert.match(homepageJs, /window\.location\.href\s*=\s*['"]pages\/recipe-detail\.html['"]/);
     assert.match(detailJs, /localStorage\.getItem\(['"]currentRecipe['"]\)/);
+    assert.match(detailJs, /generator\.getRecipeById\(recipeKey\)\s*\|\|\s*generator\.getRecipeByName\(recipeKey\)/);
     assert.match(detailJs, /window\.location\.href\s*=\s*['"]\.\.\/index\.html['"]/);
 
     // Each page prefers locally saved edits and falls back to the shared recipe cache.
@@ -43,10 +44,10 @@ test('detail page opens the editor in place with the current recipe selected', (
     assert.match(detailJs, /getElementById\(["']editCurrentRecipeBtn["']\)\.addEventListener\(["']click["'], editCurrentRecipe\)/);
     assert.match(detailPage, /id=["']recipeEditor["']/);
     assert.match(detailPage, /<script type=["']module["'] src=["']\.\.\/js\/recipeEditor\.mjs["']/);
-    assert.match(detailJs, /function editCurrentRecipe\(\)\s*\{\s*if\s*\(!currentRecipe\)\s*return;\s*openRecipeEditor\(currentRecipe\.name\);\s*\}/);
+    assert.match(detailJs, /function editCurrentRecipe\(\)\s*\{\s*if\s*\(!currentRecipe\)\s*return;\s*openRecipeEditor\(currentRecipe\.id\);\s*\}/);
     assert.match(detailJs, /async function onRecipeEditorSaved\(recipe\)[\s\S]*?currentRecipe = recipe;[\s\S]*?await displayRecipe\(\);/);
-    assert.match(recipeEditor, /function openRecipeEditor\(recipeName = null\)/);
-    assert.match(recipeEditor, /generator\.recipes\.findIndex\(recipe => recipe\.name === recipeName \|\| recipe\.sheetName === recipeName\)/);
+    assert.match(recipeEditor, /function openRecipeEditor\(recipeKey = null\)/);
+    assert.match(recipeEditor, /generator\.recipes\.findIndex\(recipe => String\(recipe\.id\) === String\(recipeKey\)/);
     assert.doesNotMatch(detailJs, /function editCurrentRecipe\(\)\s*\{[^}]*window\.location\.href/s);
 });
 

@@ -35,7 +35,7 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     page.setDefaultTimeout(5000);
     await page.addInitScript(() => {
-        localStorage.setItem('currentRecipe', 'Dock-Test');
+        localStorage.setItem('currentRecipe', '1');
         localStorage.setItem('recipes_user_edits', JSON.stringify([{
             id: 1,
             name: 'Dock-Test',

@@ -136,7 +136,7 @@ async function displayRecipes() {
 
         const pin = document.createElement('div');
         pin.className = 'recipe-pin';
-        pin.addEventListener('click', () => openRecipe(recipe.name));
+        pin.addEventListener('click', () => openRecipe(recipe));
 
         const image = document.createElement('div');
         image.className = `recipe-pin-image ${gradient} ${heightClass}`;
@@ -487,9 +487,10 @@ function shuffleRecipes() {
     displayRecipes();
 }
 
-function openRecipe(recipeName) {
-    // Speichere Rezeptname und öffne Detail-Seite
-    localStorage.setItem('currentRecipe', recipeName);
+function openRecipe(recipe) {
+    // Speichere die Rezept-ID (Fallback: Name) und öffne Detail-Seite
+    const recipeKey = recipe && recipe.id !== undefined && recipe.id !== null ? String(recipe.id) : recipe.name;
+    localStorage.setItem('currentRecipe', recipeKey);
     window.location.href = 'pages/recipe-detail.html';
 }
 

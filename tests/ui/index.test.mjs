@@ -32,8 +32,8 @@ test('homepage defaults to the salty category', () => {
 test('homepage wires search, category filtering and recipe navigation', () => {
     assert.match(homepageJs, /searchInput\.addEventListener\(['"]input['"],\s*handleSearch\)/);
     assert.match(homepageJs, /button\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*filterByCategory\(category\)\)/);
-    assert.match(homepageJs, /pin\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*openRecipe\(recipe\.name\)\)/);
-    assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeName\)/);
+    assert.match(homepageJs, /pin\.addEventListener\(['"]click['"],\s*\(\)\s*=>\s*openRecipe\(recipe\)\)/);
+    assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeKey\)/);
 });
 
 test('homepage renders recipe and category data without HTML interpolation', () => {

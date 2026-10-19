@@ -31,12 +31,12 @@ function setCoverImage(images, index) {
     return reordered;
 }
 
-function openRecipeEditor(recipeName = null) {
+function openRecipeEditor(recipeKey = null) {
     document.getElementById('recipeEditor').hidden = false;
     document.getElementById('editorSearch').value = '';
     renderEditorRecipeList();
-    const selectedIndex = recipeName
-        ? generator.recipes.findIndex(recipe => recipe.name === recipeName || recipe.sheetName === recipeName)
+    const selectedIndex = recipeKey !== null && recipeKey !== undefined && recipeKey !== ''
+        ? generator.recipes.findIndex(recipe => String(recipe.id) === String(recipeKey) || recipe.name === recipeKey || recipe.sheetName === recipeKey)
         : -1;
     if (generator.recipes.length) selectRecipeForEdit(selectedIndex >= 0 ? selectedIndex : 0);
     else newRecipe();
