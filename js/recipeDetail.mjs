@@ -1,4 +1,6 @@
 // Seitenlogik der Rezeptdetail-Seite (pages/recipe-detail.html). Früher als Inline-<script> in der HTML.
+import { scaleIngredientAmount } from './ingredientAmount.mjs';
+
 globalThis.generator = new RecipeGenerator();
 let currentRecipe = null;
 let allImages = [];
@@ -775,22 +777,10 @@ function scaleIngredients() {
     if (originalServings === null || currentServings === null) return;
 
     const scaleFactor = currentServings / originalServings;
-    const scaledIngredients = originalIngredients.map(ingredient => {
-        // Skaliere Menge wenn numerisch
-        let scaledAmount = ingredient.amount;
-        if (ingredient.amount) {
-            const amountNum = parseFloat(ingredient.amount);
-            if (!isNaN(amountNum)) {
-                scaledAmount = (amountNum * scaleFactor).toFixed(1);
-                // Entferne .0 bei ganzen Zahlen
-                if (scaledAmount.endsWith('.0')) {
-                    scaledAmount = scaledAmount.slice(0, -2);
-                }
-            }
-        }
-
-        return { ...ingredient, amount: scaledAmount };
-    });
+    const scaledIngredients = originalIngredients.map(ingredient => ({
+        ...ingredient,
+        amount: scaleIngredientAmount(ingredient.amount, scaleFactor)
+    }));
     renderIngredientLists(scaledIngredients);
 }
 
@@ -804,10 +794,11 @@ function initializePortionScaler() {
         return;
     }
 
-    originalServings = currentRecipe.servings
+    // Portionsangaben können Strings sein („4“, „2-4“) – erst hier in eine Zahl umwandeln.
+    originalServings = Number(currentRecipe.servings);
 
-    if (originalServings === null) {
-        // Konnte keine Zahl extrahieren
+    if (!Number.isFinite(originalServings) || originalServings <= 0) {
+        // Konnte keine gültige Portionsanzahl ermitteln
         document.getElementById('portionScaler').style.display = 'none';
         return;
     }

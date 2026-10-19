@@ -34,6 +34,7 @@ Mobiler Rezeptfinder: statische Seite (GitHub Pages) plus lokaler Node-Server mi
 - Nur ES-Module (`.mjs`), keine Build-Tools. Relative URLs verwenden, damit GitHub Pages funktioniert.
 - Keine neuen Abhängigkeiten ohne Rückfrage. Es werden nur kostenlose Lösungen gewünscht.
 - `.env` und `GEMINI_API_KEY` nie ausgeben, loggen oder committen.
+- Die README ist öffentlich: kurz halten (Was ist es, Installation, Tests) und keine sensiblen oder internen Details eintragen.
 - Nutzereingaben und Importdaten nie per `innerHTML` einfügen, sondern `textContent` oder DOM-Methoden.
 - Kein Inline-JS und kein Inline-CSS in den HTML-Dateien: Skripte als `js/*.mjs` mit `<script type="module" src=…>`, Styles als `css/*.css` mit `<link rel="stylesheet">` (Seiten-Stylesheet zuletzt im Head, damit die Cascade gleich bleibt). Tests erzwingen das.
 - Die Funktionen `getRecipeEmoji`, `generatePlaceholderImage` und `applyImageTransform` stehen doppelt (`js/indexPage.mjs` und `js/recipeDetail.mjs`). Änderungen immer in beiden vornehmen, oder in ein gemeinsames Modul auslagern.
