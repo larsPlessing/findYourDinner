@@ -189,3 +189,14 @@ input[type="file"] {
     flex-direction: column;
     gap: 10px;
 }
+.recipe-detail-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    overflow: auto;
+    background: var(--gradient-brand);
+}
+
+.recipe-detail-overlay[hidden] {
+    display: none;
+}

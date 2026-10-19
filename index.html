@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="css/recipe-editor.css">
     <link rel="stylesheet" href="css/recipe-unlock.css">
     <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/recipe-detail.css">
     
     <!-- Custom Scripts -->
     <script type="module" src="js/recipeGenerator.mjs"></script>
@@ -69,7 +70,65 @@
         <div id="masonryGrid" class="masonry-grid"></div>
 
         <!-- Loading State -->
-        <div id="loadingState" class="loading">Lade Rezepte...</div>
+    <div id="loadingState" class="loading">Lade Rezepte...</div>
+    </div>
+
+    <div id="recipeDetailOverlay" class="recipe-detail-overlay" hidden>
+        <div class="detail-container">
+            <div class="detail-header">
+                <button id="detailBackBtn" class="detail-back-btn">← Zurück zur Übersicht</button>
+                <div class="detail-hero">
+                    <div class="detail-image-gallery">
+                        <div class="detail-image-main" id="recipeImageMain"><div class="emoji-placeholder">🍽️</div></div>
+                        <div class="detail-image-thumbnails is-hidden" id="imageThumbnails"></div>
+                    </div>
+                    <div class="detail-info">
+                        <h1 class="detail-title" id="recipeTitle">Rezept wird geladen...</h1>
+                        <div class="recipe-category-badge is-hidden" id="recipeCategory"></div>
+                        <div class="detail-meta" id="recipeMeta"></div>
+                        <div class="detail-actions">
+                            <button id="editCurrentRecipeBtn" class="secondary-btn" title="Rezept bearbeiten">✏️ Bearbeiten</button>
+                            <button id="printRecipeBtn" class="primary-btn">🖨️ Drucken</button>
+                            <button class="secondary-btn" id="wakeLockBtn"><span id="wakeLockIcon">☀️</span> <span id="wakeLockText">Display wach</span></button>
+                            <button id="selectRandomRecipeBtn" class="secondary-btn">🎲 Anderes Rezept</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-content">
+                <div class="detail-section" id="ingredientsSection">
+                    <div class="ingredients-header">
+                        <h2>📝 Zutaten</h2>
+                        <div class="portion-scaler is-hidden" id="portionScaler">
+                            <button id="portionMinusBtn" class="portion-btn">−</button>
+                            <div class="portion-display"><span id="currentPortions">4</span> Portionen</div>
+                            <button id="portionPlusBtn" class="portion-btn">+</button>
+                            <button id="portionResetBtn" class="portion-reset" title="Zurücksetzen">↶</button>
+                        </div>
+                    </div>
+                    <ul class="ingredients-list" id="ingredientsList"><li class="no-data">Lade Zutaten...</li></ul>
+                </div>
+                <div class="detail-section">
+                    <h2>👨‍🍳 Zubereitung</h2>
+                    <ol class="instructions-list" id="instructionsList"><li class="no-data">Lade Anleitung...</li></ol>
+                    <section class="recipe-video-section" id="recipeVideoSection" hidden aria-labelledby="recipeVideoTitle">
+                        <h3 id="recipeVideoTitle">🎥 Video zum Rezept</h3>
+                        <video id="recipeVideo" controls playsinline preload="metadata"></video>
+                        <p class="recipe-video-error" id="recipeVideoError" hidden>Das Video konnte nicht geladen werden.</p>
+                    </section>
+                </div>
+                <div class="detail-section is-hidden" id="notesSection">
+                    <h2>📎 Bemerkungen &amp; Links</h2>
+                    <div class="notes-list" id="notesList"></div>
+                </div>
+            </div>
+        </div>
+        <aside class="ingredient-dock" id="ingredientDock" aria-label="Zutaten" hidden>
+            <button class="ingredient-dock-toggle" id="ingredientDockToggle" type="button" aria-expanded="false" aria-controls="ingredientDockFullList">
+                <span id="ingredientDockToggleLabel">Zutaten anzeigen</span><span id="ingredientDockCount"></span><span class="ingredient-dock-chevron" aria-hidden="true">⌃</span>
+            </button>
+            <div class="ingredient-dock-full" id="ingredientDockFullList" aria-hidden="true" hidden><ul class="ingredients-list" id="ingredientDockIngredients"></ul></div>
+        </aside>
     </div>
 
     <div id="uploadOverlay" class="upload-overlay is-hidden">

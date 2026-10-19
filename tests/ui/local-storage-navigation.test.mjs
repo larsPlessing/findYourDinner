@@ -30,7 +30,8 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
     assert.match(detailJs, /new URLSearchParams\(window\.location\.search\)\.get\(['"]id['"]\)/);
     assert.match(detailJs, /localStorage\.getItem\(['"]currentRecipe['"]\)/);
     assert.match(detailJs, /generator\.getRecipeById\(recipeKey\)\s*\|\|\s*generator\.getRecipeByName\(recipeKey\)/);
-    assert.match(detailJs, /window\.location\.href\s*=\s*['"]\.\.\/index\.html['"]/);
+    assert.match(detailJs, /function goBack\(\)[\s\S]*?document\.referrer[\s\S]*?window\.history\.back\(\)/);
+    assert.match(detailJs, /window\.location\.href\s*=\s*homeUrl\.href/);
 
     // Each page prefers locally saved edits and falls back to the shared recipe cache.
     assert.match(homepageJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);

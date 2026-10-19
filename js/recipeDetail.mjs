@@ -2,7 +2,8 @@
 import { scaleIngredientAmount } from './ingredientAmount.mjs';
 import { applyImageTransform, generatePlaceholderImage, getRecipeEmoji } from './recipeDisplayUtils.mjs';
 
-globalThis.generator = new RecipeGenerator();
+globalThis.generator ||= new RecipeGenerator();
+const generator = globalThis.generator;
 let currentRecipe = null;
 let allImages = [];
 let currentImageIndex = 0;
@@ -11,7 +12,8 @@ let imageRenderToken = 0;
 
 function resolveRecipeImageURL(imageURL) {
     if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(imageURL)) return imageURL;
-    return new URL(`../${imageURL}`, window.location.href).href;
+    const prefix = window.location.pathname.includes('/pages/') ? '../' : './';
+    return new URL(`${prefix}${imageURL}`, window.location.href).href;
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -36,7 +38,7 @@ let wakeLockSupported = 'wakeLock' in navigator;
 let wakeLockRequested = false;
 let wakeLockRequestToken = 0;
 
-window.addEventListener('load', async () => {
+async function initializeRecipeDetail(requestedRecipeKey = null) {
     try {
         const savedEdits = localStorage.getItem('recipes_user_edits');
         let loadedFromCache = false;
@@ -92,7 +94,7 @@ window.addEventListener('load', async () => {
         }
     }
     // Hole aktuelles Rezept
-    const recipeKey = new URLSearchParams(window.location.search).get('id')
+    const recipeKey = requestedRecipeKey || new URLSearchParams(window.location.search).get('id')
         || localStorage.getItem('currentRecipe');
     if (!recipeKey) {
         alert('Kein Rezept ausgewählt');
@@ -108,7 +110,7 @@ window.addEventListener('load', async () => {
     }
 
     await displayRecipe();
-});
+}
 
 window.addEventListener('popstate', () => {
     const key = new URLSearchParams(location.search).get('id');
@@ -568,7 +570,29 @@ function getGradientForRecipe(recipeName) {
 }
 
 function goBack() {
-    window.location.href = '../index.html';
+    if (document.getElementById('recipeDetailOverlay')?.hidden === false) {
+        globalThis.closeEmbeddedRecipeDetail?.();
+        return;
+    }
+
+    const homeUrl = new URL('../index.html', window.location.href);
+    let cameFromHome = false;
+    try {
+        const referrer = new URL(document.referrer);
+        const referrerPath = referrer.pathname.endsWith('/')
+            ? `${referrer.pathname}index.html`
+            : referrer.pathname;
+        cameFromHome = referrer.origin === homeUrl.origin && referrerPath === homeUrl.pathname;
+    } catch {
+        // Kein Referrer: Die Detailseite wurde direkt geöffnet.
+    }
+
+    if (cameFromHome && window.history.length > 1) {
+        window.history.back();
+        return;
+    }
+
+    window.location.href = homeUrl.href;
 }
 
 function editCurrentRecipe() {
@@ -797,15 +821,42 @@ function initializePortionScaler() {
 }
 // onRecipeEditorSaved wird von recipeEditor.mjs über globalThis aufgerufen.
 globalThis.onRecipeEditorSaved = onRecipeEditorSaved;
-initializeIngredientDock();
+let detailEventsWired = false;
 
-// --- Event-Wiring (ersetzt die onclick-Attribute aus recipe-detail.html) ---
-document.getElementById('detailBackBtn').addEventListener('click', goBack);
-document.getElementById('editCurrentRecipeBtn').addEventListener('click', editCurrentRecipe);
-document.getElementById('printRecipeBtn').addEventListener('click', printRecipe);
-document.getElementById('wakeLockBtn').addEventListener('click', () => toggleWakeLock());
-document.getElementById('selectRandomRecipeBtn').addEventListener('click', selectRandomRecipe);
-document.getElementById('portionMinusBtn').addEventListener('click', () => adjustPortions(-1));
-document.getElementById('portionPlusBtn').addEventListener('click', () => adjustPortions(1));
-document.getElementById('portionResetBtn').addEventListener('click', resetPortions);
-document.getElementById('ingredientDockToggle').addEventListener('click', toggleIngredientDock);
+function wireDetailEvents() {
+    if (detailEventsWired) return;
+    detailEventsWired = true;
+    initializeIngredientDock();
+    document.getElementById('detailBackBtn').addEventListener('click', goBack);
+    document.getElementById('editCurrentRecipeBtn').addEventListener('click', editCurrentRecipe);
+    document.getElementById('printRecipeBtn').addEventListener('click', printRecipe);
+    document.getElementById('wakeLockBtn').addEventListener('click', () => toggleWakeLock());
+    document.getElementById('selectRandomRecipeBtn').addEventListener('click', selectRandomRecipe);
+    document.getElementById('portionMinusBtn').addEventListener('click', () => adjustPortions(-1));
+    document.getElementById('portionPlusBtn').addEventListener('click', () => adjustPortions(1));
+    document.getElementById('portionResetBtn').addEventListener('click', resetPortions);
+    document.getElementById('ingredientDockToggle').addEventListener('click', toggleIngredientDock);
+}
+
+globalThis.openEmbeddedRecipeDetail = async recipeKey => {
+    const overlay = document.getElementById('recipeDetailOverlay');
+    if (!overlay) return;
+    overlay.hidden = false;
+    document.body.classList.add('recipe-detail-open');
+    wireDetailEvents();
+    await initializeRecipeDetail(recipeKey);
+};
+
+globalThis.closeEmbeddedRecipeDetail = () => {
+    const overlay = document.getElementById('recipeDetailOverlay');
+    if (!overlay) return;
+    document.getElementById('recipeVideo')?.pause();
+    overlay.hidden = true;
+    document.body.classList.remove('recipe-detail-open');
+    document.title = 'Was koche ich heute? - Rezeptfinder';
+};
+
+if (!document.getElementById('recipeDetailOverlay')) {
+    wireDetailEvents();
+    window.addEventListener('load', () => initializeRecipeDetail());
+}

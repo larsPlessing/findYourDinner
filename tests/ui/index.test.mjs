@@ -40,6 +40,8 @@ test('homepage wires search, category filtering and recipe navigation', () => {
     assert.match(homepageJs, /localStorage\.setItem\(['"]currentRecipe['"],\s*recipeKey\)/);
     assert.match(homepageJs, /url\.searchParams\.set\(['"]id['"],\s*recipeKey\)/);
     assert.match(homepageJs, /window\.location\.href\s*=\s*url\.href/);
+    assert.match(homepageJs, /pin\.addEventListener\(['"]pointerenter['"],\s*\(\)\s*=>\s*prefetchRecipeDetail\(recipe\)/);
+    assert.match(homepageJs, /link\.rel\s*=\s*['"]prefetch['"]/);
 });
 
 test('homepage renders recipe and category data without HTML interpolation', () => {
@@ -63,8 +65,13 @@ test('homepage uses the encrypted source and offers local file selection', () =>
 });
 
 test('homepage preloads real recipe images before displaying them', () => {
+    assert.match(homepageJs, /const recipeCardCache = new Map\(\)/);
+    assert.match(homepageJs, /const cachedItem = recipeCardCache\.get\(recipeKey\)/);
+    assert.match(homepageJs, /masonryGrid\.replaceChildren\(\)/);
     assert.match(homepageJs, /Promise\.all\(imageElements\.map/);
     assert.match(homepageJs, /img\.loading = ['"]eager['"]/);
+    assert.match(homepageJs, /imageEl\.querySelector\(['"]img['"]\)/);
+    assert.match(homepageJs, /imageEl\.dataset\.imageLoading === ['"]true['"]/);
     assert.match(homepageJs, /img\.onload = \(\) => \{/);
     assert.match(homepageJs, /img\.src = imageData\.dataUrl/);
     assert.match(homepageJs, /imageEl\.replaceChildren\(img\)/);

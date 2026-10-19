@@ -6,6 +6,8 @@ let allRecipes = [];
 let filteredRecipes = [];
 let currentCategory = 'Salzig';
 let healthyOnly = false;
+const recipeCardCache = new Map();
+const detailPrefetches = new Set();
 
 const searchInput = document.getElementById('searchInput');
 const masonryGrid = document.getElementById('masonryGrid');
@@ -149,10 +151,13 @@ async function loadDefaultRecipes() {
 
 async function displayRecipes() {
     loadingState.style.display = 'none';
-    masonryGrid.innerHTML = '';
+    masonryGrid.replaceChildren();
 
     if (filteredRecipes.length === 0) {
-        masonryGrid.innerHTML = '<div class="no-results">Keine Rezepte gefunden</div>';
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results';
+        noResults.textContent = 'Keine Rezepte gefunden';
+        masonryGrid.appendChild(noResults);
         return;
     }
 
@@ -161,6 +166,15 @@ async function displayRecipes() {
 
     for (let index = 0; index < filteredRecipes.length; index++) {
         const recipe = filteredRecipes[index];
+        const recipeKey = recipe.id !== undefined && recipe.id !== null
+            ? `id:${recipe.id}`
+            : `name:${recipe.name}`;
+        const cachedItem = recipeCardCache.get(recipeKey);
+        if (cachedItem) {
+            fragment.appendChild(cachedItem);
+            continue;
+        }
+
         const item = document.createElement('div');
         item.className = 'masonry-item';
 
@@ -171,6 +185,8 @@ async function displayRecipes() {
         const pin = document.createElement('div');
         pin.className = 'recipe-pin';
         pin.addEventListener('click', () => openRecipe(recipe));
+        pin.addEventListener('pointerenter', () => prefetchRecipeDetail(recipe), { once: true });
+        pin.addEventListener('focusin', () => prefetchRecipeDetail(recipe), { once: true });
 
         const image = document.createElement('div');
         image.className = `recipe-pin-image ${gradient} ${heightClass}`;
@@ -224,6 +240,7 @@ async function displayRecipes() {
 
         pin.append(image, content, overlay);
         item.appendChild(pin);
+        recipeCardCache.set(recipeKey, item);
 
         fragment.appendChild(item);
     }
@@ -245,6 +262,9 @@ async function loadRecipeImages() {
 }
 
 async function loadSingleRecipeImage(recipe, imageEl) {
+    if (imageEl.querySelector('img') || imageEl.dataset.imageLoading === 'true') return;
+    imageEl.dataset.imageLoading = 'true';
+
     try {
         const imageData = await generator.getRecipeImageURL(recipe);
 
@@ -258,11 +278,13 @@ async function loadSingleRecipeImage(recipe, imageEl) {
             img.style.width = '100%';
             img.style.height = '100%';
             img.onload = () => {
+                delete imageEl.dataset.imageLoading;
                 if (!imageEl.isConnected) return;
                 imageEl.replaceChildren(img);
                 imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
             };
             img.onerror = () => {
+                delete imageEl.dataset.imageLoading;
                 if (!imageEl.isConnected) return;
                 const placeholder = document.createElement('img');
                 placeholder.src = generatePlaceholderImage(recipe.name, getRecipeEmoji(recipe.name));
@@ -287,8 +309,10 @@ async function loadSingleRecipeImage(recipe, imageEl) {
 
             imageEl.innerHTML = '';
             imageEl.appendChild(img);
+            delete imageEl.dataset.imageLoading;
         }
     } catch (error) {
+        delete imageEl.dataset.imageLoading;
         if (!imageEl?.isConnected) return;
         const placeholder = document.createElement('img');
         placeholder.src = generatePlaceholderImage(recipe.name, getRecipeEmoji(recipe.name));
@@ -407,6 +431,19 @@ function openRecipe(recipe) {
     const url = new URL('pages/recipe-detail.html', window.location.href);
     url.searchParams.set('id', recipeKey);
     window.location.href = url.href;
+}
+
+function prefetchRecipeDetail(recipe) {
+    const recipeKey = recipe && recipe.id !== undefined && recipe.id !== null ? String(recipe.id) : recipe?.name;
+    if (!recipeKey || detailPrefetches.has(recipeKey)) return;
+
+    const url = new URL('pages/recipe-detail.html', window.location.href);
+    url.searchParams.set('id', recipeKey);
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url.href;
+    document.head.appendChild(link);
+    detailPrefetches.add(recipeKey);
 }
 
 globalThis.refreshRecipesAfterEdit = () => {
