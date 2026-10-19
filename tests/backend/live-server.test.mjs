@@ -12,7 +12,7 @@ const editorSource = fs.readFileSync(path.resolve(__dirname, '../../js/recipeEdi
     .replace(/^import .*?;\r?\n/gm, '')
     .replace(/^export \{[^}]+\};$/m, '');
 
-test('recipe import controls are shown only on localhost', () => {
+test('local image import keeps the file input hidden behind its button', () => {
     for (const [hostname, expectedHidden] of [['localhost', false], ['[::1]', false], ['my-recipes.github.io', true]]) {
         const controls = [{ hidden: true, disabled: false }, { hidden: true, disabled: false }];
         const imageInput = { hidden: true, disabled: false, addEventListener() {} };
