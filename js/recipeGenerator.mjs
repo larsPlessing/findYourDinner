@@ -1,17 +1,30 @@
-/** Lädt Rezeptdaten aus der JSON-Datei im Repository. */
+/** Lädt Rezeptdaten aus dem verschlüsselten Archiv im Repository. */
+import { decryptAssetBytes, getSaltFromEnvelope, unlockRecipeEnvelope } from './recipeCrypto.mjs';
+
 export default class RecipeGenerator {
-    constructor({ windowObject = globalThis.window, storage = globalThis.localStorage, fetchImpl = (...args) => globalThis.fetch(...args) } = {}) {
+    constructor({
+        windowObject = globalThis.window,
+        storage = globalThis.localStorage,
+        fetchImpl = (...args) => globalThis.fetch(...args),
+        unlockEnvelopeImpl = unlockRecipeEnvelope,
+        getSaltImpl = getSaltFromEnvelope
+    } = {}) {
         this.recipes = [];
         this.revision = null;
         this.window = windowObject;
         this.storage = storage;
         this.fetch = fetchImpl;
+        this.unlockEnvelope = unlockEnvelopeImpl;
+        this.getSalt = getSaltImpl;
+        this.cryptoKey = null;
+        this.encryptionSalt = null;
+        this.mediaUrls = new Map();
     }
 
     async loadFromURL(url, progressCallback = null) {
         try {
             if (this.window.location.protocol === 'file:') {
-                throw new Error('Bei file:// muss recipes.json über die Dateiauswahl geladen werden.');
+                throw new Error('Bei file:// muss recipes.enc über die Dateiauswahl geladen werden.');
             }
             const data = await this.fetchRecipeData(url);
             this.recipes = data.recipes;
@@ -27,9 +40,16 @@ export default class RecipeGenerator {
     async fetchRecipeData(url) {
         const response = await this.fetch(url, { cache: 'no-cache' });
         if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`);
-        const data = await response.json();
-        if (!data || !Array.isArray(data.recipes)) throw new Error('Die JSON-Datei enthält keine gültige Rezeptliste.');
-        return data;
+        const envelope = await response.json();
+        return this.loadEncryptedEnvelope(envelope);
+    }
+
+    async loadEncryptedEnvelope(envelope) {
+        const unlocked = await this.unlockEnvelope(envelope);
+        if (!Array.isArray(unlocked.recipes)) throw new Error('Die entschlüsselte Datei enthält keine gültige Rezeptliste.');
+        this.cryptoKey = unlocked.key;
+        this.encryptionSalt = this.getSalt(envelope);
+        return { recipes: unlocked.recipes, revision: envelope.revision };
     }
 
     async syncWithRemote(url, { hasLocalEdits = false, hasCachedRecipes = false } = {}) {
@@ -185,12 +205,31 @@ export default class RecipeGenerator {
             ? recipeOrIdOrName
             : this.getRecipeById(recipeOrIdOrName) || this.getRecipeByName(recipeOrIdOrName);
         if (recipe && Array.isArray(recipe.images)) {
-            return recipe.images.filter(image => image && image.src).map(image => ({
-                dataUrl: image.src,
+            return Promise.all(recipe.images.filter(image => image && image.src).map(async image => ({
+                dataUrl: await this.getMediaURL(image.src, image.mimeType),
                 transform: image.transform || this.defaultTransform()
-            }));
+            })));
         }
         return [];
+    }
+    async getMediaURL(src, mimeType = 'application/octet-stream') {
+        if (/^(?:data:|blob:|https?:|\/)/i.test(src) || !src.endsWith('.enc')) return src;
+        if (this.mediaUrls.has(src)) return this.mediaUrls.get(src);
+        if (!this.cryptoKey) throw new Error('Das Rezeptarchiv ist nicht entsperrt.');
+        const pagePath = this.window?.location?.pathname || '';
+        const prefix = /\/pages\/[^/]+$/.test(pagePath) ? '../' : './';
+        const response = await this.fetch(new URL(`${prefix}${src}`, this.window.location.href), { cache: 'force-cache' });
+        if (!response.ok) throw new Error(`HTTP-Fehler beim Laden eines verschlüsselten Mediums: ${response.status}`);
+        const encryptedBytes = await response.arrayBuffer();
+        const blob = await decryptAssetBytes(encryptedBytes, this.cryptoKey, mimeType);
+        const url = URL.createObjectURL(blob);
+        this.mediaUrls.set(src, url);
+        return url;
+    }
+    async getRecipeVideoURL(recipe) {
+        const video = recipe?.video;
+        if (!video || typeof video.src !== 'string') return null;
+        return this.getMediaURL(video.src, video.mimeType);
     }
     defaultTransform() {
         return { rotation: 0, flipH: false, flipV: false, crop: { left: 0, top: 0, right: 0, bottom: 0 } };

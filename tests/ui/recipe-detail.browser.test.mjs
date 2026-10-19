@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { deriveKey, encryptRecipeEnvelope } from '../../js/recipeCrypto.mjs';
 
 const require = createRequire(import.meta.url);
 const test = require('node:test');
@@ -8,12 +9,49 @@ const { chromium } = require('playwright');
 
 const port = 43117;
 const baseUrl = `http://127.0.0.1:${port}`;
+const testPassword = 'test-password-with-several-words';
+const testSalt = new Uint8Array(16).fill(7);
+const testKeyPromise = deriveKey(testPassword, testSalt);
+
+async function makeEnvelope(recipes, revision) {
+    return encryptRecipeEnvelope(recipes, await testKeyPromise, testSalt, revision);
+}
+
+async function seedRecipeKey(page, baseUrl) {
+    await page.route('**/recipe-test-bootstrap', route => route.fulfill({
+        contentType: 'text/html',
+        body: '<!doctype html><html><head></head><body></body></html>'
+    }));
+    await page.goto(`${baseUrl}/recipe-test-bootstrap`);
+    await page.evaluate(async ({ password, saltBase64 }) => {
+        const salt = Uint8Array.from(atob(saltBase64), character => character.charCodeAt(0));
+        const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+        const key = await crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt, iterations: 600_000, hash: 'SHA-256' },
+            material,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+        await new Promise((resolve, reject) => {
+            const request = indexedDB.open('find-your-dinner-vault', 1);
+            request.onupgradeneeded = () => request.result.createObjectStore('keys');
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                const transaction = request.result.transaction('keys', 'readwrite');
+                transaction.objectStore('keys').put(key, 'recipe-key');
+                transaction.oncomplete = resolve;
+                transaction.onerror = () => reject(transaction.error);
+            };
+        });
+    }, { password: testPassword, saltBase64: Buffer.from(testSalt).toString('base64') });
+}
 
 async function waitForServer(process, url = baseUrl) {
     for (let attempt = 0; attempt < 40; attempt++) {
         if (process.exitCode !== null) throw new Error('Lokaler Testserver konnte nicht gestartet werden.');
         try {
-            const response = await fetch(`${url}/recipes.json`);
+            const response = await fetch(`${url}/`);
             if (response.ok) return;
         } catch { /* Server startet noch. */ }
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -42,14 +80,16 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         const browser = await chromium.launch({ headless: true });
         t.after(() => browser.close());
         const page = await browser.newPage();
+        const envelope = await makeEnvelope([{
+            id: 1, name: 'Wake-Lock-Test', ingredients: [], instructions: [], images: []
+        }], 'wake-revision');
+        await page.route('**/recipes.enc', route => route.fulfill({ json: envelope }));
+        await seedRecipeKey(page, testUrl);
         const alerts = [];
         page.on('dialog', dialog => {
             alerts.push(dialog.message());
             dialog.dismiss();
         });
-        await page.route('**/recipes.json', route => route.fulfill({
-            json: { recipes: [{ id: 1, name: 'Wake-Lock-Test', ingredients: [], instructions: [], images: [] }] }
-        }));
         await page.addInitScript(() => {
             window.wakeLockRequests = 0;
             Object.defineProperty(navigator, 'wakeLock', {
@@ -62,6 +102,7 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
                 }
             });
             localStorage.setItem('currentRecipe', '1');
+            localStorage.setItem('recipes_revision', 'wake-revision');
             localStorage.setItem('recipes_user_edits', JSON.stringify([
                 { id: 1, name: 'Wake-Lock-Test', category: 'Salzig', ingredients: [], instructions: [], images: [] }
             ]));
@@ -70,6 +111,8 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         await page.goto(`${testUrl}/pages/recipe-detail.html?id=1`);
         await page.locator('#wakeLockBtn').click();
         await page.waitForFunction(() => window.wakeLockRequests === 1);
+        for (let attempt = 0; attempt < 20 && alerts.length === 0; attempt++) await page.waitForTimeout(50);
+        assert.equal(alerts.length, 1, 'the failed request should be handled before changing visibility');
         await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
         await page.waitForTimeout(100);
 
@@ -93,14 +136,13 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         const browser = await chromium.launch({ headless: true });
         t.after(() => browser.close());
         const page = await browser.newPage();
-        await page.route('**/recipes.json', route => route.fulfill({
-            json: {
-                recipes: [
-                    { id: 1, name: 'Altes Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [{ src: 'images/recipes/old.jpg' }] },
-                    { id: 2, name: 'Neues Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [{ src: 'images/recipes/new.jpg' }] }
-                ]
-            }
-        }));
+        const recipes = [
+            { id: 1, name: 'Altes Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [{ src: 'images/recipes/old.jpg' }] },
+            { id: 2, name: 'Neues Rezept', category: 'Salzig', ingredients: [], instructions: [], images: [{ src: 'images/recipes/new.jpg' }] }
+        ];
+        const envelope = await makeEnvelope(recipes, 'image-revision');
+        await page.route('**/recipes.enc', route => route.fulfill({ json: envelope }));
+        await seedRecipeKey(page, testUrl);
         await page.route('**/images/recipes/old.jpg', async route => {
             await new Promise(resolve => setTimeout(resolve, 400));
             await route.fulfill({ contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p8sAAAAASUVORK5CYII=', 'base64') });
@@ -133,6 +175,9 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
     t.after(() => browser.close());
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     page.setDefaultTimeout(5000);
+    const serverEnvelope = await makeEnvelope([{ id: 1, name: 'Neue Serverversion' }], 'published-revision');
+    await page.route('**/recipes.enc', route => route.fulfill({ json: serverEnvelope }));
+    await seedRecipeKey(page, baseUrl);
     let updateNotice = '';
     page.on('dialog', dialog => {
         if (dialog.message().includes('wirklich löschen')) {
@@ -142,9 +187,6 @@ test('ingredient dock appears after the ingredient list, expands and keeps porti
         updateNotice = dialog.message();
         dialog.dismiss();
     });
-    await page.route('**/recipes.json', route => route.fulfill({
-        json: { revision: 'published-revision', recipes: [{ id: 1, name: 'Neue Serverversion' }] }
-    }));
     await page.route('**/api/save-recipes', route => route.fulfill({
         status: 409,
         contentType: 'application/json',

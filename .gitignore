@@ -2,6 +2,14 @@
 node_modules/
 recipes.json.bak
 recipes.json.tmp
+recipes.json
+/images/recipes/**/*.jpg
+/images/recipes/**/*.jpeg
+/images/recipes/**/*.png
+/images/recipes/**/*.webp
+/videos/recipes/**/*.mp4
+/videos/recipes/**/*.mov
+/videos/recipes/**/*.webm
 .opencode
 graphify-out
 repomix-output.xml

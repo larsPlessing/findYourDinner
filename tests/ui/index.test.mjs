@@ -50,12 +50,13 @@ test('homepage renders recipe and category data without HTML interpolation', () 
     assert.match(homepageJs, /button\.textContent\s*=\s*category/);
 });
 
-test('homepage uses the JSON source and offers local file selection', () => {
-    assert.match(homepageJs, /loadFromURL\(['"]recipes\.json['"]\)/);
-    assert.match(homepageJs, /syncWithRemote\(['"]recipes\.json['"]/);
+test('homepage uses the encrypted source and offers local file selection', () => {
+    assert.match(homepageJs, /loadFromURL\(['"]recipes\.enc['"]\)/);
+    assert.match(homepageJs, /syncWithRemote\(['"]recipes\.enc['"]/);
     assert.match(generatorJs, /Neue Rezeptversion verfügbar/);
     assert.match(homepageJs, /Lokale Änderungen gehen verloren\. Fortfahren\?/);
     assert.match(html, /<label for=["']recipesJsonInput["'][^>]*class=["']file-label["']/);
+    assert.match(html, /recipes\.enc/);
     assert.match(homepageJs, /recipesJsonInput\.addEventListener\(['"]change['"],\s*handleLocalJsonFile\)/);
     assert.match(homepageJs, /loadRecipesFile\(file\)/);
 });

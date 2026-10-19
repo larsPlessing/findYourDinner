@@ -26,7 +26,7 @@ async function loadRecipes(forceRemote = false, confirmed = false) {
         loadingState.textContent = 'Lade Rezepte...';
         if (forceRemote) {
             if (!confirmed && !window.confirm('Lokale Änderungen gehen verloren. Fortfahren?')) return;
-            await generator.loadFromURL('recipes.json');
+            await generator.loadFromURL('recipes.enc');
             if (localStorage.getItem('recipes_user_edits') !== null
                 && !generator.saveRemoteRecipesToLocalStorage()) {
                 throw new Error('Die neue Standardversion konnte nicht gespeichert werden. Lokale Änderungen wurden beibehalten.');
@@ -58,7 +58,7 @@ async function loadRecipes(forceRemote = false, confirmed = false) {
         }
         if (window.location.protocol !== 'file:') {
             try {
-                await generator.syncWithRemote('recipes.json', {
+                await generator.syncWithRemote('recipes.enc', {
                     hasLocalEdits,
                     hasCachedRecipes: loadedFromCache
                 });
@@ -67,7 +67,7 @@ async function loadRecipes(forceRemote = false, confirmed = false) {
                 console.warn(`Neue Rezeptversion konnte nicht geprüft werden: ${error.message}`);
             }
         } else if (!loadedFromCache) {
-            await generator.loadFromURL('recipes.json');
+            await generator.loadFromURL('recipes.enc');
             generator.saveToLocalStorage();
         }
         allRecipes = generator.getAllRecipes();
@@ -87,8 +87,14 @@ async function loadRecipes(forceRemote = false, confirmed = false) {
 
 async function loadRecipesFile(file) {
     const data = JSON.parse(await file.text());
-    if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
-    generator.recipes = data.recipes;
+    if (data?.kdf === 'PBKDF2-SHA-256') {
+        const unlocked = await generator.loadEncryptedEnvelope(data);
+        generator.recipes = unlocked.recipes;
+        generator.revision = unlocked.revision || null;
+    } else {
+        if (!Array.isArray(data.recipes)) throw new Error('Die Datei enthält keine Rezeptliste.');
+        generator.recipes = data.recipes;
+    }
     // Eine lokal gewählte Datei hat keine Server-Revision.
     generator.revision = null;
     generator.normalizeCategories();
@@ -111,7 +117,7 @@ async function handleLocalJsonFile(event) {
     const file = event.target.files[0];
     if (!file) return;
     try {
-        if (!file.name.toLowerCase().endsWith('.json')) throw new Error('Bitte eine JSON-Datei auswählen.');
+        if (!/\.(?:json|enc)$/i.test(file.name)) throw new Error('Bitte eine Rezeptdatei (.enc oder .json) auswählen.');
         await loadRecipesFile(file);
     } catch (error) {
         uploadStatus.textContent = `JSON-Datei konnte nicht geladen werden: ${error.message}`;

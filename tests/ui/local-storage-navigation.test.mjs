@@ -35,8 +35,8 @@ test('recipe data stays available across navigation on a GitHub Pages project UR
     // Each page prefers locally saved edits and falls back to the shared recipe cache.
     assert.match(homepageJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
     assert.match(homepageJs, /generator\.loadFromLocalStorage\(\)/);
-    assert.match(homepageJs, /syncWithRemote\(['"]recipes\.json['"]/);
-    assert.match(detailJs, /syncWithRemote\(['"]\.\.\/recipes\.json['"]/);
+    assert.match(homepageJs, /syncWithRemote\(['"]recipes\.enc['"]/);
+    assert.match(detailJs, /syncWithRemote\(['"]\.\.\/recipes\.enc['"]/);
     assert.match(detailJs, /localStorage\.getItem\(['"]recipes_user_edits['"]\)/);
     assert.match(homepageJs, /localStorage\.removeItem\(['"]recipes['"]\)/);
     assert.match(detailJs, /localStorage\.removeItem\(['"]recipes['"]\)/);
@@ -58,9 +58,11 @@ test('detail page opens the editor in place with the current recipe selected', (
     assert.doesNotMatch(detailJs, /function editCurrentRecipe\(\)\s*\{[^}]*window\.location\.href/s);
 });
 
-test('editor tells the server which recipes.json state the edits are based on', () => {
+test('editor sends encrypted archive and identifies the revision it edits', () => {
     assert.match(recipeEditor, /revision: generator\.revision \?\? null/);
     assert.match(recipeEditor, /generator\.revision = result\.revision/);
+    assert.match(recipeEditor, /envelope: encrypted\.envelope/);
+    assert.match(recipeEditor, /plainRecipes: encrypted\.plainRecipes/);
     assert.match(detailJs, /localStorage\.getItem\(['"]recipes_revision['"]\)/);
     assert.match(homepageJs, /localStorage\.getItem\(['"]recipes_revision['"]\)/);
     assert.match(recipeEditor, /response\.status === 409/);

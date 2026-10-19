@@ -19,34 +19,6 @@ npm install
 npm run serve
 ```
 
-## Datenformat
-
-Die Datei `recipes.json` enthält ein Objekt mit Versionsnummer und Rezeptliste:
-
-```json
-{
-  "version": 1,
-  "recipes": [
-    {
-      "id": 12,
-      "name": "Beispielrezept",
-      "category": "Salzig",
-      "healthy": true,
-      "servings": 4,
-      "ingredients": [
-        { "amount": 200, "unit": "g", "product": "Mehl", "note": "gesiebt" }
-      ],
-      "instructions": [
-        { "step": 1, "text": "Alle Zutaten vermengen." }
-      ],
-      "images": [
-        { "src": "images/recipes/beispielrezept-12-1.jpg" }
-      ]
-    }
-  ]
-}
-```
-
 ## Tests
 
 ```bash
@@ -61,11 +33,13 @@ npm run test:backend  # nur Backend-Tests
 findYourDinner/
 ├── index.html          # Rezeptübersicht und Editor
 ├── pages/              # Rezeptdetailseite
-├── recipes.json        # Rezeptdaten
+├── recipes.enc         # Verschlüsselte Rezeptdaten für das Repo
+├── recipes.json        # Lokale Klartext-Arbeitskopie (Git-ignoriert)
 ├── server.mjs          # Lokaler statischer Server und Schreib-API
 ├── server/             # Serverseitige Logik
 ├── js/                 # Frontend-Logik (ES-Module)
 ├── css/                # Stylesheets
-├── images/recipes/     # Rezeptbilder
+├── images/recipes/     # Lokale Originale und verschlüsselte Repo-Dateien
+├── videos/recipes/     # Lokale Originale und verschlüsselte Repo-Dateien
 └── tests/              # Backend- und UI-Tests
 ```

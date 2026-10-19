@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="css/chrome-ios.css">
     <link rel="stylesheet" href="css/recipe-editor.css">
     <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/recipe-unlock.css">
     
     <!-- Custom Scripts -->
     <script type="module" src="js/recipeGenerator.mjs"></script>
@@ -72,7 +73,7 @@
     <div id="uploadOverlay" class="upload-overlay is-hidden">
         <div class="upload-card">
             <h1>🍳 Was koche ich heute?</h1>
-            <p>Wähle deine <strong>recipes.json</strong>, um die Rezepte zu laden.</p>
+            <p>Wähle deine verschlüsselte <strong>recipes.enc</strong>, um die Rezepte zu laden.</p>
             <div class="upload-overlay-actions">
                 <label for="recipesJsonInput" class="file-label">📂 Datei auswählen</label>
                 <button type="button" id="loadDefaultRecipesBtn" class="file-label" title="Repository-Datei laden">
@@ -82,7 +83,7 @@
                     <span class="back-arrow">←</span> Zurück
                 </button>
             </div>
-            <input type="file" id="recipesJsonInput" accept=".json,application/json">
+            <input type="file" id="recipesJsonInput" accept=".enc,.json,application/json">
             <div id="uploadStatus" class="upload-status" role="status" aria-live="polite"></div>
         </div>
     </div>

@@ -34,7 +34,12 @@ function createGenerator(t, { protocol = 'https:', storage = {}, confirmImplemen
     return new RecipeGenerator({
         windowObject: { location: { protocol }, confirm: t.mock.fn(confirmImplementation) },
         storage: localStorage,
-        fetchImpl: t.mock.fn(fetchImplementation)
+        fetchImpl: t.mock.fn(fetchImplementation),
+        unlockEnvelopeImpl: async envelope => ({
+            key: { type: 'secret' },
+            recipes: envelope.recipes
+        }),
+        getSaltImpl: () => new Uint8Array(16)
     });
 }
 
@@ -46,12 +51,12 @@ test('loads recipe JSON and reports completion', async t => {
         })
     });
     const progress = [];
-    const result = await generator.loadFromURL('recipes.json', item => progress.push(item));
+    const result = await generator.loadFromURL('recipes.enc', item => progress.push(item));
     assert.equal(result.length, 2);
     assert.equal(generator.revision, 'rev-1');
     assert.equal(progress.at(-1).progress, 100);
     assert.equal(generator.fetch.mock.callCount(), 1);
-    assert.equal(generator.fetch.mock.calls[0].arguments[0], 'recipes.json');
+    assert.equal(generator.fetch.mock.calls[0].arguments[0], 'recipes.enc');
 });
 
 test('calls the default fetch implementation with the global object as its receiver', async t => {
@@ -68,27 +73,29 @@ test('calls the default fetch implementation with the global object as its recei
             getItem() { return null; },
             setItem() {},
             removeItem() {}
-        }
+        },
+        unlockEnvelopeImpl: async envelope => ({ key: { type: 'secret' }, recipes: envelope.recipes }),
+        getSaltImpl: () => new Uint8Array(16)
     });
 
-    await generator.loadFromURL('recipes.json');
+    await generator.loadFromURL('recipes.enc');
     assert.equal(fetch.mock.callCount(), 1);
 });
 
 test('does not fetch JSON from file URLs', async t => {
     const generator = createGenerator(t, { protocol: 'file:' });
-    await assert.rejects(generator.loadFromURL('recipes.json'), /file:\/\//);
+    await assert.rejects(generator.loadFromURL('recipes.enc'), /file:\/\//);
     assert.equal(generator.fetch.mock.callCount(), 0);
 });
 
 test('rejects failed HTTP responses and malformed recipe data', async t => {
     await t.test('HTTP error', async t => {
         const generator = createGenerator(t, { fetchImplementation: async () => ({ ok: false, status: 404 }) });
-        await assert.rejects(generator.loadFromURL('recipes.json'), /404/);
+        await assert.rejects(generator.loadFromURL('recipes.enc'), /404/);
     });
     await t.test('invalid schema', async t => {
         const generator = createGenerator(t, { fetchImplementation: async () => ({ ok: true, json: async () => ({ recipes: 'invalid' }) }) });
-        await assert.rejects(generator.loadFromURL('recipes.json'), /gültige Rezeptliste/);
+        await assert.rejects(generator.loadFromURL('recipes.enc'), /gültige Rezeptliste/);
     });
 });
 
@@ -138,7 +145,7 @@ test('fetches recipe data without cache when checking the published revision', a
         generator.recipes = sampleRecipes;
         generator.revision = null;
 
-        const result = await generator.syncWithRemote('recipes.json', { hasLocalEdits: true, hasCachedRecipes: true });
+        const result = await generator.syncWithRemote('recipes.enc', { hasLocalEdits: true, hasCachedRecipes: true });
 
         assert.equal(result.remoteRevision, null);
         assert.equal(generator.window.confirm.mock.callCount(), 0);
@@ -157,17 +164,17 @@ test('fetches recipe data without cache when checking the published revision', a
         generator.recipes = [{ id: 99, name: 'Lokale Änderung' }];
         generator.revision = 'rev-old';
 
-        await generator.syncWithRemote('recipes.json', { hasLocalEdits: true, hasCachedRecipes: true });
-        await generator.syncWithRemote('recipes.json', { hasLocalEdits: true, hasCachedRecipes: true });
+        await generator.syncWithRemote('recipes.enc', { hasLocalEdits: true, hasCachedRecipes: true });
+        await generator.syncWithRemote('recipes.enc', { hasLocalEdits: true, hasCachedRecipes: true });
 
         assert.equal(generator.window.confirm.mock.callCount(), 1);
         assert.equal(storage.recipes_dismissed_revision, 'rev-new');
         assert.deepEqual(generator.recipes, [{ id: 99, name: 'Lokale Änderung' }]);
     });
 
-    const data = await generator.fetchRecipeData('recipes.json');
+    const data = await generator.fetchRecipeData('recipes.enc');
     assert.equal(data.revision, 'fresh');
-    assert.deepEqual(generator.fetch.mock.calls[0].arguments, ['recipes.json', { cache: 'no-cache' }]);
+    assert.deepEqual(generator.fetch.mock.calls[0].arguments, ['recipes.enc', { cache: 'no-cache' }]);
 });
 
 test('normalizes legacy category labels from saved recipes', t => {

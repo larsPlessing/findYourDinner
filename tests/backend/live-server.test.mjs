@@ -9,6 +9,7 @@ const vm = require('node:vm');
 
 const serverUrl = process.env.LOCAL_RECIPE_SERVER_URL || 'http://127.0.0.1:4004';
 const editorSource = fs.readFileSync(path.resolve(__dirname, '../../js/recipeEditor.mjs'), 'utf8')
+    .replace(/^import .*?;\r?\n/gm, '')
     .replace(/^export \{[^}]+\};$/m, '');
 
 test('recipe import controls are shown only on localhost', () => {
@@ -229,6 +230,8 @@ test('deleting the last recipe saves the empty recipe list to the local server',
         confirm: () => true,
         generator: {
             recipes: [{ id: 4, name: 'Zu löschendes Rezept', images: [] }],
+            cryptoKey: { type: 'secret' },
+            encryptionSalt: new Uint8Array(16),
             saveUserEditsToLocalStorage() {
                 storage.recipes_user_edits = JSON.stringify(this.recipes);
                 return true;
@@ -240,18 +243,27 @@ test('deleting the last recipe saves the empty recipe list to the local server',
             savedPayload = JSON.parse(options.body);
             return {
                 ok: true,
-                async json() { return { recipes: savedPayload.recipes, savedImages: 0, deletedImages: 0 }; }
+                async json() { return { revision: 'saved-revision', savedMedia: 0, deletedMedia: 0 }; }
             };
         }
     };
+    sandbox.prepareEncryptedRecipeSave = async recipes => ({
+        recipes,
+        plainRecipes: recipes,
+        envelope: { revision: 'saved-revision' },
+        mediaFiles: [],
+        referencedFiles: [],
+        plainMediaFiles: [],
+        plainReferencedFiles: []
+    });
     vm.runInNewContext(editorSource, sandbox);
     vm.runInNewContext('editingRecipeIndex = 0;', sandbox);
 
     await sandbox.deleteCurrentRecipe();
 
-    assert.deepEqual(savedPayload.recipes, []);
+    assert.deepEqual(savedPayload.plainRecipes, []);
     assert.deepEqual(JSON.parse(storage.recipes_user_edits), []);
     assert.deepEqual(sandbox.generator.recipes, []);
-    assert.match(status.textContent, /Gespeichert: recipes\.json/);
+    assert.match(status.textContent, /Gespeichert: recipes\.enc/);
     assert.match(recipeForm.innerHTML, /Noch keine Rezepte/);
 });

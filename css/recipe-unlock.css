@@ -1,0 +1,51 @@
+.recipe-unlock-dialog {
+    width: min(440px, calc(100% - 32px));
+    max-width: none;
+    border: 0;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.recipe-unlock-dialog::backdrop {
+    background: rgba(24, 27, 40, 0.72);
+}
+
+.recipe-unlock-dialog form {
+    display: grid;
+    gap: 14px;
+}
+
+.recipe-unlock-dialog h1,
+.recipe-unlock-dialog p {
+    margin: 0;
+}
+
+.recipe-unlock-dialog input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    font: inherit;
+}
+
+.recipe-unlock-dialog button {
+    padding: 11px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: #667eea;
+    color: white;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.recipe-unlock-dialog .recipe-unlock-cancel {
+    background: #666;
+}
+
+.recipe-unlock-error {
+    min-height: 1.25em;
+    color: #b42318;
+}

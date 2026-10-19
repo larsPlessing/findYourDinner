@@ -53,7 +53,7 @@ window.addEventListener('load', async () => {
         }
         if (window.location.protocol !== 'file:') {
             try {
-                await generator.syncWithRemote('../recipes.json', {
+                await generator.syncWithRemote('../recipes.enc', {
                     hasLocalEdits,
                     hasCachedRecipes: loadedFromCache
                 });
@@ -62,14 +62,20 @@ window.addEventListener('load', async () => {
                 console.warn(`Neue Rezeptversion konnte nicht geprüft werden: ${error.message}`);
             }
         } else if (!loadedFromCache) {
-            await generator.loadFromURL('../recipes.json');
+            await generator.loadFromURL('../recipes.enc');
             generator.saveToLocalStorage();
         }
     } catch (error) {
         if (window.location.protocol === 'file:') {
             try {
                 const data = await selectLocalRecipesJson();
-                generator.recipes = data.recipes;
+                if (data?.kdf === 'PBKDF2-SHA-256') {
+                    const unlocked = await generator.loadEncryptedEnvelope(data);
+                    generator.recipes = unlocked.recipes;
+                    generator.revision = unlocked.revision || null;
+                } else {
+                    generator.recipes = data.recipes;
+                }
                 generator.normalizeCategories();
                 generator.saveToLocalStorage();
             } catch (fileError) {
@@ -106,7 +112,7 @@ function selectLocalRecipesJson() {
     return new Promise((resolve, reject) => {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = '.json,application/json';
+        input.accept = '.enc,.json,application/json';
         input.addEventListener('change', async () => {
             if (!input.files.length) return reject(new Error('Keine Datei ausgewählt.'));
             try {
@@ -243,7 +249,7 @@ async function displayRecipe() {
 
     // Anleitung
     displayInstructions();
-    displayRecipeVideo();
+    void displayRecipeVideo(token);
 
     // Notizen/Links
     displayNotes();
@@ -448,7 +454,7 @@ function displayInstructions() {
         });
 }
 
-function displayRecipeVideo() {
+async function displayRecipeVideo(token) {
     const section = document.getElementById('recipeVideoSection');
     const video = document.getElementById('recipeVideo');
     const error = document.getElementById('recipeVideoError');
@@ -463,7 +469,8 @@ function displayRecipeVideo() {
         return;
     }
 
-    if (!/^videos\/recipes\/[^/\\]+\.(?:mp4|webm|mov)$/i.test(src)) {
+    if (!/^videos\/recipes\/[^/\\]+(?:\.(?:mp4|webm|mov))?\.enc$/i.test(src)
+        && !/^videos\/recipes\/[^/\\]+\.(?:mp4|webm|mov)$/i.test(src)) {
         console.warn('Ungültige Videoquelle im Rezept.');
         video.pause();
         video.removeAttribute('src');
@@ -472,11 +479,20 @@ function displayRecipeVideo() {
         section.hidden = true;
         return;
     }
-    const pageBase = window.location.pathname.includes('/pages/') ? '../' : './';
     error.hidden = true;
-    video.src = new URL(`${pageBase}${src}`, window.location.href).href;
-    video.onerror = () => { error.hidden = false; };
     section.hidden = false;
+    try {
+        const videoUrl = await generator.getRecipeVideoURL(currentRecipe);
+        if (token !== renderToken) return;
+        video.src = /^(?:blob:|data:|https?:|\/)/i.test(videoUrl)
+            ? videoUrl
+            : new URL(`${window.location.pathname.includes('/pages/') ? '../' : './'}${videoUrl}`, window.location.href).href;
+        video.onerror = () => { error.hidden = false; };
+    } catch (loadError) {
+        if (token !== renderToken) return;
+        console.error('Rezeptvideo konnte nicht entschlüsselt werden:', loadError);
+        error.hidden = false;
+    }
 }
 
 function displayNotes() {

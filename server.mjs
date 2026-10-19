@@ -1,7 +1,6 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createHash, randomUUID } from 'node:crypto';
 import { pipeline } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { importRecipe } from './server/recipeImporter.mjs';
@@ -9,7 +8,7 @@ import { importRecipe } from './server/recipeImporter.mjs';
 const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 const host = '127.0.0.1';
 const port = Number(process.env.PORT || 4004);
-const maxRequestBytes = 50 * 1024 * 1024;
+const maxRequestBytes = 60 * 1024 * 1024;
 
 const contentTypes = {
     '.css': 'text/css; charset=utf-8',
@@ -40,56 +39,7 @@ function sendJson(response, statusCode, payload) {
     response.end(body);
 }
 
-function safeSlug(value) {
-    return String(value)
-        .normalize('NFKD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-        .slice(0, 45) || 'recipe';
-}
-
-function removeUnusedRecipeImages(imageDirectory, recipes) {
-    const referencedFiles = new Set();
-    for (const recipe of recipes) {
-        for (const image of Array.isArray(recipe.images) ? recipe.images : []) {
-            if (!image || typeof image.src !== 'string') continue;
-            const match = image.src.match(/^images\/recipes\/([^/\\]+)$/);
-            if (match) referencedFiles.add(match[1]);
-        }
-    }
-
-    let deletedImages = 0;
-    for (const entry of fs.readdirSync(imageDirectory, { withFileTypes: true })) {
-        if (!entry.isFile() || entry.name.startsWith('.') || !/\.(?:jpe?g|png|webp)$/i.test(entry.name)
-            || referencedFiles.has(entry.name)) continue;
-        fs.unlinkSync(path.join(imageDirectory, entry.name));
-        deletedImages++;
-    }
-    return deletedImages;
-}
-
-function removeUnusedRecipeVideos(videoDirectory, recipes) {
-    const referencedFiles = new Set();
-    for (const recipe of recipes) {
-        const src = recipe?.video?.src;
-        if (typeof src !== 'string') continue;
-        const match = src.match(/^videos\/recipes\/([^/\\]+)$/);
-        if (match) referencedFiles.add(match[1]);
-    }
-
-    let deletedVideos = 0;
-    if (!fs.existsSync(videoDirectory)) return deletedVideos;
-    for (const entry of fs.readdirSync(videoDirectory, { withFileTypes: true })) {
-        if (!entry.isFile() || referencedFiles.has(entry.name)) continue;
-        fs.unlinkSync(path.join(videoDirectory, entry.name));
-        deletedVideos++;
-    }
-    return deletedVideos;
-}
-
-function persistImportedVideo(root, recipe) {
+function persistImportedVideo(recipe) {
     if (!recipe?.video) return recipe;
     const supportedTypes = {
         'video/mp4': 'mp4',
@@ -107,11 +57,7 @@ function persistImportedVideo(root, recipe) {
         throw new Error('Das importierte Video ist leer oder größer als 20 MB.');
     }
 
-    const videoDirectory = path.join(root, 'videos', 'recipes');
-    fs.mkdirSync(videoDirectory, { recursive: true });
-    const filename = `${safeSlug(recipe.name)}-${randomUUID()}.${extension}`;
-    fs.writeFileSync(path.join(videoDirectory, filename), bytes);
-    recipe.video = { src: `videos/recipes/${filename}`, mimeType };
+    recipe.video = { src: `data:${mimeType};base64,${bytes.toString('base64')}`, mimeType };
     return recipe;
 }
 
@@ -155,12 +101,7 @@ function getRecipeCategories(root) {
     return ['Salzig', 'Süß'];
 }
 
-/** Stabile Kennung des Rezeptinhalts, mit der ein veralteter Browserstand erkannt wird. */
-function computeRecipesRevision(recipes) {
-    return createHash('sha256').update(JSON.stringify(recipes)).digest('hex').slice(0, 16);
-}
-
-/** Liest die in recipes.json hinterlegte Revision (null bei alten oder fehlenden Dateien). */
+/** Liest die unverschlüsselte, zufällige Revisionskennung aus dem verschlüsselten Archiv. */
 function readRecipesRevision(recipesPath) {
     try {
         const data = JSON.parse(fs.readFileSync(recipesPath, 'utf8'));
@@ -168,6 +109,18 @@ function readRecipesRevision(recipesPath) {
     } catch {
         return null;
     }
+}
+
+function isSafeEncryptedPath(value) {
+    return typeof value === 'string'
+        && /^(?:images|videos)\/recipes\/[A-Za-z0-9._-]+\.enc$/.test(value)
+        && !value.split('/').some(segment => segment === '.' || segment === '..');
+}
+
+function isSafePlainMediaPath(value) {
+    return typeof value === 'string'
+        && /^(?:images\/recipes\/[A-Za-z0-9._-]+\.(?:jpe?g|png|webp)|videos\/recipes\/[A-Za-z0-9._-]+\.(?:mp4|mov|webm))$/i.test(value)
+        && !value.split('/').some(segment => segment === '.' || segment === '..');
 }
 
 function createServer(options = {}) {
@@ -200,87 +153,150 @@ function createServer(options = {}) {
                     const recipe = await recipeImporter({ ...(payload || {}), categories: getRecipeCategories(root) });
                     const warnings = Array.isArray(recipe.importWarnings) ? recipe.importWarnings : [];
                     delete recipe.importWarnings;
-                    sendJson(response, 200, { recipe: persistImportedVideo(root, recipe), warnings });
+                    sendJson(response, 200, { recipe: persistImportedVideo(recipe), warnings });
                     return;
                 }
-                if (!payload || !Array.isArray(payload.recipes)) throw new Error('Die Anfrage enthält keine Rezeptliste.');
+                const envelope = payload?.envelope;
+                if (!envelope || envelope.version !== 1 || envelope.algorithm !== 'AES-GCM'
+                    || envelope.kdf !== 'PBKDF2-SHA-256' || !Number.isInteger(envelope.iterations)
+                    || envelope.iterations < 600_000 || !/^[A-Za-z0-9+/]+=*$/.test(envelope.salt || '')
+                    || !/^[A-Za-z0-9+/]+=*$/.test(envelope.iv || '')
+                    || !/^[A-Za-z0-9+/]+=*$/.test(envelope.ciphertext || '')
+                    || typeof envelope.revision !== 'string' || envelope.revision.length > 100) {
+                    throw new Error('Die Anfrage enthält kein gültiges verschlüsseltes Rezeptarchiv.');
+                }
+                if (!Array.isArray(payload.mediaFiles) || !Array.isArray(payload.referencedFiles)
+                    || !Array.isArray(payload.plainRecipes) || !Array.isArray(payload.plainMediaFiles)
+                    || !Array.isArray(payload.plainReferencedFiles)) {
+                    throw new Error('Die Anfrage enthält keine gültige Medienliste.');
+                }
 
-                const recipeFile = path.join(root, 'recipes.json');
+                const recipeFile = path.join(root, 'recipes.enc');
                 const currentRevision = readRecipesRevision(recipeFile);
                 const baseRevision = typeof payload.revision === 'string' && payload.revision ? payload.revision : null;
-                // Der Browser muss den Stand bestätigen, auf dem seine Änderungen beruhen.
-                // Sonst würde ein veralteter localStorage (z. B. nach git pull) neuere
-                // Rezepte überschreiben und deren Bilder/Videos löschen.
                 if (currentRevision !== null && baseRevision !== currentRevision) {
                     sendJson(response, 409, {
-                        error: 'recipes.json wurde außerhalb der App geändert (z. B. durch git pull). '
+                        error: 'recipes.enc wurde außerhalb der App geändert (z. B. durch git pull). '
                             + 'Es wurde nichts gespeichert. Bitte lade die Rezepte neu („Standardrezepte laden“) und wiederhole die Änderung.'
                     });
                     return;
                 }
 
-                const imageDirectory = path.join(root, 'images', 'recipes');
-                fs.mkdirSync(imageDirectory, { recursive: true });
-                // Von bereits gespeicherten Bildern belegte Dateinamen dürfen nicht von
-                // neu geschriebenen Bildern überschrieben werden (z. B. nach Umsortieren).
-                const reservedImageFiles = new Set();
-                for (const entry of fs.readdirSync(imageDirectory, { withFileTypes: true })) {
-                    if (entry.isFile()) reservedImageFiles.add(entry.name);
+                const referencedFiles = new Set(payload.referencedFiles);
+                if (referencedFiles.size !== payload.referencedFiles.length
+                    || payload.referencedFiles.some(src => !isSafeEncryptedPath(src))) {
+                    throw new Error('Die Anfrage enthält ungültige Medienpfade.');
                 }
-                for (const recipe of payload.recipes) {
-                    for (const image of Array.isArray(recipe?.images) ? recipe.images : []) {
-                        const match = typeof image?.src === 'string' ? image.src.match(/^images\/recipes\/([^/\\]+)$/) : null;
-                        if (match) reservedImageFiles.add(match[1]);
+                const plainReferencedFiles = new Set(payload.plainReferencedFiles);
+                if (plainReferencedFiles.size !== payload.plainReferencedFiles.length
+                    || payload.plainReferencedFiles.some(src => !isSafePlainMediaPath(src))) {
+                    throw new Error('Die Anfrage enthält ungültige lokale Medienpfade.');
+                }
+                const mediaToWrite = [];
+                const pendingMediaPaths = new Set();
+                for (const media of payload.mediaFiles) {
+                    if (!media || !isSafeEncryptedPath(media.src) || !referencedFiles.has(media.src)
+                        || typeof media.data !== 'string' || !/^[A-Za-z0-9+/]+=*$/.test(media.data)) {
+                        throw new Error('Eine verschlüsselte Mediendatei hat ein ungültiges Format.');
                     }
+                    const bytes = Buffer.from(media.data, 'base64');
+                    if (bytes.length < 29 || bytes.length > 20 * 1024 * 1024 + 64) {
+                        throw new Error('Eine verschlüsselte Mediendatei ist leer, ungültig oder größer als 20 MB.');
+                    }
+                    if (pendingMediaPaths.has(media.src)) throw new Error('Ein Medienpfad kommt mehrfach vor.');
+                    pendingMediaPaths.add(media.src);
+                    mediaToWrite.push({ src: media.src, bytes });
                 }
-                const imagesToWrite = [];
-                payload.recipes.forEach((recipe, recipeIndex) => {
-                    if (!recipe || typeof recipe !== 'object' || Array.isArray(recipe)) throw new Error(`Rezept ${recipeIndex + 1} ist ungültig.`);
-                    if (recipe.images === undefined) recipe.images = [];
-                    if (!Array.isArray(recipe.images)) throw new Error(`Bilderliste in Rezept ${recipeIndex + 1} ist ungültig.`);
-                    recipe.images.forEach((image, imageIndex) => {
-                        if (!image || typeof image.src !== 'string') return;
-                        const match = image.src.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/);
-                        if (!match) return;
-                        const bytes = Buffer.from(match[2], 'base64');
-                        if (!bytes.length || bytes.length > 15 * 1024 * 1024) throw new Error('Ein Bild ist leer oder größer als 15 MB.');
-                        const extension = match[1] === 'jpeg' ? 'jpg' : match[1];
-                        const id = String(recipe.id ?? recipeIndex).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30) || String(recipeIndex);
-                        const baseName = `${safeSlug(recipe.name)}-${id}-${imageIndex + 1}`;
-                        let filename = `${baseName}.${extension}`;
-                        for (let suffix = 1; reservedImageFiles.has(filename); suffix++) {
-                            filename = `${baseName}-${suffix}.${extension}`;
-                        }
-                        reservedImageFiles.add(filename);
-                        imagesToWrite.push({ bytes, filename, image });
-                        image.src = `images/recipes/${filename}`;
-                    });
-                });
+                const plainMediaToWrite = [];
+                const pendingPlainMediaPaths = new Set();
+                for (const media of payload.plainMediaFiles) {
+                    if (!media || !isSafePlainMediaPath(media.src) || !plainReferencedFiles.has(media.src)
+                        || typeof media.data !== 'string' || !/^[A-Za-z0-9+/]+=*$/.test(media.data)) {
+                        throw new Error('Eine lokale Mediendatei hat ein ungültiges Format.');
+                    }
+                    const bytes = Buffer.from(media.data, 'base64');
+                    if (!bytes.length || bytes.length > 20 * 1024 * 1024) {
+                        throw new Error('Eine lokale Mediendatei ist leer oder größer als 20 MB.');
+                    }
+                    if (pendingPlainMediaPaths.has(media.src)) throw new Error('Ein lokaler Medienpfad kommt mehrfach vor.');
+                    pendingPlainMediaPaths.add(media.src);
+                    plainMediaToWrite.push({ src: media.src, bytes });
+                }
 
-                const writtenImages = [];
+                const writtenMedia = [];
+                let archiveCommitted = false;
+                let encryptedArchiveWritten = false;
+                let plaintextRecipesWritten = false;
+                const plaintextRecipesPath = path.join(root, 'recipes.json');
+                const hadEncryptedArchive = fs.existsSync(recipeFile);
+                const hadPlaintextRecipes = fs.existsSync(plaintextRecipesPath);
                 try {
-                    for (const { bytes, filename } of imagesToWrite) {
-                        const imagePath = path.join(imageDirectory, filename);
-                        fs.writeFileSync(imagePath, bytes, { flag: 'wx' });
-                        writtenImages.push(imagePath);
+                    for (const { src, bytes } of [...mediaToWrite, ...plainMediaToWrite]) {
+                        const filePath = path.resolve(root, src);
+                        if (!filePath.startsWith(`${root}${path.sep}`)) throw new Error('Ungültiger Medienpfad.');
+                        fs.mkdirSync(path.dirname(filePath), { recursive: true });
+                        fs.writeFileSync(filePath, bytes, { flag: 'wx' });
+                        writtenMedia.push(filePath);
                     }
+
+                    if (hadEncryptedArchive) fs.copyFileSync(recipeFile, `${recipeFile}.bak`);
+                    const temporaryFile = `${recipeFile}.tmp`;
+                    fs.writeFileSync(temporaryFile, `${JSON.stringify(envelope)}\n`, { flag: 'w' });
+                    fs.renameSync(temporaryFile, recipeFile);
+                    encryptedArchiveWritten = true;
+
+                    if (hadPlaintextRecipes) fs.copyFileSync(plaintextRecipesPath, `${plaintextRecipesPath}.bak`);
+                    const plainTemporaryFile = `${plaintextRecipesPath}.tmp`;
+                    fs.writeFileSync(plainTemporaryFile, `${JSON.stringify({ version: 1, recipes: payload.plainRecipes }, null, 2)}\n`, 'utf8');
+                    fs.renameSync(plainTemporaryFile, plaintextRecipesPath);
+                    plaintextRecipesWritten = true;
+                    archiveCommitted = true;
+
+                    let deletedEncryptedMedia = 0;
+                    let deletedPlainMedia = 0;
+                    for (const directory of [path.join(root, 'images', 'recipes'), path.join(root, 'videos', 'recipes')]) {
+                        if (!fs.existsSync(directory)) continue;
+                        for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                            const src = `${path.basename(path.dirname(directory))}/recipes/${entry.name}`;
+                            if (!entry.isFile()) continue;
+                            if (entry.name.endsWith('.enc') && !referencedFiles.has(src)) {
+                                fs.unlinkSync(path.join(directory, entry.name));
+                                deletedEncryptedMedia++;
+                            } else if (/\.(?:jpe?g|png|webp|mp4|mov|webm)$/i.test(entry.name)
+                                && !plainReferencedFiles.has(src)) {
+                                fs.unlinkSync(path.join(directory, entry.name));
+                                deletedPlainMedia++;
+                            }
+                        }
+                    }
+                    sendJson(response, 200, {
+                        revision: envelope.revision,
+                        savedMedia: mediaToWrite.length,
+                        deletedMedia: deletedEncryptedMedia + deletedPlainMedia
+                    });
                 } catch (error) {
-                    for (const imagePath of writtenImages) fs.unlinkSync(imagePath);
+                    if (!archiveCommitted) {
+                        if (encryptedArchiveWritten) {
+                            if (hadEncryptedArchive) fs.copyFileSync(`${recipeFile}.bak`, recipeFile);
+                            else fs.unlinkSync(recipeFile);
+                        }
+                        if (plaintextRecipesWritten) {
+                            if (hadPlaintextRecipes) fs.copyFileSync(`${plaintextRecipesPath}.bak`, plaintextRecipesPath);
+                            else fs.unlinkSync(plaintextRecipesPath);
+                        }
+                        for (const filePath of writtenMedia) {
+                            try { fs.unlinkSync(filePath); } catch (cleanupError) {
+                                if (cleanupError.code !== 'ENOENT') console.error('Mediendatei konnte nicht zurückgerollt werden:', cleanupError);
+                            }
+                        }
+                    }
+                    for (const temporaryFile of [`${recipeFile}.tmp`, `${plaintextRecipesPath}.tmp`]) {
+                        try { fs.unlinkSync(temporaryFile); } catch (cleanupError) {
+                            if (cleanupError.code !== 'ENOENT') console.error('Temporäre Rezeptdatei konnte nicht entfernt werden:', cleanupError);
+                        }
+                    }
                     throw error;
                 }
-
-                const savedImages = imagesToWrite.length;
-                const revision = computeRecipesRevision(payload.recipes);
-                if (fs.existsSync(recipeFile)) {
-                    // Vor dem Überschreiben den bisherigen Stand sichern.
-                    fs.copyFileSync(recipeFile, `${recipeFile}.bak`);
-                }
-                const temporaryFile = `${recipeFile}.tmp`;
-                fs.writeFileSync(temporaryFile, `${JSON.stringify({ version: 1, revision, recipes: payload.recipes }, null, 2)}\n`, 'utf8');
-                fs.renameSync(temporaryFile, recipeFile);
-                const deletedImages = removeUnusedRecipeImages(imageDirectory, payload.recipes);
-                const deletedVideos = removeUnusedRecipeVideos(path.join(root, 'videos', 'recipes'), payload.recipes);
-                sendJson(response, 200, { recipes: payload.recipes, revision, savedImages, deletedImages, deletedVideos });
             } catch (error) {
                 if (!response.writableEnded) sendJson(response, 400, { error: error.message });
             }

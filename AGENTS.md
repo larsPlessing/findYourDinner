@@ -46,3 +46,4 @@
 - Erst mit grep/Suche die passende Stelle finden, dann nur diese Datei bzw. diesen Abschnitt lesen.
 - Dateien nicht komplett neu ausgeben, nur die geänderten Stellen bearbeiten.
 - Antworten kurz halten, ohne lange Erklärungen zu bereits Bekanntem.
+- Vor jedem Git-Push `npm run encrypt:recipes` ausführen und die aktualisierten verschlüsselten Rezept- und Mediendateien mitpushen. Das Skript darf wiederholt ausgeführt werden; lokale Klartextdateien bleiben standardmäßig erhalten.

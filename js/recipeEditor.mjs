@@ -1,4 +1,6 @@
 /* Lokaler Rezepteditor für die GitHub-Pages-Version. */
+import { prepareEncryptedRecipeSave } from './recipeCrypto.mjs';
+
 let editingRecipeIndex = -1;
 
 function instagramPostKey(value) {
@@ -260,7 +262,11 @@ function addRecipeImageControls(form, recipe) {
             card.appendChild(badge);
         }
         const preview = document.createElement('img');
-        preview.src = resolveEditorImageURL(image.src); preview.alt = `Rezeptbild ${index + 1}`;
+        preview.alt = `Rezeptbild ${index + 1}`;
+        const previewURL = generator.getMediaURL
+            ? generator.getMediaURL(image.src, image.mimeType)
+            : Promise.resolve(resolveEditorImageURL(image.src));
+        previewURL.then(url => { preview.src = url; }).catch(() => { preview.alt = 'Bildvorschau nicht verfügbar'; });
         preview.onerror = () => { preview.alt = 'Bildvorschau nicht verfügbar'; };
         card.appendChild(preview);
         const actions = document.createElement('div');
@@ -649,26 +655,42 @@ async function saveRecipeProjectToFolder(savedInBrowser = true) {
         return savedInBrowser;
     }
     try {
-        status.textContent = 'Speichere Rezepte und Bilder im Projektordner …';
+        if (!generator.cryptoKey || !generator.encryptionSalt) {
+            throw new Error('Das Rezeptarchiv ist nicht entsperrt. Lade es erneut und gib das Passwort ein.');
+        }
+        status.textContent = 'Verschlüssele Rezepte und Bilder für den Projektordner …';
+        const encrypted = await prepareEncryptedRecipeSave(
+            generator.recipes,
+            generator.cryptoKey,
+            generator.encryptionSalt
+        );
         const response = await fetch('/api/save-recipes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ version: 1, revision: generator.revision ?? null, recipes: generator.recipes })
+            body: JSON.stringify({
+                revision: generator.revision ?? null,
+                envelope: encrypted.envelope,
+                mediaFiles: encrypted.mediaFiles,
+                referencedFiles: encrypted.referencedFiles,
+                plainRecipes: encrypted.plainRecipes,
+                plainMediaFiles: encrypted.plainMediaFiles,
+                plainReferencedFiles: encrypted.plainReferencedFiles
+            })
         });
         const result = await response.json();
         if (!response.ok) {
             if (response.status === 409) {
-                // Konflikt: recipes.json wurde außerhalb der App geändert.
-                status.textContent = result.error || 'recipes.json wurde außerhalb der App geändert. Bitte lade die Rezepte neu.';
+                // Konflikt: recipes.enc wurde außerhalb der App geändert.
+                status.textContent = result.error || 'recipes.enc wurde außerhalb der App geändert. Bitte lade die Rezepte neu.';
                 return false;
             }
             throw new Error(result.error || `HTTP ${response.status}`);
         }
-        generator.recipes = result.recipes;
+        generator.recipes = encrypted.recipes;
         if (typeof result.revision === 'string') generator.revision = result.revision;
         persistRecipeEdits();
         selectRecipeForEdit(editingRecipeIndex);
-        status.textContent = `Gespeichert: recipes.json, ${result.savedImages} Bild(er) hinzugefügt, ${result.deletedImages || 0} nicht mehr verwendete Bild(er) und ${result.deletedVideos || 0} Video(s) entfernt.`;
+        status.textContent = `Gespeichert: recipes.enc, ${result.savedMedia} verschlüsselte Mediendatei(en) hinzugefügt, ${result.deletedMedia || 0} nicht mehr verwendete Datei(en) entfernt.`;
         return true;
     } catch (error) {
         status.textContent = `Dateien konnten nicht geschrieben werden: ${error.message}. Starte den Projektserver mit „node server.mjs“ und öffne die App über http://127.0.0.1:4004.`;
