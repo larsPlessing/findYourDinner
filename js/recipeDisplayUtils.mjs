@@ -47,7 +47,12 @@ export function generatePlaceholderImage(recipeName, emoji, { size = 400, nameLi
 
 export function getRecipeEmoji(recipeName) {
     const name = recipeName.toLocaleLowerCase('de');
-    const hasWord = word => new RegExp(`(?:^|[^\\p{L}\\p{N}_])${word}(?=$|[^\\p{L}\\p{N}_])`, 'u').test(name);
+    const hasWord = word => {
+        const exact = new RegExp(`(?:^|[^\\p{L}\\p{N}_])${word}(?=$|[^\\p{L}\\p{N}_])`, 'u');
+        if (exact.test(name)) return true;
+        if (!['nudel', 'kartoffel'].includes(word)) return false;
+        return new RegExp(`(?:^|[^\\p{L}\\p{N}_])${word}[\\p{L}\\p{N}_]*`, 'u').test(name);
+    };
     if (hasWord('pizza')) return '🍕';
     if (hasWord('burger')) return '🍔';
     if (hasWord('pasta') || hasWord('nudel')) return '🍝';

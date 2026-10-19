@@ -7,6 +7,7 @@ let currentRecipe = null;
 let allImages = [];
 let currentImageIndex = 0;
 let renderToken = 0;
+let imageRenderToken = 0;
 
 function resolveRecipeImageURL(imageURL) {
     if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(imageURL)) return imageURL;
@@ -269,6 +270,7 @@ function displayImage(index) {
 
     currentImageIndex = index;
     const token = renderToken;
+    const imageToken = ++imageRenderToken;
     const imageEl = document.getElementById('recipeImageMain');
 
     // Hole Bild-Daten mit Transformation
@@ -279,13 +281,20 @@ function displayImage(index) {
     img.src = resolveRecipeImageURL(imageData.dataUrl);
     img.alt = currentRecipe.name;
     img.onload = () => {
-        if (token !== renderToken) return;
+        if (token !== renderToken || imageToken !== imageRenderToken) return;
         imageEl.innerHTML = '';
         imageEl.appendChild(img);
         imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
 
         // Wende Transformationen an
         applyImageTransform(img, imageData.transform);
+    };
+    img.onerror = () => {
+        if (token !== renderToken || imageToken !== imageRenderToken) return;
+        const placeholder = document.createElement('div');
+        placeholder.className = 'emoji-placeholder';
+        placeholder.textContent = getRecipeEmoji(currentRecipe.name);
+        imageEl.replaceChildren(placeholder);
     };
 }
 
@@ -755,7 +764,10 @@ function initializePortionScaler() {
     }
 
     // Portionsangaben können Strings sein („4“, „2-4“) – erst hier in eine Zahl umwandeln.
-    originalServings = Number(currentRecipe.servings);
+    const servingsText = String(currentRecipe.servings).trim();
+    originalServings = /^\d+(?:[.,]\d+)?$/.test(servingsText)
+        ? Number(servingsText.replace(',', '.'))
+        : NaN;
 
     if (!Number.isFinite(originalServings) || originalServings <= 0) {
         // Konnte keine gültige Portionsanzahl ermitteln

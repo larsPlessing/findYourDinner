@@ -461,7 +461,9 @@ export async function importRecipe({ url, image, categories }, dependencies = {}
             htmlToText(html)
         ].filter(Boolean).join('\n')
         : null;
-    const content = jsonLdRecipe ? JSON.stringify(jsonLdRecipe) : instagramContent || htmlToText(html);
+    const content = jsonLdRecipe
+        ? JSON.stringify(jsonLdRecipe).slice(0, 30000)
+        : instagramContent || htmlToText(html);
     if (content.length < 100 && !(isInstagram && instagramPost?.video)) {
         if (isInstagram) throw new Error('Instagram stellt keine öffentlich lesbare Caption für diesen Beitrag bereit. Prüfe, ob der Beitrag öffentlich und noch verfügbar ist.');
         throw new Error('Kein Rezeptinhalt auf der Seite gefunden.');

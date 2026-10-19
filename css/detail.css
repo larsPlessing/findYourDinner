@@ -300,7 +300,8 @@
 /* Print Styles */
 @media print {
     .detail-back-btn,
-    .detail-actions {
+    .detail-actions,
+    .ingredient-dock {
         display: none !important;
     }
     

@@ -61,6 +61,18 @@ function persistImportedVideo(recipe) {
     return recipe;
 }
 
+function normalizeHostName(hostHeader) {
+    try {
+        return new URL(`http://${hostHeader}`).hostname.replace(/^\[|\]$/g, '').toLowerCase();
+    } catch {
+        return '';
+    }
+}
+
+function isAllowedLocalHost(hostHeader) {
+    return ['localhost', '127.0.0.1', '::1'].includes(normalizeHostName(hostHeader));
+}
+
 function isSameLocalOrigin(origin, hostHeader) {
     if (!origin || !hostHeader) return false;
     try {
@@ -68,7 +80,7 @@ function isSameLocalOrigin(origin, hostHeader) {
         const requestUrl = new URL(`http://${hostHeader}`);
         return originUrl.protocol === 'http:'
             && originUrl.origin === requestUrl.origin
-            && ['localhost', '127.0.0.1', '::1'].includes(originUrl.hostname);
+            && isAllowedLocalHost(originUrl.hostname);
     } catch {
         return false;
     }
@@ -306,6 +318,12 @@ function createServer(options = {}) {
         if (request.method !== 'GET' && request.method !== 'HEAD') {
             response.writeHead(405, { Allow: 'GET, HEAD, POST' });
             response.end('Method not allowed');
+            return;
+        }
+
+        if (!isAllowedLocalHost(request.headers.host)) {
+            response.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+            response.end('Forbidden');
             return;
         }
 

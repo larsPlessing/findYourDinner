@@ -7,16 +7,31 @@ import ffprobeStatic from 'ffprobe-static';
 
 const MAX_FRAMES = 24;
 const MAX_FRAME_BYTES = 12 * 1024 * 1024;
+const PROCESS_TIMEOUT_MS = 30_000;
 
-function run(program, args) {
+function run(program, args, timeoutMs = PROCESS_TIMEOUT_MS) {
     return new Promise((resolve, reject) => {
         const child = spawn(program, args, { windowsHide: true });
         const stdout = [];
         const stderr = [];
+        let settled = false;
+        const timer = setTimeout(() => {
+            child.kill('SIGKILL');
+            settled = true;
+            reject(new Error(`${path.basename(program)} hat das Zeitlimit von ${timeoutMs / 1000} Sekunden überschritten.`));
+        }, timeoutMs);
         child.stdout.on('data', chunk => stdout.push(chunk));
         child.stderr.on('data', chunk => stderr.push(chunk));
-        child.once('error', reject);
+        child.once('error', error => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            reject(error);
+        });
         child.once('close', code => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
             if (code === 0) {
                 resolve({ stdout: Buffer.concat(stdout).toString('utf8'), stderr: Buffer.concat(stderr).toString('utf8') });
                 return;

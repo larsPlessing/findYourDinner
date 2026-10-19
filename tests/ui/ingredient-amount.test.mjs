@@ -47,7 +47,7 @@ test('scales both ends of a range and keeps unknown amounts unchanged', () => {
 test('detail page scales ingredients with the shared amount helper', () => {
     assert.match(detailJs, /import \{ scaleIngredientAmount \} from ['"]\.\/ingredientAmount\.mjs['"]/);
     assert.match(detailJs, /amount: scaleIngredientAmount\(ingredient\.amount, scaleFactor\)/);
-    assert.match(detailJs, /originalServings = Number\(currentRecipe\.servings\)/);
+    assert.match(detailJs, /originalServings = \/\^\\d\+\(\?:\[.,\]\\d\+\)\?\$\/.test\(servingsText\)/);
     assert.doesNotMatch(detailJs, /parseFloat\(ingredient\.amount\)/);
     assert.doesNotMatch(detailJs, /\.toFixed\(1\)/);
 });

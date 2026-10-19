@@ -21,6 +21,7 @@ export default class RecipeGenerator {
         this.cryptoKey = null;
         this.encryptionSalt = null;
         this.mediaUrls = new Map();
+        this.mediaLoads = new Map();
     }
 
     async loadFromURL(url, progressCallback = null) {
@@ -217,6 +218,16 @@ export default class RecipeGenerator {
     async getMediaURL(src, mimeType = 'application/octet-stream') {
         if (/^(?:data:|blob:|https?:|\/)/i.test(src) || !src.endsWith('.enc')) return src;
         if (this.mediaUrls.has(src)) return this.mediaUrls.get(src);
+        if (this.mediaLoads.has(src)) return this.mediaLoads.get(src);
+        const mediaLoad = this.loadMediaURL(src, mimeType);
+        this.mediaLoads.set(src, mediaLoad);
+        try {
+            return await mediaLoad;
+        } finally {
+            this.mediaLoads.delete(src);
+        }
+    }
+    async loadMediaURL(src, mimeType) {
         if (!this.cryptoKey) {
             const stored = await this.readStoredKey();
             this.cryptoKey = stored?.key ?? stored ?? null;
@@ -248,6 +259,9 @@ export default class RecipeGenerator {
         return Boolean(recipe && recipe.images && recipe.images.length);
     }
     async clearAllData() {
+        for (const url of this.mediaUrls.values()) URL.revokeObjectURL(url);
+        this.mediaUrls.clear();
+        this.mediaLoads.clear();
         this.clearLocalStorage();
         this.recipes = [];
     }

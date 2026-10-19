@@ -1,7 +1,9 @@
 /* Lokaler Rezepteditor für die GitHub-Pages-Version. */
 import { prepareEncryptedRecipeSave } from './recipeCrypto.mjs';
+import { parseIngredientAmount } from './ingredientAmount.mjs';
 
 let editingRecipeIndex = -1;
+let editorLastFocusedElement = null;
 
 function instagramPostKey(value) {
     try {
@@ -36,6 +38,7 @@ function setCoverImage(images, index) {
 }
 
 function openRecipeEditor(recipeKey = null) {
+    editorLastFocusedElement = document.activeElement;
     document.getElementById('recipeEditor').hidden = false;
     document.getElementById('editorSearch').value = '';
     renderEditorRecipeList();
@@ -44,10 +47,37 @@ function openRecipeEditor(recipeKey = null) {
         : -1;
     if (generator.recipes.length) selectRecipeForEdit(selectedIndex >= 0 ? selectedIndex : 0);
     else newRecipe();
+    document.getElementById('editorSearch').focus();
 }
 
 function closeRecipeEditor() {
-    document.getElementById('recipeEditor').hidden = true;
+    const overlay = document.getElementById('recipeEditor');
+    overlay.hidden = true;
+    if (editorLastFocusedElement?.focus) editorLastFocusedElement.focus();
+    editorLastFocusedElement = null;
+}
+
+function trapEditorFocus(event) {
+    const overlay = document.getElementById('recipeEditor');
+    if (!overlay || overlay.hidden) return;
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        closeRecipeEditor();
+        return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = [...overlay.querySelectorAll('button, input, select, textarea, [href], [tabindex]:not([tabindex="-1"])')]
+        .filter(element => !element.disabled && element.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+    }
 }
 
 async function importRecipeFromUrl() {
@@ -95,13 +125,14 @@ async function importRecipe(payload) {
         }
         if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
         await compressImportedRecipeImages(result.recipe);
-        const existingIndex = result.recipe.video?.src && isInstagramUrl
+        const existingIndex = isInstagramUrl
             ? findMatchingInstagramRecipeIndex(generator.recipes, payload.url)
             : -1;
         const previousEditingRecipeIndex = editingRecipeIndex;
         let importedRecipeWasPushed = false;
         if (existingIndex >= 0) {
-            generator.recipes[existingIndex] = { ...generator.recipes[existingIndex], video: result.recipe.video };
+            const existingRecipe = generator.recipes[existingIndex];
+            generator.recipes[existingIndex] = { ...existingRecipe, ...result.recipe, id: existingRecipe.id };
             editingRecipeIndex = existingIndex;
         } else {
             const id = Math.max(-1, ...generator.recipes.map(recipe => Number(recipe.id) || 0)) + 1;
@@ -480,7 +511,8 @@ function readIngredientRows(form) {
         const unit = row.querySelector('[name="unit"]').value.trim();
         const product = row.querySelector('[name="product"]').value.trim();
         const note = row.querySelector('[name="note"]').value.trim();
-        const numericAmount = /^\d+([.,]\d+)?$/.test(amount) ? Number(amount.replace(',', '.')) : amount;
+        const parsedAmount = parseIngredientAmount(amount);
+        const numericAmount = parsedAmount === null ? amount : parsedAmount;
         return { amount: numericAmount, unit, product, note };
     }).filter(ingredient => ingredient.amount || ingredient.unit || ingredient.product || ingredient.note);
 }
@@ -573,7 +605,8 @@ function collectFormValues(form) {
     updated.category = form.elements.category.value.trim();
     updated.healthy = form.elements.healthy.checked;
     const servings = form.elements.servings.value.trim();
-    updated.servings = servings === '' ? null : (Number.isFinite(Number(servings)) ? Number(servings) : servings);
+    const parsedServings = /^\d+(?:[.,]\d+)?$/.test(servings) ? Number(servings.replace(',', '.')) : null;
+    updated.servings = servings === '' ? null : (parsedServings !== null && Number.isFinite(parsedServings) ? parsedServings : servings);
     updated.ingredients = readIngredientRows(form);
     updated.instructions = readInstructionRows(form);
     const originalNotes = Array.isArray(original.notes) ? original.notes : [];
@@ -710,6 +743,7 @@ async function saveRecipeProjectToFolder(savedInBrowser = true) {
     }
 }
 if (typeof document !== 'undefined') {
+    document.addEventListener?.('keydown', trapEditorFocus);
     document.getElementById('editorSearch').addEventListener('input', renderEditorRecipeList);
     const isLocalServer = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
     document.querySelectorAll('[data-local-recipe-import]').forEach(control => { control.hidden = !isLocalServer; });
