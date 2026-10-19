@@ -5,6 +5,13 @@ import { parseIngredientAmount } from './ingredientAmount.mjs';
 let editingRecipeIndex = -1;
 let editorLastFocusedElement = null;
 
+function isLocalServer() {
+    const hostname = String(globalThis.window?.location?.hostname || '')
+        .replace(/^\[|\]$/g, '')
+        .toLowerCase();
+    return ['localhost', '127.0.0.1', '::1'].includes(hostname);
+}
+
 function instagramPostKey(value) {
     try {
         const url = new URL(value);
@@ -96,6 +103,10 @@ async function importRecipeFromImage(file) {
 }
 
 async function importRecipe(payload) {
+    if (!isLocalServer()) {
+        setImportStatus('error', 'Rezeptimport ist nur über den lokalen Projektserver verfügbar.');
+        return false;
+    }
     const status = document.getElementById('editorSaveStatus');
     const controls = getImportControls();
     setImportControlsDisabled(controls, true);
@@ -140,8 +151,7 @@ async function importRecipe(payload) {
             editingRecipeIndex = generator.recipes.length - 1;
             importedRecipeWasPushed = true;
         }
-        const isLocalServer = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
-        const savedToProject = isLocalServer ? await saveRecipeProjectToFolder(false) : false;
+        const savedToProject = await saveRecipeProjectToFolder(false);
         const savedInBrowser = persistRecipeEdits();
         if (!savedToProject && !savedInBrowser) {
             if (importedRecipeWasPushed) {
@@ -194,7 +204,7 @@ function formatImportError(error) {
         ? error.message.trim()
         : 'Unbekannter Fehler.';
     if (/failed to fetch|fetch failed|networkerror|load failed/i.test(message)) {
-        return 'Der lokale Importserver ist nicht erreichbar. Starte ihn mit „npm run serve“ und öffne die App über http://localhost:4004.';
+        return 'Der lokale Importserver ist nicht erreichbar oder die Anfrage wurde vom Browser blockiert. Starte ihn mit „npm run serve“ und öffne die App über http://localhost:4004.';
     }
     if (/GEMINI_API_KEY fehlt/i.test(message)) {
         return 'Der Gemini-API-Schlüssel fehlt. Trage GEMINI_API_KEY in die lokale .env-Datei ein und starte den Server neu.';
@@ -694,7 +704,7 @@ function persistRecipeEdits() {
 
 async function saveRecipeProjectToFolder(savedInBrowser = true) {
     const status = document.getElementById('editorSaveStatus');
-    if (!['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)) {
+    if (!isLocalServer()) {
         if (savedInBrowser) {
             setImportStatus('warning', 'Nur im Browser gespeichert. recipes.enc sowie Bilder und Videos werden auf GitHub Pages nicht aktualisiert.');
         }
@@ -746,9 +756,16 @@ async function saveRecipeProjectToFolder(savedInBrowser = true) {
 if (typeof document !== 'undefined') {
     document.addEventListener?.('keydown', trapEditorFocus);
     document.getElementById('editorSearch').addEventListener('input', renderEditorRecipeList);
-    const isLocalServer = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
-    document.querySelectorAll('[data-local-recipe-import]').forEach(control => { control.hidden = !isLocalServer; });
+    const localServer = isLocalServer();
+    document.querySelectorAll('[data-local-recipe-import]').forEach(control => {
+        control.hidden = !localServer;
+        control.disabled = !localServer;
+    });
     const imageInput = document.getElementById('recipeImportImageInput');
+    if (imageInput) {
+        imageInput.hidden = !localServer;
+        imageInput.disabled = !localServer;
+    }
     imageInput?.addEventListener('change', async event => {
         await importRecipeFromImage(event.target.files[0]);
         event.target.value = '';

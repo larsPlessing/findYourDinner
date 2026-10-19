@@ -13,14 +13,15 @@ const editorSource = fs.readFileSync(path.resolve(__dirname, '../../js/recipeEdi
     .replace(/^export \{[^}]+\};$/m, '');
 
 test('recipe import controls are shown only on localhost', () => {
-    for (const [hostname, expectedHidden] of [['localhost', false], ['my-recipes.github.io', true]]) {
-        const controls = [{ hidden: true }, { hidden: true }];
+    for (const [hostname, expectedHidden] of [['localhost', false], ['[::1]', false], ['my-recipes.github.io', true]]) {
+        const controls = [{ hidden: true, disabled: false }, { hidden: true, disabled: false }];
+        const imageInput = { hidden: true, disabled: false, addEventListener() {} };
         const sandbox = {
             window: { location: { hostname } },
             document: {
                 getElementById(id) {
                     if (id === 'editorSearch') return { value: '', addEventListener() {} };
-                    if (id === 'recipeImportImageInput') return null;
+                    if (id === 'recipeImportImageInput') return imageInput;
                     if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
                     throw new Error(`Unerwartetes Element: ${id}`);
                 },
@@ -29,7 +30,33 @@ test('recipe import controls are shown only on localhost', () => {
         };
         vm.runInNewContext(editorSource, sandbox);
         assert.deepEqual(controls.map(control => control.hidden), [expectedHidden, expectedHidden]);
+        assert.equal(imageInput.hidden, expectedHidden);
+        assert.equal(imageInput.disabled, expectedHidden);
     }
+});
+
+test('recipe import cannot be triggered outside localhost', async () => {
+    const status = { textContent: '', classList: { add() {}, remove() {} }, setAttribute() {} };
+    let networkRequests = 0;
+    const sandbox = {
+        window: { location: { hostname: 'my-recipes.github.io' } },
+        document: {
+            getElementById(id) {
+                if (id === 'editorSearch') return { addEventListener() {} };
+                if (id === 'editorSaveStatus') return status;
+                if (id === 'recipeImportImageInput') return null;
+                if (['editorCloseBtn', 'newRecipeBtn', 'recipeImportUrlBtn', 'recipeImportImageBtn'].includes(id)) return null;
+                throw new Error(`Unerwartetes Element: ${id}`);
+            },
+            querySelectorAll() { return []; }
+        },
+        fetch() { networkRequests++; throw new Error('Import darf nicht gestartet werden'); }
+    };
+    vm.runInNewContext(editorSource, sandbox);
+
+    assert.equal(await sandbox.importRecipe({ url: 'https://example.com/recipe' }), false);
+    assert.equal(networkRequests, 0);
+    assert.match(status.textContent, /nur über den lokalen Projektserver/i);
 });
 
 test('running localhost server exposes the recipe save API', async t => {
