@@ -103,7 +103,9 @@ async function listEncryptedDocuments(root, relativeDirectory = '') {
         if (entry.name.startsWith('.')) continue;
         const relativePath = path.posix.join(relativeDirectory.replaceAll(path.sep, '/'), entry.name);
         if (entry.isDirectory()) files.push(...await listEncryptedDocuments(root, relativePath));
-        else if (entry.isFile() && entry.name.endsWith('.enc')) files.push(`server/${relativePath}`);
+        else if (entry.isFile() && entry.name.endsWith('.enc')) {
+            files.push(`server/${relativePath.slice(0, -'.enc'.length)}`);
+        }
     }
     return files;
 }
