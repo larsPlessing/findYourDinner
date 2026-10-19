@@ -43,7 +43,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-brand);
     color: white;
     font-size: 5em;
     position: relative;
@@ -352,15 +352,6 @@
 
 
 /* Color Variations for Placeholder Images */
-.gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.gradient-6 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
-.gradient-7 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
-.gradient-8 { background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); }
-
 /* Medium small screens (between iPhone SE and standard phones) */
 @media (max-width: 430px) and (min-width: 391px) {
     .search-container {

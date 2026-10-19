@@ -6,7 +6,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-brand);
     background-attachment: fixed;
     min-height: 100vh;
     min-height: -webkit-fill-available;
@@ -59,7 +59,7 @@ button {
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition-standard);
     font-weight: bold;
     /* iOS button optimizations */
     -webkit-appearance: none;
@@ -84,32 +84,32 @@ button:disabled {
 }
 
 .primary-btn {
-    background: #667eea;
+    background: var(--color-primary);
     color: white;
 }
 
 .primary-btn:hover:not(:disabled) {
-    background: #5568d3;
+    background: var(--color-primary-dark);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
 .secondary-btn {
-    background: #f093fb;
+    background: var(--color-secondary);
     color: white;
 }
 
 .secondary-btn:hover:not(:disabled) {
-    background: #e07eea;
+    background: var(--color-secondary-dark);
     box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
 }
 
 .tertiary-btn {
-    background: #4facfe;
+    background: var(--color-accent);
     color: white;
 }
 
 .tertiary-btn:hover:not(:disabled) {
-    background: #3b8dd6;
+    background: var(--color-accent-dark);
     box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 

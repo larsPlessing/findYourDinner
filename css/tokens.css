@@ -1,0 +1,14 @@
+/* Shared design tokens. Page-specific differences belong in their page stylesheet. */
+:root {
+    --color-primary: #667eea;
+    --color-primary-dark: #5568d3;
+    --color-secondary: #f093fb;
+    --color-secondary-dark: #e07eea;
+    --color-accent: #4facfe;
+    --color-accent-dark: #3b8dd6;
+    --color-gradient-end: #764ba2;
+    --color-text: #333;
+    --color-text-muted: #666;
+    --gradient-brand: linear-gradient(135deg, var(--color-primary) 0%, var(--color-gradient-end) 100%);
+    --transition-standard: all 0.3s ease;
+}

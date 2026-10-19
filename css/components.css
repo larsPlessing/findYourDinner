@@ -1,0 +1,38 @@
+/* Shared page-independent components. Load after tokens.css and main.css. */
+.recipe-category-badge,
+.recipe-placeholder-badge {
+    display: inline-block;
+    font-weight: 600;
+}
+
+.recipe-category-badge {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--color-primary);
+}
+
+.gradient-1 { background: var(--gradient-brand); }
+.gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.gradient-6 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+.gradient-7 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+.gradient-8 { background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); }
+
+/* Shared horizontal scrollbar styling; platform styles may refine its appearance. */
+.category-filter::-webkit-scrollbar,
+.detail-image-thumbnails::-webkit-scrollbar {
+    height: 6px;
+}
+
+.category-filter::-webkit-scrollbar-track,
+.detail-image-thumbnails::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.category-filter::-webkit-scrollbar-thumb,
+.detail-image-thumbnails::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 3px;
+}
