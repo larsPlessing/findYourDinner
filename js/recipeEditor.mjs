@@ -607,6 +607,10 @@ if (typeof document !== 'undefined') {
         await importRecipeFromImage(event.target.files[0]);
         event.target.value = '';
     });
+    document.getElementById('editorCloseBtn')?.addEventListener('click', () => closeRecipeEditor());
+    document.getElementById('newRecipeBtn')?.addEventListener('click', () => newRecipe());
+    document.getElementById('recipeImportUrlBtn')?.addEventListener('click', () => importRecipeFromUrl());
+    document.getElementById('recipeImportImageBtn')?.addEventListener('click', () => imageInput?.click());
 }
 
 globalThis.openRecipeEditor = openRecipeEditor;

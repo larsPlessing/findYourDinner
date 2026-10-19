@@ -829,7 +829,3 @@ document.getElementById('portionMinusBtn').addEventListener('click', () => adjus
 document.getElementById('portionPlusBtn').addEventListener('click', () => adjustPortions(1));
 document.getElementById('portionResetBtn').addEventListener('click', resetPortions);
 document.getElementById('ingredientDockToggle').addEventListener('click', toggleIngredientDock);
-document.getElementById('editorCloseBtn').addEventListener('click', () => closeRecipeEditor());
-document.getElementById('recipeImportUrlBtn').addEventListener('click', () => importRecipeFromUrl());
-document.getElementById('recipeImportImageBtn').addEventListener('click', () => document.getElementById('recipeImportImageInput').click());
-document.getElementById('newRecipeBtn').addEventListener('click', () => newRecipe());
