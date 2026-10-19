@@ -64,7 +64,7 @@ async function deleteStoredKey() {
     });
 }
 
-async function deriveKey(passphrase, salt, iterations = PBKDF2_ITERATIONS) {
+export async function deriveKey(passphrase, salt, iterations = PBKDF2_ITERATIONS) {
     const crypto = getCrypto();
     const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']);
     return crypto.subtle.deriveKey(
@@ -295,5 +295,3 @@ export function encodeBase64(value) {
 export function getSaltFromEnvelope(envelope) {
     return fromBase64(envelope.salt);
 }
-
-export { deriveKey };

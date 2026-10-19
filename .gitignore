@@ -3,6 +3,7 @@ node_modules/
 recipes.json.bak
 recipes.json.tmp
 recipes.json
+/AGENTS.md
 /images/recipes/**/*.jpg
 /images/recipes/**/*.jpeg
 /images/recipes/**/*.png

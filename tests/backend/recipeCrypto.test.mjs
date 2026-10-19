@@ -13,6 +13,7 @@ import {
     prepareEncryptedRecipeSave
 } from '../../js/recipeCrypto.mjs';
 import { migrateRecipeData } from '../../scripts/encrypt-recipe-data.mjs';
+import { restoreEncryptedFiles } from '../../scripts/decrypt-recipe-data.mjs';
 
 const password = 'ein-langes-passwort-mit-mehreren-worten';
 
@@ -147,4 +148,76 @@ test('migration can be rerun to update existing encrypted files', async t => {
     assert.equal(recipes[0].name, 'Neue Suppe');
     assert.equal(await decryptedImage.text(), 'updated image');
     assert.equal(await readFile(imagePath, 'utf8'), 'updated image');
+});
+
+test('migration encrypts local documentation with the recipe archive key', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-docs-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    const sourceDocuments = {
+        'AGENTS.md': '# Private agent instructions'
+    };
+    await writeFile(path.join(root, 'recipes.json'), JSON.stringify({ version: 1, recipes: [] }));
+    for (const [filename, content] of Object.entries(sourceDocuments)) {
+        await writeFile(path.join(root, filename), content);
+    }
+
+    const result = await migrateRecipeData({
+        root,
+        passphrase: password,
+        documentFiles: Object.keys(sourceDocuments)
+    });
+    const envelope = JSON.parse(await readFile(path.join(root, 'recipes.enc'), 'utf8'));
+    const key = await deriveKey(password, getSaltFromEnvelope(envelope), envelope.iterations);
+
+    assert.equal(result.documents, 1);
+    for (const [filename, content] of Object.entries(sourceDocuments)) {
+        const encryptedDocument = await readFile(path.join(root, `${filename}.enc`));
+        assert.equal(await (await decryptAssetBytes(encryptedDocument, key, 'text/plain')).text(), content);
+        assert.equal(await readFile(path.join(root, filename), 'utf8'), content);
+    }
+});
+
+test('local restore decrypts recipe data, media and docs without changing ciphertext', async t => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'find-your-dinner-crypto-restore-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    const imagePath = path.join(root, 'images', 'recipes', 'soup.jpg');
+    const sourceDocuments = {
+        'AGENTS.md': '# Private agent instructions'
+    };
+    await mkdir(path.dirname(imagePath), { recursive: true });
+    await writeFile(imagePath, 'plain image');
+    await writeFile(path.join(root, 'recipes.json'), JSON.stringify({
+        version: 1,
+        recipes: [{ id: 1, name: 'Suppe', images: [{ src: 'images/recipes/soup.jpg' }] }]
+    }));
+    for (const [filename, content] of Object.entries(sourceDocuments)) {
+        await writeFile(path.join(root, filename), content);
+    }
+
+    await migrateRecipeData({
+        root,
+        passphrase: password,
+        documentFiles: Object.keys(sourceDocuments)
+    });
+    const encryptedRecipesBefore = await readFile(path.join(root, 'recipes.enc'));
+    const encryptedImageBefore = await readFile(`${imagePath}.enc`);
+    await rm(path.join(root, 'recipes.json'));
+    await rm(imagePath);
+    for (const filename of Object.keys(sourceDocuments)) await rm(path.join(root, filename));
+
+    const result = await restoreEncryptedFiles({ root, passphrase: password });
+    const restoredRecipes = JSON.parse(await readFile(path.join(root, 'recipes.json'), 'utf8'));
+
+    assert.equal(result.recipes, 1);
+    assert.equal(result.mediaFiles, 1);
+    assert.equal(result.documents, 1);
+    assert.equal(restoredRecipes.recipes[0].name, 'Suppe');
+    assert.equal(restoredRecipes.recipes[0].images[0].src, 'images/recipes/soup.jpg');
+    assert.equal(await readFile(imagePath, 'utf8'), 'plain image');
+    for (const [filename, content] of Object.entries(sourceDocuments)) {
+        assert.equal(await readFile(path.join(root, filename), 'utf8'), content);
+    }
+    assert.deepEqual(await readFile(path.join(root, 'recipes.enc')), encryptedRecipesBefore);
+    assert.deepEqual(await readFile(`${imagePath}.enc`), encryptedImageBefore);
+    await assert.rejects(restoreEncryptedFiles({ root, passphrase: password }), /bereits/);
 });

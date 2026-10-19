@@ -149,7 +149,14 @@ async function listMediaFiles(directory, relativeDirectory = '') {
     return files;
 }
 
-async function migrateRecipeData({ root = rootDirectory, passphrase, recipesPath, deletePlaintext = false, onProgress = () => {} } = {}) {
+async function migrateRecipeData({
+    root = rootDirectory,
+    passphrase,
+    recipesPath,
+    documentFiles = [],
+    deletePlaintext = false,
+    onProgress = () => {}
+} = {}) {
     if (typeof passphrase !== 'string' || passphrase.length < minimumPassphraseLength) {
         throw new Error(`Das Passwort muss mindestens ${minimumPassphraseLength} Zeichen lang sein.`);
     }
@@ -175,7 +182,7 @@ async function migrateRecipeData({ root = rootDirectory, passphrase, recipesPath
         const videoCount = typeof recipe.video?.src === 'string' && recipe.video.src.startsWith('data:video/') ? 1 : 0;
         return count + imageCount + videoCount;
     }, 0);
-    const total = recipes.length + mediaFiles.length + embeddedAssetCount + 1;
+    const total = recipes.length + mediaFiles.length + embeddedAssetCount + documentFiles.length + 1;
     let completed = 0;
     const advanceProgress = () => onProgress({ completed: ++completed, total });
     onProgress({ completed, total });
@@ -228,6 +235,15 @@ async function migrateRecipeData({ root = rootDirectory, passphrase, recipesPath
             await encryptReferencedAsset(root, src, null, key, stagedFiles, encryptedAssets, advanceProgress);
         }
 
+        for (const filename of documentFiles) {
+            if (path.basename(filename) !== filename) throw new Error(`Ungültiger Dokumentpfad: ${filename}`);
+            const sourcePath = path.join(root, filename);
+            const bytes = await fs.readFile(sourcePath);
+            const encrypted = await encryptAssetBytes(bytes, key);
+            await stageEncryptedFile(`${sourcePath}.enc`, encrypted, stagedFiles);
+            advanceProgress();
+        }
+
         const envelope = await encryptRecipeEnvelope(recipes, key, salt, randomUUID());
         await stageEncryptedFile(destinationRecipesPath, `${JSON.stringify(envelope)}\n`, stagedFiles);
         const committedFiles = await commitStagedFiles(stagedFiles);
@@ -238,11 +254,18 @@ async function migrateRecipeData({ root = rootDirectory, passphrase, recipesPath
             for (const src of mediaFiles) {
                 await fs.unlink(safeRecipeAssetPath(root, src, src.startsWith('images/') ? 'images/recipes' : 'videos/recipes'));
             }
+            for (const filename of documentFiles) {
+                await fs.unlink(path.join(root, filename));
+            }
         }
         for (const committedFile of committedFiles) {
             if (committedFile.backupPath) await fs.unlink(committedFile.backupPath);
         }
-        return { mediaFiles: stagedFiles.length - 1, recipes: recipes.length };
+        return {
+            mediaFiles: stagedFiles.length - documentFiles.length - 1,
+            documents: documentFiles.length,
+            recipes: recipes.length
+        };
     } catch (error) {
         if (!archiveCommitted) {
             for (const file of stagedFiles) {
@@ -290,6 +313,7 @@ async function main() {
         result = await migrateRecipeData({
             passphrase: first,
             deletePlaintext,
+            documentFiles: ['AGENTS.md'],
             onProgress: ({ completed, total }) => {
                 progressDisplayed = true;
                 const percentage = total === 0 ? 100 : Math.floor(completed / total * 100);
@@ -306,7 +330,7 @@ async function main() {
     const plaintextMessage = deletePlaintext
         ? 'Die lokalen Klartext-Quelldateien wurden gelöscht.'
         : 'Die lokalen Klartext-Quelldateien blieben erhalten.';
-    process.stdout.write(`Verschlüsselung abgeschlossen: ${result.recipes} Rezepte und ${result.mediaFiles} Mediendateien. ${plaintextMessage}\n`);
+    process.stdout.write(`Verschlüsselung abgeschlossen: ${result.recipes} Rezepte, ${result.mediaFiles} Mediendateien und ${result.documents} interne Dokumente. ${plaintextMessage}\n`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
