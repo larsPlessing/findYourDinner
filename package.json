@@ -5,7 +5,7 @@
     "serve": "node --env-file-if-exists=.env server.mjs",
     "encrypt:recipes": "node scripts/encrypt-recipe-data.mjs",
     "decrypt:recipes": "node scripts/decrypt-recipe-data.mjs",
-    "install:instagram-browser": "playwright install chromium",
+    "install:media-browser": "playwright install chromium",
     "test": "node --test",
     "test:backend": "node --test \"tests/backend/*.test.mjs\"",
     "test:ui": "node --test \"tests/ui/*.test.mjs\" \"tests/ui/css/*.test.mjs\"",
