@@ -6,7 +6,6 @@ let allRecipes = [];
 let filteredRecipes = [];
 let currentCategory = 'Salzig';
 let healthyOnly = false;
-let recipeImageObserver = null;
 
 const searchInput = document.getElementById('searchInput');
 const masonryGrid = document.getElementById('masonryGrid');
@@ -231,34 +230,18 @@ async function displayRecipes() {
 
     masonryGrid.appendChild(fragment);
 
-    // Lade echte Bilder asynchron
+    // Lade alle echten Bilder asynchron, damit die Übersicht nicht bei Platzhaltern bleibt.
     loadRecipeImages();
 }
 
 async function loadRecipeImages() {
-    // Chrome iOS optimization: Load images in batches with IntersectionObserver
-    recipeImageObserver?.disconnect();
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const imageEl = entry.target;
-                const recipe = imageEl.dataset.recipeId
-                    ? generator.getRecipeById(imageEl.dataset.recipeId)
-                    : generator.getRecipeByName(imageEl.dataset.recipeName);
-                if (recipe) loadSingleRecipeImage(recipe, imageEl);
-                observer.unobserve(imageEl);
-            }
-        });
-    }, {
-        root: null,
-        rootMargin: '50px', // Start loading 50px before visible
-        threshold: 0.01
-    });
-    recipeImageObserver = observer;
-
-    // Observe all recipe images
-    const recipeImages = document.querySelectorAll('[data-recipe-id], [data-recipe-name]');
-    recipeImages.forEach(img => observer.observe(img));
+    const imageElements = [...document.querySelectorAll('[data-recipe-id], [data-recipe-name]')];
+    await Promise.all(imageElements.map(imageEl => {
+        const recipe = imageEl.dataset.recipeId
+            ? generator.getRecipeById(imageEl.dataset.recipeId)
+            : generator.getRecipeByName(imageEl.dataset.recipeName);
+        return recipe ? loadSingleRecipeImage(recipe, imageEl) : null;
+    }));
 }
 
 async function loadSingleRecipeImage(recipe, imageEl) {
@@ -268,26 +251,37 @@ async function loadSingleRecipeImage(recipe, imageEl) {
         if (!imageEl || !recipe) return;
 
         if (imageData && imageData.dataUrl) {
-            // Verwende echtes Bild mit Transformationen
+            // Lade das Bild außerhalb des DOMs und füge es erst nach erfolgreichem Laden ein.
             const img = document.createElement('img');
-            img.src = imageData.dataUrl;
             img.alt = recipe.name;
-            img.loading = 'lazy';
+            img.loading = 'eager';
             img.style.width = '100%';
             img.style.height = '100%';
+            img.onload = () => {
+                if (!imageEl.isConnected) return;
+                imageEl.replaceChildren(img);
+                imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
+            };
+            img.onerror = () => {
+                if (!imageEl.isConnected) return;
+                const placeholder = document.createElement('img');
+                placeholder.src = generatePlaceholderImage(recipe.name, getRecipeEmoji(recipe.name));
+                placeholder.alt = recipe.name;
+                placeholder.loading = 'eager';
+                placeholder.style.width = '100%';
+                placeholder.style.height = '100%';
+                imageEl.replaceChildren(placeholder);
+            };
             // Wende Transformationen an
             applyImageTransform(img, imageData.transform);
-
-            imageEl.innerHTML = '';
-            imageEl.appendChild(img);
-            imageEl.classList.remove('gradient-1', 'gradient-2', 'gradient-3', 'gradient-4', 'gradient-5', 'gradient-6', 'gradient-7', 'gradient-8');
+            img.src = imageData.dataUrl;
         } else {
             // Generiere Placeholder
             const placeholder = generatePlaceholderImage(recipe.name, getRecipeEmoji(recipe.name));
             const img = document.createElement('img');
             img.src = placeholder;
             img.alt = recipe.name;
-            img.loading = 'lazy';
+            img.loading = 'eager';
             img.style.width = '100%';
             img.style.height = '100%';
 
@@ -295,7 +289,14 @@ async function loadSingleRecipeImage(recipe, imageEl) {
             imageEl.appendChild(img);
         }
     } catch (error) {
-        console.warn(`Bild für ${recipe.name} konnte nicht geladen werden:`, error);
+        if (!imageEl?.isConnected) return;
+        const placeholder = document.createElement('img');
+        placeholder.src = generatePlaceholderImage(recipe.name, getRecipeEmoji(recipe.name));
+        placeholder.alt = recipe.name;
+        placeholder.loading = 'eager';
+        placeholder.style.width = '100%';
+        placeholder.style.height = '100%';
+        imageEl.replaceChildren(placeholder);
     }
 }
 

@@ -11,6 +11,7 @@ const homepageJs = fs.readFileSync(path.resolve(__dirname, '../../js/indexPage.m
 const generatorJs = fs.readFileSync(path.resolve(__dirname, '../../js/recipeGenerator.mjs'), 'utf8');
 const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../manifest.json'), 'utf8'));
 const maskableIcon = fs.readFileSync(path.resolve(__dirname, '../../images/icon-maskable.svg'), 'utf8');
+const recipes = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../recipes.json'), 'utf8')).recipes;
 
 test('homepage provides the DOM elements used by recipe browsing', () => {
     for (const id of ['searchInput', 'categoryFilter', 'masonryGrid', 'loadingState']) {
@@ -61,11 +62,50 @@ test('homepage uses the encrypted source and offers local file selection', () =>
     assert.match(homepageJs, /loadRecipesFile\(file\)/);
 });
 
-test('homepage reuses one image observer and logs image failures with the current recipe name', () => {
-    assert.match(homepageJs, /let recipeImageObserver = null/);
-    assert.match(homepageJs, /recipeImageObserver\?\.disconnect\(\)/);
-    assert.match(homepageJs, /Bild für \$\{recipe\.name\} konnte nicht geladen werden/);
+test('homepage preloads real recipe images before displaying them', () => {
+    assert.match(homepageJs, /Promise\.all\(imageElements\.map/);
+    assert.match(homepageJs, /img\.loading = ['"]eager['"]/);
+    assert.match(homepageJs, /img\.onload = \(\) => \{/);
+    assert.match(homepageJs, /img\.src = imageData\.dataUrl/);
+    assert.match(homepageJs, /imageEl\.replaceChildren\(img\)/);
     assert.doesNotMatch(homepageJs, /Bild für \$\{recipeName\}/);
+});
+
+test('every checked-in recipe image is a valid app asset', () => {
+    const recipeImageRoot = path.resolve(__dirname, '../../images/recipes');
+    const imageReferences = recipes.flatMap(recipe => Array.isArray(recipe.images) ? recipe.images : [])
+        .map(image => image?.src)
+        .filter(Boolean);
+
+    assert.ok(imageReferences.length > 0, 'recipes.json should reference at least one image');
+
+    for (const source of new Set(imageReferences)) {
+        assert.match(source, /^images\/recipes\/[^/\\]+\.(?:jpe?g|png|webp|enc)$/i,
+            `unsupported recipe image source: ${source}`);
+
+        const assetPath = path.resolve(__dirname, '../..', source);
+        assert.equal(assetPath.startsWith(`${recipeImageRoot}${path.sep}`), true,
+            `recipe image must stay inside images/recipes: ${source}`);
+        assert.equal(fs.existsSync(assetPath), true, `missing recipe image: ${source}`);
+
+        const bytes = fs.readFileSync(assetPath);
+        assert.ok(bytes.length > 0, `empty recipe image: ${source}`);
+
+        if (source.endsWith('.enc')) {
+            assert.ok(bytes.length > 12, `encrypted recipe image has no ciphertext: ${source}`);
+        } else if (/\.png$/i.test(source)) {
+            assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10],
+                `invalid PNG image: ${source}`);
+        } else if (/\.jpe?g$/i.test(source)) {
+            assert.deepEqual([...bytes.subarray(0, 3)], [255, 216, 255],
+                `invalid JPEG image: ${source}`);
+        } else {
+            assert.deepEqual([...bytes.subarray(0, 4)], [82, 73, 70, 70],
+                `invalid WebP image: ${source}`);
+            assert.deepEqual([...bytes.subarray(8, 12)], [87, 69, 66, 80],
+                `invalid WebP image: ${source}`);
+        }
+    }
 });
 
 test('manifest reserves maskable purpose for a dedicated non-emoji icon', () => {
