@@ -1,10 +1,16 @@
 .recipe-unlock-dialog {
-    width: min(440px, calc(100% - 32px));
+    box-sizing: border-box;
+    width: min(440px, calc(100vw - 32px));
     max-width: none;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    overflow-y: auto;
     border: 0;
     border-radius: 16px;
-    padding: 28px;
+    padding: clamp(18px, 5vw, 28px);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+    overscroll-behavior: contain;
 }
 
 .recipe-unlock-dialog::backdrop {
@@ -31,6 +37,7 @@
 }
 
 .recipe-unlock-dialog button {
+    min-height: 44px;
     padding: 11px 14px;
     border: 0;
     border-radius: 8px;
@@ -48,4 +55,14 @@
 .recipe-unlock-error {
     min-height: 1.25em;
     color: #b42318;
+}
+
+@media (max-width: 480px) {
+    .recipe-unlock-dialog {
+        width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 14px;
+        padding: 22px;
+    }
 }
