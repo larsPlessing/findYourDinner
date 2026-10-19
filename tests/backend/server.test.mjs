@@ -137,7 +137,7 @@ test('save API cleans only orphaned media and preserves dotfiles', async t => {
 test('oversized requests receive HTTP 413 without destroying the request before the response', async t => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
     const { server } = await startTestServer(t, root);
-    const bodySize = 60 * 1024 * 1024 + 1;
+    const bodySize = 128 * 1024 * 1024 + 1;
     const statusCode = await new Promise((resolve, reject) => {
         const request = http.request({
             hostname: '127.0.0.1',
@@ -162,6 +162,32 @@ test('oversized requests receive HTTP 413 without destroying the request before 
     });
 
     assert.equal(statusCode, 413);
+});
+
+test('save API accepts two 20 MB videos with encrypted and plaintext copies', async t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'find-your-dinner-'));
+    const { origin, headers } = await startTestServer(t, root);
+    const videoBytes = Buffer.alloc(20 * 1024 * 1024, 7);
+    const encodedVideo = videoBytes.toString('base64');
+    const encryptedFiles = ['videos/recipes/first.enc', 'videos/recipes/second.enc'];
+    const plainFiles = ['videos/recipes/first.mp4', 'videos/recipes/second.mp4'];
+    const body = JSON.stringify(makeSavePayload({
+        envelopeRevision: 'large-save',
+        mediaFiles: encryptedFiles.map(src => ({ src, data: encodedVideo })),
+        referencedFiles: encryptedFiles,
+        plainMediaFiles: plainFiles.map(src => ({ src, data: encodedVideo })),
+        plainReferencedFiles: plainFiles
+    }));
+
+    assert.ok(Buffer.byteLength(body) > 60 * 1024 * 1024);
+    assert.ok(Buffer.byteLength(body) < 128 * 1024 * 1024);
+    const response = await fetch(`${origin}/api/save-recipes`, { method: 'POST', headers, body });
+
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).savedMedia, 2);
+    for (const relativePath of [...encryptedFiles, ...plainFiles]) {
+        assert.equal(fs.statSync(path.join(root, relativePath)).size, videoBytes.length);
+    }
 });
 
 test('save API rejects cross-origin, missing-origin and non-JSON requests', async t => {

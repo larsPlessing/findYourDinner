@@ -8,7 +8,7 @@ import { importRecipe } from './server/recipeImporter.mjs';
 const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 const host = '127.0.0.1';
 const port = Number(process.env.PORT || 4004);
-const maxRequestBytes = 60 * 1024 * 1024;
+const maxRequestBytes = 128 * 1024 * 1024;
 
 const contentTypes = {
     '.css': 'text/css; charset=utf-8',
